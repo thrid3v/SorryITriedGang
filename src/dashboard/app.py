@@ -47,17 +47,14 @@ st.markdown("""
 
 
 # ── Cached loaders ───────────────────────────────
-@st.cache_data(ttl=60)
 def load_kpis() -> dict:
     return compute_summary_kpis()
 
 
-@st.cache_data(ttl=60)
 def load_clv() -> pd.DataFrame:
     return compute_clv()
 
 
-@st.cache_data(ttl=60)
 def load_basket() -> pd.DataFrame:
     return compute_market_basket(min_support=2)
 

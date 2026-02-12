@@ -12,8 +12,10 @@ import pandas as pd
 from faker import Faker
 
 fake = Faker()
-Faker.seed(42)
-random.seed(42)
+# Use time-based seeds so each run produces unique data
+_seed = int(datetime.now().timestamp() * 1000) % (2**32)
+Faker.seed(_seed)
+random.seed(_seed)
 
 RAW_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw")
 

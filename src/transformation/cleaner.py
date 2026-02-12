@@ -54,7 +54,8 @@ def clean_transactions():
 
 @retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
 def clean_users():
-    """Deduplicate on user_id (keep latest by signup_date), fill null cities with 'Unknown'."""
+    """Deduplicate on user_id, keeping the LATEST record per user_id (most recent signup_date).
+    This ensures SCD2 sees the latest version of each user from the latest batch."""
     glob_path = _glob("users_*.csv")
     duckdb.sql(f"""
         COPY (
@@ -64,9 +65,9 @@ def clean_users():
                 email::VARCHAR                        AS email,
                 COALESCE(city, 'Unknown')::VARCHAR    AS city,
                 signup_date::DATE                     AS signup_date
-            FROM read_csv('{glob_path}', union_by_name=true, auto_detect=true)
+            FROM read_csv('{glob_path}', union_by_name=true, auto_detect=true, filename=true)
             WHERE user_id IS NOT NULL
-            ORDER BY user_id, signup_date DESC
+            ORDER BY user_id, filename DESC, signup_date DESC
         ) TO '{os.path.join(SILVER_DIR, "users.parquet").replace(chr(92), "/")}' (FORMAT PARQUET)
     """)
     cnt = duckdb.sql(f"""

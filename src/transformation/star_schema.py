@@ -101,6 +101,10 @@ def build_fact_transactions():
     Join Silver transactions with Gold dim tables to produce the fact table.
     Uses duckdb.sql for all joins as per project rules.
     """
+    # Remove old partitions so stale data doesn't persist
+    import shutil
+    if os.path.exists(GOLD_FACT_TXN):
+        shutil.rmtree(GOLD_FACT_TXN)
     duckdb.sql(f"""
         COPY (
             SELECT
