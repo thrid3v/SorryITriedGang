@@ -6,6 +6,7 @@ Intentionally injects nulls and duplicates to test pipeline resilience.
 import os
 import random
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pandas as pd
 from faker import Faker
@@ -81,6 +82,7 @@ def _generate_transactions(num: int = 100) -> pd.DataFrame:
     rows = []
     for i in range(1, num + 1):
         amount = round(random.uniform(1.0, 1000.0), 2) if random.random() > 0.05 else None
+        quantity = random.randint(1, 10) if random.random() > 0.05 else None
         rows.append({
             "transaction_id": f"TXN_{fake.uuid4()[:8].upper()}",
             "user_id": random.choice(user_ids),
@@ -88,6 +90,7 @@ def _generate_transactions(num: int = 100) -> pd.DataFrame:
             "timestamp": fake.date_time_between(
                 start_date="-30d", end_date="now"
             ).isoformat(),
+            "quantity": quantity,
             "amount": amount,
             "store_id": random.choice(_STORE_IDS),
         })
@@ -125,7 +128,8 @@ def generate_transactions(num: int = 100):
     products_path = os.path.join(RAW_DIR, f"products_{ts}.csv")
     products_df.to_csv(products_path, index=False)
 
-    print(f"[Ingestion] Wrote {len(txn_df)} transactions → {txn_path}")
+    print(f"✅ Generated {len(txn_df)} transactions → {txn_path}")
+    print(f"   📊 Stats: {txn_df.isnull().sum().sum()} NULLs, {txn_df.duplicated().sum()} duplicates")
     print(f"[Ingestion] Wrote {len(users_df)} users → {users_path}")
     print(f"[Ingestion] Wrote {len(products_df)} products → {products_path}")
 
@@ -133,5 +137,6 @@ def generate_transactions(num: int = 100):
 
 
 if __name__ == "__main__":
-    print("Starting Data Generator...")
+    print("🚀 Starting Data Generator...")
     generate_transactions(num=200)
+    print("✅ Generation complete!")

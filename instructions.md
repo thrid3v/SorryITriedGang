@@ -26,4 +26,12 @@ You are an expert Python Data Engineer working on the RetailNexus Lakehouse.
 3. **Dashboard (`src/dashboard`):**
    - READ-ONLY access to `data/gold/`.
    - Use `st.cache_data` for loading Parquet.
+<<<<<<< HEAD
    - Handle missing files gracefully (show "Waiting for Pipeline..." instead of crashing).
+=======
+   - Handle missing files gracefully (show "Waiting for Pipeline..." instead of crashing).
+
+
+
+   
+>>>>>>> refs/remotes/origin/main
