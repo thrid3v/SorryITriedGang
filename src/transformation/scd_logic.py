@@ -6,9 +6,15 @@ effective_date / end_date / is_current flags.
 All joins via duckdb.sql().
 """
 import os
+import sys
 from datetime import date
+from pathlib import Path
 
 import duckdb
+
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from src.utils.retry_utils import retry_with_backoff
 
 _BASE = os.path.join(os.path.dirname(__file__), "..", "..")
 SILVER_DIR = os.path.join(_BASE, "data", "silver")
@@ -22,6 +28,7 @@ def _ensure_gold():
     os.makedirs(GOLD_DIR, exist_ok=True)
 
 
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
 def apply_scd_type_2():
     """
     SCD Type 2 merge for user dimension.

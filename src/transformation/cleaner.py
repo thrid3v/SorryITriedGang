@@ -5,8 +5,14 @@ and writes cleaned Parquet to data/silver/.
 Uses union_by_name=true for schema evolution resilience.
 """
 import os
+import sys
+from pathlib import Path
 
 import duckdb
+
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from src.utils.retry_utils import retry_with_backoff
 
 _BASE = os.path.join(os.path.dirname(__file__), "..", "..")
 RAW_DIR = os.path.join(_BASE, "data", "raw")
@@ -22,6 +28,7 @@ def _glob(pattern: str) -> str:
     return os.path.join(RAW_DIR, pattern).replace("\\", "/")
 
 
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
 def clean_transactions():
     """Deduplicate, drop null PKs, fill null amounts with 0, cast types."""
     glob_path = _glob("transactions_*.csv")
@@ -45,6 +52,7 @@ def clean_transactions():
     print(f"[Cleaner] Silver transactions: {cnt} rows")
 
 
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
 def clean_users():
     """Deduplicate on user_id (keep latest by signup_date), fill null cities with 'Unknown'."""
     glob_path = _glob("users_*.csv")
@@ -67,6 +75,7 @@ def clean_users():
     print(f"[Cleaner] Silver users: {cnt} rows")
 
 
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
 def clean_products():
     """Deduplicate on product_id, fill null prices with 0."""
     glob_path = _glob("products_*.csv")

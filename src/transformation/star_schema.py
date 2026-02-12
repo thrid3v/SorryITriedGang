@@ -5,8 +5,14 @@ from Silver-layer Parquet files.  dim_users is handled by scd_logic.py.
 All transformations via duckdb.sql().
 """
 import os
+import sys
+from pathlib import Path
 
 import duckdb
+
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from src.utils.retry_utils import retry_with_backoff
 
 _BASE = os.path.join(os.path.dirname(__file__), "..", "..")
 SILVER_DIR = os.path.join(_BASE, "data", "silver")
@@ -25,6 +31,7 @@ def _ensure_gold():
     os.makedirs(GOLD_DIR, exist_ok=True)
 
 
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
 def build_dim_products():
     """Straight copy from Silver with a surrogate key."""
     duckdb.sql(f"""
@@ -42,6 +49,7 @@ def build_dim_products():
     print(f"[StarSchema] dim_products: {cnt} rows")
 
 
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
 def build_dim_stores():
     """Extract distinct stores from transactions."""
     duckdb.sql(f"""
@@ -59,6 +67,7 @@ def build_dim_stores():
     print(f"[StarSchema] dim_stores: {cnt} rows")
 
 
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
 def build_dim_dates():
     """Generate a date dimension from the range of transaction timestamps."""
     duckdb.sql(f"""
@@ -86,6 +95,7 @@ def build_dim_dates():
     print(f"[StarSchema] dim_dates: {cnt} rows")
 
 
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
 def build_fact_transactions():
     """
     Join Silver transactions with Gold dim tables to produce the fact table.
@@ -108,9 +118,9 @@ def build_fact_transactions():
                 ON t.product_id = dp.product_id
             LEFT JOIN '{GOLD_DIM_STORES}' ds
                 ON t.store_id = ds.store_id
-        ) TO '{GOLD_FACT_TXN}' (FORMAT PARQUET)
+        ) TO '{GOLD_FACT_TXN}' (FORMAT PARQUET, PARTITION_BY (date_key), OVERWRITE_OR_IGNORE)
     """)
-    cnt = duckdb.sql(f"SELECT COUNT(*) FROM '{GOLD_FACT_TXN}'").fetchone()[0]
+    cnt = duckdb.sql(f"SELECT COUNT(*) FROM read_parquet('{GOLD_FACT_TXN}/**/*.parquet', hive_partitioning=true)").fetchone()[0]
     print(f"[StarSchema] fact_transactions: {cnt} rows")
 
 
