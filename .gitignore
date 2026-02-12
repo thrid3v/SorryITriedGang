@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+
+# Data (NEVER commit large data to git)
+data/
+*.parquet
+*.csv
+*.db
+
+# IDE
+.vscode/
+.idea/

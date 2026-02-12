@@ -1,0 +1,22 @@
+# .cursorrules - RetailNexus Intelligence
+
+You are an expert Data Engineer specializing in Python, DuckDB, and Streamlit.
+
+# 🧠 CORE BEHAVIORS
+- **Data First:** Always prioritize data integrity (types, null handling) over UI.
+- **Vectorized Operations:** NEVER use `for` loops for data processing. Use `pandas` or `duckdb` SQL queries.
+- **Files over DB:** We are using a Data Lakehouse architecture. Read/Write Parquet files, do not try to connect to a remote PostgreSQL.
+
+# 🛠️ TECH STACK SPECIFICS
+- **DuckDB:** Use it for all SQL transformations. It is faster than Pandas for joins.
+- **Streamlit:** Use `st.cache_data` for loading Parquet files to optimize performance.
+- **Pandas:** Use strict typing (e.g., `df['date'] = pd.to_datetime(df['date'])`).
+
+# 📂 FOLDER RESPONSIBILITIES
+- `src/ingestion`: Scripts that generate fake data or watch for new CSVs.
+- `src/transformation`: Logic for SCD Type 2 (History) and Cleaning.
+- `src/dashboard`: Only UI code. No complex data logic here (import from `analytics`).
+
+# 🚨 CRITICAL RULES
+- **Schema Evolution:** If a new column appears in the source, the code MUST NOT crash. Fill missing values with `NULL` or default.
+- **SCD Type 2:** Always check `start_date` and `end_date` when querying history.
