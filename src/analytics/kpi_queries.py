@@ -25,16 +25,16 @@ def compute_clv() -> pd.DataFrame:
     CLV = total_spend per customer, plus average order value and
     purchase frequency.
 
-    🔌 PLACEHOLDER: reads from gold/fact_transactions & gold/dim_customers.
+    🔌 PLACEHOLDER: reads from gold/fact_transactions & gold/dim_users.
        These files will be created by the transformation pipeline (Person B).
     """
-    txn_path = _gold_path("fact_transactions")
-    cust_path = _gold_path("dim_customers")
+    txn_path = str(GOLD_DIR / "fact_transactions.parquet")
+    users_path = str(GOLD_DIR / "dim_users.parquet")
 
     query = f"""
     WITH customer_txns AS (
         SELECT
-            t.user_id,
+            t.user_key,
             COUNT(*)                              AS purchase_count,
             SUM(t.amount)                         AS total_spend,
             AVG(t.amount)                         AS avg_order_value,
@@ -43,13 +43,14 @@ def compute_clv() -> pd.DataFrame:
             DATEDIFF('day',
                      MIN(t.timestamp),
                      MAX(t.timestamp))             AS customer_lifespan_days
-        FROM read_parquet('{txn_path}', hive_partitioning=true) t
-        GROUP BY t.user_id
+        FROM '{txn_path}' t
+        WHERE t.user_key != -1
+        GROUP BY t.user_key
     )
     SELECT
-        ct.user_id,
-        c.name                                    AS customer_name,
-        c.city                                    AS customer_city,
+        u.user_id,
+        u.name                                    AS customer_name,
+        u.city                                    AS customer_city,
         ct.purchase_count,
         ROUND(ct.total_spend, 2)                  AS total_spend,
         ROUND(ct.avg_order_value, 2)              AS avg_order_value,
@@ -63,16 +64,15 @@ def compute_clv() -> pd.DataFrame:
             2
         )                                         AS estimated_clv
     FROM customer_txns ct
-    LEFT JOIN read_parquet('{cust_path}', hive_partitioning=true) c
-        ON ct.user_id = c.user_id
-           AND c.is_current = true
+    LEFT JOIN '{users_path}' u
+        ON ct.user_key = u.surrogate_key
+           AND u.is_current = true
     ORDER BY estimated_clv DESC
     """
     try:
         return duckdb.sql(query).df()
-    except FileNotFoundError:
-        print("[WARN] Gold data not yet available for CLV. "
-              "Run the transformation pipeline first.")
+    except Exception as e:
+        print(f"[WARN] Gold data not yet available for CLV: {e}")
         return pd.DataFrame(columns=[
             "user_id", "customer_name", "customer_city",
             "purchase_count", "total_spend", "avg_order_value",
@@ -90,19 +90,20 @@ def compute_market_basket(min_support: int = 3) -> pd.DataFrame:
     🔌 PLACEHOLDER: reads from gold/fact_transactions & gold/dim_products.
        These files will be created by the transformation pipeline (Person B).
     """
-    txn_path  = _gold_path("fact_transactions")
-    prod_path = _gold_path("dim_products")
+    txn_path  = str(GOLD_DIR / "fact_transactions.parquet")
+    prod_path = str(GOLD_DIR / "dim_products.parquet")
 
     query = f"""
     WITH basket AS (
         SELECT
             t1.transaction_id,
-            t1.product_id AS product_a,
-            t2.product_id AS product_b
-        FROM read_parquet('{txn_path}', hive_partitioning=true) t1
-        JOIN read_parquet('{txn_path}', hive_partitioning=true) t2
+            t1.product_key AS product_a,
+            t2.product_key AS product_b
+        FROM '{txn_path}' t1
+        JOIN '{txn_path}' t2
             ON  t1.transaction_id = t2.transaction_id
-            AND t1.product_id < t2.product_id          -- avoid self & duplicates
+            AND t1.product_key < t2.product_key          -- avoid self & duplicates
+        WHERE t1.product_key != -1 AND t2.product_key != -1
     ),
     pair_counts AS (
         SELECT
@@ -114,23 +115,22 @@ def compute_market_basket(min_support: int = 3) -> pd.DataFrame:
         HAVING COUNT(*) >= {min_support}
     )
     SELECT
-        pa.name  AS product_a_name,
-        pb.name  AS product_b_name,
+        pa.product_name  AS product_a_name,
+        pb.product_name  AS product_b_name,
         pc.times_bought_together,
         pc.product_a,
         pc.product_b
     FROM pair_counts pc
-    LEFT JOIN read_parquet('{prod_path}', hive_partitioning=true) pa
-        ON pc.product_a = pa.product_id
-    LEFT JOIN read_parquet('{prod_path}', hive_partitioning=true) pb
-        ON pc.product_b = pb.product_id
+    LEFT JOIN '{prod_path}' pa
+        ON pc.product_a = pa.product_key
+    LEFT JOIN '{prod_path}' pb
+        ON pc.product_b = pb.product_key
     ORDER BY pc.times_bought_together DESC
     """
     try:
         return duckdb.sql(query).df()
-    except FileNotFoundError:
-        print("[WARN] Gold data not yet available for Market Basket. "
-              "Run the transformation pipeline first.")
+    except Exception as e:
+        print(f"[WARN] Gold data not yet available for Market Basket: {e}")
         return pd.DataFrame(columns=[
             "product_a_name", "product_b_name",
             "times_bought_together", "product_a", "product_b",
@@ -146,22 +146,23 @@ def compute_summary_kpis() -> dict:
 
     🔌 PLACEHOLDER: depends on gold/fact_transactions & gold/dim_products.
     """
-    txn_path = _gold_path("fact_transactions")
+    txn_path = str(GOLD_DIR / "fact_transactions.parquet")
 
     try:
         row = duckdb.sql(f"""
             SELECT
                 ROUND(SUM(amount), 2)           AS total_revenue,
-                COUNT(DISTINCT user_id)         AS active_users,
+                COUNT(DISTINCT user_key)        AS active_users,
                 COUNT(DISTINCT transaction_id)  AS total_orders
-            FROM read_parquet('{txn_path}', hive_partitioning=true)
+            FROM '{txn_path}'
+            WHERE user_key != -1
         """).df().iloc[0]
         return {
             "total_revenue": row["total_revenue"],
             "active_users":  int(row["active_users"]),
             "total_orders":  int(row["total_orders"]),
         }
-    except FileNotFoundError:
+    except Exception:
         return {"total_revenue": 0.0, "active_users": 0, "total_orders": 0}
 
 

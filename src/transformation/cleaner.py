@@ -27,7 +27,7 @@ def clean_transactions():
     glob_path = _glob("transactions_*.csv")
     duckdb.sql(f"""
         COPY (
-            SELECT DISTINCT ON (transaction_id)
+            SELECT DISTINCT ON (transaction_id, product_id)
                 transaction_id::VARCHAR   AS transaction_id,
                 user_id::VARCHAR          AS user_id,
                 product_id::VARCHAR       AS product_id,
@@ -35,8 +35,8 @@ def clean_transactions():
                 COALESCE(amount, 0)::DOUBLE AS amount,
                 store_id::VARCHAR         AS store_id
             FROM read_csv('{glob_path}', union_by_name=true, auto_detect=true)
-            WHERE transaction_id IS NOT NULL
-            ORDER BY transaction_id, timestamp
+            WHERE transaction_id IS NOT NULL AND product_id IS NOT NULL
+            ORDER BY transaction_id, product_id, timestamp
         ) TO '{os.path.join(SILVER_DIR, "transactions.parquet").replace(chr(92), "/")}' (FORMAT PARQUET)
     """)
     cnt = duckdb.sql(f"""

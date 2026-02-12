@@ -75,25 +75,40 @@ def _generate_products(num_products: int = _PRODUCT_POOL_SIZE) -> pd.DataFrame:
 
 
 def _generate_transactions(num: int = 100) -> pd.DataFrame:
-    """Generate transaction records with ~5% null amounts and ~3% duplicate rows."""
+    """
+    Generate transaction records with multiple products per transaction (shopping carts).
+    Each transaction has 2-5 products (weighted toward 2-3). Includes ~5% null amounts and ~3% duplicate rows.
+    """
     user_ids = [f"USR_{i:04d}" for i in range(1, _USER_POOL_SIZE + 1)]
     product_ids = [f"PRD_{i:04d}" for i in range(1, _PRODUCT_POOL_SIZE + 1)]
 
     rows = []
+    
+    # Generate 'num' transactions (shopping carts)
     for i in range(1, num + 1):
-        amount = round(random.uniform(1.0, 1000.0), 2) if random.random() > 0.05 else None
-        quantity = random.randint(1, 10) if random.random() > 0.05 else None
-        rows.append({
-            "transaction_id": f"TXN_{fake.uuid4()[:8].upper()}",
-            "user_id": random.choice(user_ids),
-            "product_id": random.choice(product_ids),
-            "timestamp": fake.date_time_between(
-                start_date="-30d", end_date="now"
-            ).isoformat(),
-            "quantity": quantity,
-            "amount": amount,
-            "store_id": random.choice(_STORE_IDS),
-        })
+        transaction_id = f"TXN_{fake.uuid4()[:8].upper()}"
+        user_id = random.choice(user_ids)
+        store_id = random.choice(_STORE_IDS)
+        timestamp = fake.date_time_between(start_date="-30d", end_date="now").isoformat()
+        
+        # Each transaction has 2-5 products (weighted: 2=40%, 3=30%, 4=20%, 5=10%)
+        num_products = random.choices([2, 3, 4, 5], weights=[40, 30, 20, 10], k=1)[0]
+        selected_products = random.sample(product_ids, num_products)
+        
+        # Create a row for each product in the cart
+        for product_id in selected_products:
+            amount = round(random.uniform(1.0, 1000.0), 2) if random.random() > 0.05 else None
+            quantity = random.randint(1, 10) if random.random() > 0.05 else None
+            
+            rows.append({
+                "transaction_id": transaction_id,  # Same for all products in cart
+                "user_id": user_id,
+                "product_id": product_id,
+                "timestamp": timestamp,
+                "quantity": quantity,
+                "amount": amount,
+                "store_id": store_id,
+            })
 
     df = pd.DataFrame(rows)
 

@@ -196,15 +196,13 @@ elif page == "🛒 Market Basket":
     basket_df = load_basket()
 
     if basket_df.empty:
-        st.warning(
-            "⏳ **Waiting for Pipeline…** "
-            "Gold-layer Parquet files not found. "
-            "Ensure `data/gold/fact_transactions/` and "
-            "`data/gold/dim_products/` contain data."
-        )
-        st.markdown(
-            "**🔌 Placeholder columns expected:**\n"
-            "`product_a_name`, `product_b_name`, `times_bought_together`"
+        st.info(
+            "📦 **No Product Pairs Found** \n\n"
+            "Market basket analysis requires transactions with **multiple products**. "
+            "The current data model has one product per transaction.\n\n"
+            "**To enable market basket analysis:**\n"
+            "- Modify the ingestion generator to create transactions with multiple products\n"
+            "- Or aggregate by user/time window to find products bought in the same session"
         )
     else:
         # Heatmap-style bar
