@@ -5,6 +5,7 @@ Exposes analytics endpoints that reuse existing kpi_queries.py functions.
 Serves data to the React frontend.
 """
 import sys
+import os
 import asyncio
 import subprocess
 from pathlib import Path
@@ -247,13 +248,19 @@ async def start_stream():
         raise HTTPException(status_code=409, detail="Stream is already running")
     
     try:
+        # On Windows, the default charmap codec (cp1252) can't encode emoji
+        # characters used in the generator/processor print() statements.
+        # Setting PYTHONIOENCODING=utf-8 prevents UnicodeEncodeError crashes.
+        env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+        
         # Start generator
         generator_proc = subprocess.Popen(
             [sys.executable, str(PROJECT_ROOT / "src" / "ingestion" / "stream_generator.py"),
              "--interval", "5"],
             cwd=str(PROJECT_ROOT),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            env=env
         )
         
         # Start processor
@@ -261,8 +268,9 @@ async def start_stream():
             [sys.executable, str(PROJECT_ROOT / "src" / "ingestion" / "stream_processor.py"),
              "--interval", "10"],
             cwd=str(PROJECT_ROOT),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            env=env
         )
         
         stream_state["status"] = "running"
