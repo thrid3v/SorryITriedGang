@@ -52,7 +52,7 @@ def generate_order_event() -> dict:
     products = []
     
     for _ in range(num_products):
-        product_id = f"PROD_{random.randint(1, _PRODUCT_POOL_SIZE):03d}"
+        product_id = f"PRD_{random.randint(1, _PRODUCT_POOL_SIZE):04d}"
         amount = round(random.uniform(10, 500), 2)
         
         products.append({
