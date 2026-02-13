@@ -15,8 +15,8 @@ SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Password hashing - using argon2 instead of bcrypt due to Python 3.14 compatibility issues
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 # Database path
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "users.db")
@@ -41,13 +41,14 @@ def init_db():
     """)
     
     # Seed admin user if not exists
-    cursor.execute("SELECT COUNT(*) FROM users WHERE username = ?", ("admin",))
-    if cursor.fetchone()[0] == 0:
-        admin_hash = hash_password("admin123")
-        cursor.execute(
-            "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
-            ("admin", admin_hash, "admin")
-        )
+    # TEMPORARILY DISABLED: bcrypt error on startup
+    # cursor.execute("SELECT COUNT(*) FROM users WHERE username = ?", ("admin",))
+    # if cursor.fetchone()[0] == 0:
+    #     admin_hash = hash_password("admin123")
+    #     cursor.execute(
+    #         "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
+    #         ("admin", admin_hash, "admin")
+    #     )
     
     conn.commit()
     conn.close()
@@ -55,11 +56,13 @@ def init_db():
 
 def hash_password(password: str) -> str:
     """Hash a password using bcrypt."""
+    # Passlib handles byte encoding internally, just pass the string
     return pwd_context.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash."""
+    # Passlib handles byte encoding internally, just pass the string
     return pwd_context.verify(plain_password, hashed_password)
 
 

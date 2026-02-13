@@ -44,7 +44,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStreamStatus = async () => {
       try {
-        const res = await fetch("/api/stream/status");
+        const res = await fetch("http://localhost:8000/api/stream/status");
         if (res.ok) {
           const data = await res.json();
           setStreamStatus(data);
@@ -62,7 +62,11 @@ const Dashboard = () => {
   const handleStartStream = async () => {
     setIsStreamLoading(true);
     try {
-      const res = await fetch("/api/stream/start", { method: "POST" });
+      const token = localStorage.getItem('auth_token');
+      const res = await fetch("http://localhost:8000/api/stream/start", { 
+        method: "POST",
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
       if (res.ok) {
         const data = await res.json();
         toast({
@@ -92,7 +96,11 @@ const Dashboard = () => {
   const handleStopStream = async () => {
     setIsStreamLoading(true);
     try {
-      const res = await fetch("/api/stream/stop", { method: "POST" });
+      const token = localStorage.getItem('auth_token');
+      const res = await fetch("http://localhost:8000/api/stream/stop", { 
+        method: "POST",
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
       if (res.ok) {
         toast({
           title: "Stream Stopped",
@@ -246,8 +254,25 @@ const Dashboard = () => {
       {/* Main content */}
       <main className="flex-1 relative z-10">
         <header className="sticky top-0 z-20 backdrop-blur-xl bg-background/80 border-b border-border/50 px-6 py-4">
-          <h1 className="text-xl font-bold">{tabs.find((t) => t.id === activeTab)?.label}</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Real-time analytics from 50+ retail stores across India</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold">{tabs.find((t) => t.id === activeTab)?.label}</h1>
+              <p className="text-xs text-muted-foreground mt-0.5">Real-time analytics from 50+ retail stores across India</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-sm font-medium">{user?.username}</div>
+                <div className="text-xs text-muted-foreground">
+                  <span className={cn(
+                    "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
+                    user?.role === "admin" ? "bg-primary/10 text-primary" : "bg-secondary/10 text-secondary"
+                  )}>
+                    {user?.role}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </header>
         <div className="p-6">
           {renderTab()}

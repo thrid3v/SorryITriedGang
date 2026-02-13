@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         formData.append('username', username);
         formData.append('password', password);
 
-        const response = await fetch('/api/login', {
+        const response = await fetch('http://localhost:8000/api/login', {
             method: 'POST',
             body: formData,
         });
@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     const register = async (username: string, password: string) => {
-        const response = await fetch('/api/register', {
+        const response = await fetch('http://localhost:8000/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
