@@ -159,11 +159,10 @@ def compute_summary_kpis() -> dict:
     try:
         result = duckdb.sql(f"""
             SELECT
-                SUM(amount)::DOUBLE                   AS total_revenue,
-                COUNT(DISTINCT user_key)::INTEGER     AS active_users,
-                COUNT(DISTINCT transaction_id)::INTEGER AS total_orders
+                SUM(amount)::DOUBLE                                              AS total_revenue,
+                COUNT(DISTINCT user_key) FILTER (WHERE user_key != -1)::INTEGER  AS active_users,
+                COUNT(DISTINCT transaction_id)::INTEGER                          AS total_orders
             FROM read_parquet('{FACT_TXN}', hive_partitioning=true)
-            WHERE user_key != -1
         """).fetchone()
 
         return {
