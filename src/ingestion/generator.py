@@ -199,44 +199,49 @@ def _generate_shipments(num_shipments: int = 50) -> pd.DataFrame:
 
 def main(num_transactions: int = 100):
     """Generate all data files."""
+    import sys
+    # Configure stdout for UTF-8 to handle emoji on Windows
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
+    
     _ensure_raw_dir()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     # Generate transactions
-    print("🚀 Starting Data Generator...")
+    print("[START] Starting Data Generator...")
     txn_df = _generate_transactions(num_transactions)
     txn_path = os.path.join(RAW_DIR, f"transactions_{timestamp}.csv")
     txn_df.to_csv(txn_path, index=False)
     null_count = txn_df["amount"].isna().sum()
     dupe_count = txn_df.duplicated(subset=["transaction_id", "product_id"]).sum()
-    print(f"✅ Generated {num_transactions} transactions → {txn_path}")
-    print(f"   📊 Stats: {null_count} NULLs, {dupe_count} duplicates")
+    print(f"[OK] Generated {num_transactions} transactions -> {txn_path}")
+    print(f"     Stats: {null_count} NULLs, {dupe_count} duplicates")
 
     # Generate users
     users_df = _generate_users()
     users_path = os.path.join(RAW_DIR, f"users_{timestamp}.csv")
     users_df.to_csv(users_path, index=False)
-    print(f"[Ingestion] Wrote {len(users_df)} users → {users_path}")
+    print(f"[Ingestion] Wrote {len(users_df)} users -> {users_path}")
 
     # Generate products
     products_df = _generate_products()
     products_path = os.path.join(RAW_DIR, f"products_{timestamp}.csv")
     products_df.to_csv(products_path, index=False)
-    print(f"[Ingestion] Wrote {len(products_df)} products → {products_path}")
+    print(f"[Ingestion] Wrote {len(products_df)} products -> {products_path}")
 
     # Generate inventory
     inventory_df = _generate_inventory()
     inventory_path = os.path.join(RAW_DIR, f"inventory_{timestamp}.csv")
     inventory_df.to_csv(inventory_path, index=False)
-    print(f"[Ingestion] Wrote {len(inventory_df)} inventory records → {inventory_path}")
+    print(f"[Ingestion] Wrote {len(inventory_df)} inventory records -> {inventory_path}")
 
     # Generate shipments
     shipments_df = _generate_shipments(num_shipments=max(10, num_transactions // 2))
     shipments_path = os.path.join(RAW_DIR, f"shipments_{timestamp}.csv")
     shipments_df.to_csv(shipments_path, index=False)
-    print(f"[Ingestion] Wrote {len(shipments_df)} shipments → {shipments_path}")
+    print(f"[Ingestion] Wrote {len(shipments_df)} shipments -> {shipments_path}")
 
-    print("✅ Generation complete!")
+    print("[OK] Generation complete!")
 
 
 if __name__ == "__main__":

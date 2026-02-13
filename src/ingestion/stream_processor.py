@@ -54,7 +54,7 @@ def read_new_events() -> List[Dict]:
                     event = json.loads(line.strip())
                     events.append(event)
                 except json.JSONDecodeError:
-                    print(f"⚠️  Skipping malformed event at line {i}")
+                    print(f"[WARN] Skipping malformed event at line {i}")
     
     return events
 
@@ -93,7 +93,7 @@ def append_to_bronze_csv(events: List[Dict]):
             writer.writeheader()
             writer.writerows(rows)
         
-        print(f"✅ Appended {len(rows)} transaction rows to {txn_file.name}")
+        print(f"[OK] Appended {len(rows)} transaction rows to {txn_file.name}")
 
 
 def trigger_incremental_pipeline():
@@ -109,13 +109,13 @@ def trigger_incremental_pipeline():
         from src.transformation.scd_logic import apply_scd_type_2
         from src.transformation.star_schema import build_star_schema
         
-        print("🔄 Running incremental pipeline...")
+        print("[PIPELINE] Running incremental pipeline...")
         clean_all()
         apply_scd_type_2()
         build_star_schema()
-        print("✅ Incremental pipeline complete")
+        print("[OK] Incremental pipeline complete")
     except Exception as e:
-        print(f"❌ Pipeline error: {e}")
+        print(f"[ERROR] Pipeline error: {e}")
 
 
 def process_micro_batch():
@@ -150,7 +150,12 @@ def run_stream_processor(batch_interval: float = 10.0):
         batch_interval: Seconds between micro-batch processing (default: 10s)
     """
     _ensure_dirs()
-    print(f"🔄 Stream Processor started (batch interval: {batch_interval}s)")
+    import sys
+    # Configure stdout for UTF-8 to handle emoji on Windows
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
+    
+    print(f"[PROCESSOR] Stream Processor started (batch interval: {batch_interval}s)")
     
     total_processed = 0
     
@@ -160,12 +165,12 @@ def run_stream_processor(batch_interval: float = 10.0):
             total_processed += events_processed
             
             if events_processed > 0:
-                print(f"📈 Total events processed: {total_processed}")
+                print(f"[STATS] Total events processed: {total_processed}")
             
             time.sleep(batch_interval)
             
     except KeyboardInterrupt:
-        print(f"\n⏹️  Stream Processor stopped ({total_processed} total events)")
+        print(f"\n[STOP] Stream Processor stopped ({total_processed} total events)")
 
 
 if __name__ == "__main__":

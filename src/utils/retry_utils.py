@@ -38,15 +38,15 @@ def retry_with_backoff(
                     return func(*args, **kwargs)
                 except exceptions as e:
                     if attempt == max_attempts:
-                        print(f"[RETRY] ❌ Failed after {max_attempts} attempts: {e}")
+                        print(f"[RETRY] [ERROR] Failed after {max_attempts} attempts: {e}")
                         raise
                     
                     # Add jitter to avoid thundering herd
                     jitter = random.uniform(0, 0.1 * delay)
                     sleep_time = delay + jitter
                     
-                    print(f"[RETRY] ⚠️  Attempt {attempt}/{max_attempts} failed: {e}")
-                    print(f"[RETRY] 🔄 Retrying in {sleep_time:.2f}s...")
+                    print(f"[RETRY] [WARN] Attempt {attempt}/{max_attempts} failed: {e}")
+                    print(f"[RETRY] Retrying in {sleep_time:.2f}s...")
                     time.sleep(sleep_time)
                     delay *= backoff_factor
             

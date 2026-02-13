@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, Package, Users, Truck, Shield, Settings, Activity, ArrowLeft } from "lucide-react";
+import { TrendingUp, Package, Users, Truck, Shield, Settings, Activity, ArrowLeft, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SalesTab from "@/components/dashboard/SalesTab";
 import InventoryTab from "@/components/dashboard/InventoryTab";
 import CustomerTab from "@/components/dashboard/CustomerTab";
 import DeliveryTab from "@/components/dashboard/DeliveryTab";
 import DataQualityTab from "@/components/dashboard/DataQualityTab";
+import AskAnalyst from "@/pages/AskAnalyst";
 
 const tabs = [
   { id: "sales", label: "Sales Analytics", icon: TrendingUp },
+  { id: "ai-analyst", label: "AI Analyst", icon: Bot },
   { id: "inventory", label: "Inventory & Ops", icon: Package },
   { id: "customer", label: "Customer Intel", icon: Users },
   { id: "delivery", label: "Delivery & Logistics", icon: Truck },
@@ -25,6 +27,7 @@ const Dashboard = () => {
   const renderTab = () => {
     switch (activeTab) {
       case "sales": return <SalesTab />;
+      case "ai-analyst": return <AskAnalyst />;
       case "inventory": return <InventoryTab />;
       case "customer": return <CustomerTab />;
       case "delivery": return <DeliveryTab />;

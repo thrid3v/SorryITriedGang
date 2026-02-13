@@ -28,62 +28,56 @@ DIM_DATES = str(GOLD_DIR / "dim_dates.parquet").replace("\\", "/")
 
 def get_schema_prompt() -> str:
     """
-    Generate a schema description for the LLM.
-    Reads the Gold Layer structure via DuckDB DESCRIBE.
+    Generate a schema description for the LLM by dynamically introspecting the database.
+    This makes the system scalable to any schema without hardcoding.
     """
     conn = duckdb.connect()
     
-    schema_text = """You have access to the following tables in a retail data warehouse:
-
-TABLE: fact_transactions (Parquet, Hive-partitioned by region)
-  - transaction_id (VARCHAR) — Unique transaction identifier
-  - user_key (INTEGER) — Foreign key to dim_users.surrogate_key
-  - product_key (INTEGER) — Foreign key to dim_products.product_key
-  - store_key (INTEGER) — Foreign key to dim_stores.store_key
-  - amount (DOUBLE) — Transaction value in USD
-  - quantity (INTEGER) — Number of items purchased
-  - timestamp (TIMESTAMP) — Transaction timestamp
-  - region (VARCHAR) — Geographic region (partition column)
-
-TABLE: dim_users
-  - surrogate_key (INTEGER) — Primary key (SCD Type 2)
-  - user_id (VARCHAR) — Business key
-  - name (VARCHAR) — Customer name
-  - email (VARCHAR) — Customer email
-  - city (VARCHAR) — Customer city
-  - valid_from (DATE) — SCD2 start date
-  - valid_to (DATE) — SCD2 end date (NULL if current)
-  - is_current (BOOLEAN) — TRUE for current record
-
-TABLE: dim_products
-  - product_key (INTEGER) — Primary key
-  - product_id (VARCHAR) — Business key
-  - product_name (VARCHAR) — Product name
-  - category (VARCHAR) — Product category
-  - price (DOUBLE) — Product price in USD
-
-TABLE: dim_stores
-  - store_key (INTEGER) — Primary key
-  - store_id (VARCHAR) — Business key
-  - store_name (VARCHAR) — Store name
-  - region (VARCHAR) — Store region
-
-TABLE: dim_dates
-  - date_key (DATE) — Primary key
-  - day_of_week (VARCHAR) — Day name (Monday, Tuesday, etc.)
-  - month (INTEGER) — Month number (1-12)
-  - year (INTEGER) — Year
-
+    schema_parts = ["You have access to the following tables in a retail data warehouse:\n"]
+    
+    # Define tables to introspect
+    tables = {
+        "fact_transactions": f"read_parquet('{FACT_TXN}', hive_partitioning=true)",
+        "dim_users": f"'{DIM_USERS}'",
+        "dim_products": f"'{DIM_PRODUCTS}'",
+        "dim_stores": f"'{DIM_STORES}'",
+        "dim_dates": f"'{DIM_DATES}'",
+    }
+    
+    for table_name, table_path in tables.items():
+        try:
+            # Get schema by selecting 0 rows
+            result = conn.execute(f"SELECT * FROM {table_path} LIMIT 0")
+            
+            schema_parts.append(f"\nTABLE: {table_name}")
+            
+            # Add column information
+            for col_desc in result.description:
+                col_name = col_desc[0]
+                col_type = col_desc[1]
+                # Clean up type name
+                type_str = str(col_type).upper()
+                schema_parts.append(f"  - {col_name} ({type_str})")
+            
+        except Exception as e:
+            # If table doesn't exist or has issues, skip it
+            print(f"[WARN] Could not introspect {table_name}: {e}")
+            continue
+    
+    # Add important context and rules
+    schema_parts.append("""
 IMPORTANT RULES:
 - Always use table aliases for clarity
 - When querying dim_users, filter by is_current = TRUE to get current records only
 - Use read_parquet() with hive_partitioning=true for fact_transactions
+- For dimension tables, use the direct parquet file paths
 - All monetary values are in USD
 - Timestamps are in UTC
-"""
+- Limit results to 100 rows maximum unless specifically asked for more
+""")
     
     conn.close()
-    return schema_text
+    return "\n".join(schema_parts)
 
 
 def generate_sql(question: str) -> str:
@@ -332,14 +326,14 @@ if __name__ == "__main__":
     print("="*60)
     
     if result['error']:
-        print(f"\n❌ Error: {result['error']}")
+        print(f"\n[ERROR] {result['error']}")
     else:
-        print(f"\n📊 SQL Query:\n{result['sql']}\n")
-        print(f"📈 Results ({result['row_count']} rows):")
+        print(f"\n[SQL] SQL Query:\n{result['sql']}\n")
+        print(f"[RESULTS] Results ({result['row_count']} rows):")
         for row in result['data'][:5]:
             print(f"  {row}")
         if result['row_count'] > 5:
             print(f"  ... and {result['row_count'] - 5} more rows")
-        print(f"\n💡 Summary:\n{result['summary']}")
+        print(f"\n[SUMMARY]\n{result['summary']}")
     
     print("\n" + "="*60)

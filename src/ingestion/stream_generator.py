@@ -86,7 +86,12 @@ def run_stream_generator(interval_seconds: float = 5.0, max_events: int = None):
         max_events: Maximum events to generate (None = infinite)
     """
     _ensure_dirs()
-    print(f"🌊 Stream Generator started (interval: {interval_seconds}s)")
+    import sys
+    # Configure stdout for UTF-8 to handle emoji on Windows
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
+    
+    print(f"[STREAM] Stream Generator started (interval: {interval_seconds}s)")
     
     events_generated = 0
     
@@ -97,12 +102,12 @@ def run_stream_generator(interval_seconds: float = 5.0, max_events: int = None):
             append_event(event)
             events_generated += 1
             
-            print(f"📦 Event {events_generated}: {event['transaction_id']} "
+            print(f"[EVENT] Event {events_generated}: {event['transaction_id']} "
                   f"({len(event['products'])} products)")
             
             # Stop if max_events reached
             if max_events and events_generated >= max_events:
-                print(f"✅ Reached max events ({max_events})")
+                print(f"[OK] Reached max events ({max_events})")
                 break
             
             # Random delay to simulate realistic inter-arrival times
@@ -110,7 +115,7 @@ def run_stream_generator(interval_seconds: float = 5.0, max_events: int = None):
             time.sleep(delay)
             
     except KeyboardInterrupt:
-        print(f"\n⏹️  Stream Generator stopped ({events_generated} events generated)")
+        print(f"\n[STOP] Stream Generator stopped ({events_generated} events generated)")
 
 
 if __name__ == "__main__":
