@@ -38,6 +38,25 @@ export async function fetchMarketBasket(minSupport = 2) {
   return response.json();
 }
 
+// Streaming endpoints
+export async function startStream() {
+  const response = await fetch(`${API_BASE_URL}/api/stream/start`, { method: 'POST' });
+  if (!response.ok) throw new Error('Failed to start stream');
+  return response.json();
+}
+
+export async function stopStream() {
+  const response = await fetch(`${API_BASE_URL}/api/stream/stop`, { method: 'POST' });
+  if (!response.ok) throw new Error('Failed to stop stream');
+  return response.json();
+}
+
+export async function getStreamStatus() {
+  const response = await fetch(`${API_BASE_URL}/api/stream/status`);
+  if (!response.ok) throw new Error('Failed to fetch stream status');
+  return response.json();
+}
+
 /**
  * Health check
  * @returns {Promise<Object>}

@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { fetchKPIs, fetchCLV } from '../api';
+import { fetchKPIs, fetchCLV, startStream, stopStream, getStreamStatus } from '../api';
 
 export default function Dashboard() {
   const [kpis, setKpis] = useState(null);
   const [topCustomers, setTopCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [streamStatus, setStreamStatus] = useState({ status: 'stopped', events_in_buffer: 0 });
+  const [streamLoading, setStreamLoading] = useState(false);
 
   useEffect(() => {
     loadData();
+    loadStreamStatus();
     // Auto-refresh every 30 seconds
-    const interval = setInterval(loadData, 30000);
+    const interval = setInterval(() => {
+      loadData();
+      loadStreamStatus();
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -29,6 +35,31 @@ export default function Dashboard() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadStreamStatus() {
+    try {
+      const status = await getStreamStatus();
+      setStreamStatus(status);
+    } catch (err) {
+      console.error('Failed to load stream status:', err);
+    }
+  }
+
+  async function handleToggleStream() {
+    setStreamLoading(true);
+    try {
+      if (streamStatus.status === 'running') {
+        await stopStream();
+      } else {
+        await startStream();
+      }
+      await loadStreamStatus();
+    } catch (err) {
+      alert(`Failed to ${streamStatus.status === 'running' ? 'stop' : 'start'} stream: ${err.message}`);
+    } finally {
+      setStreamLoading(false);
     }
   }
 
@@ -64,6 +95,48 @@ export default function Dashboard() {
         <p className="page-description">
           Real-time analytics from your data lakehouse
         </p>
+      </div>
+
+      {/* Streaming Controls */}
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: '12px',
+        padding: '20px',
+        marginBottom: '24px',
+        color: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600' }}>
+            🌊 Real-Time Ingestion
+          </h3>
+          <p style={{ margin: 0, opacity: 0.9, fontSize: '14px' }}>
+            {streamStatus.status === 'running'
+              ? `Stream active • ${streamStatus.events_in_buffer} events in buffer`
+              : 'Stream stopped • Click to start receiving live orders'}
+          </p>
+        </div>
+        <button
+          onClick={handleToggleStream}
+          disabled={streamLoading}
+          style={{
+            background: streamStatus.status === 'running' ? '#ef4444' : '#10b981',
+            color: 'white',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: streamLoading ? 'not-allowed' : 'pointer',
+            opacity: streamLoading ? 0.6 : 1,
+            transition: 'all 0.2s',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+          }}
+        >
+          {streamLoading ? '...' : streamStatus.status === 'running' ? '⏹️ Stop Stream' : '▶️ Start Stream'}
+        </button>
       </div>
 
       <div className="kpi-grid">

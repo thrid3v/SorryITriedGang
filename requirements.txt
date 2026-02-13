@@ -7,3 +7,4 @@ pyarrow>=15.0.0
 watchdog>=4.0.0  # For real-time file monitoring
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
+psutil>=1.31.0

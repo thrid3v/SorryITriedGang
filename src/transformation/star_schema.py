@@ -109,6 +109,7 @@ def build_fact_transactions():
             COALESCE(du.surrogate_key, -1)                          AS user_key,
             COALESCE(dp.product_key, -1)                            AS product_key,
             COALESCE(ds.store_key, -1)                              AS store_key,
+            COALESCE(ds.region, 'Unknown')                          AS region,
             CAST(STRFTIME(t.timestamp, '%Y%m%d') AS INTEGER)        AS date_key,
             t.timestamp,
             t.amount
@@ -133,12 +134,92 @@ def build_fact_transactions():
     duckdb.sql(f"""
         COPY fact_transactions_temp 
         TO '{GOLD_FACT_TXN}' 
-        (FORMAT PARQUET, PARTITION_BY (date_key), OVERWRITE_OR_IGNORE)
+        (FORMAT PARQUET, PARTITION_BY (region, date_key), OVERWRITE_OR_IGNORE)
     """)
     
     duckdb.sql("DROP TABLE IF EXISTS fact_transactions_temp")
     cnt = duckdb.sql(f"SELECT COUNT(*) FROM read_parquet('{GOLD_FACT_TXN}/**/*.parquet', hive_partitioning=true)").fetchone()[0]
     print(f"[StarSchema] fact_transactions: {cnt} rows")
+
+
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
+def build_fact_inventory():
+    """
+    Build inventory fact table from Silver inventory data.
+    Joins with product and store dimensions.
+    """
+    SILVER_INVENTORY = os.path.join(SILVER_DIR, "inventory.parquet").replace("\\", "/")
+    GOLD_FACT_INVENTORY = os.path.join(GOLD_DIR, "fact_inventory.parquet").replace("\\", "/")
+    
+    duckdb.sql(f"""
+        COPY (
+            SELECT
+                COALESCE(dp.product_key, -1)                     AS product_key,
+                COALESCE(ds.store_key, -1)                       AS store_key,
+                COALESCE(ds.region, 'Unknown')                   AS region,
+                CAST(STRFTIME(i.last_restock_date, '%Y%m%d') AS INTEGER) AS date_key,
+                i.stock_level,
+                i.reorder_point,
+                i.last_restock_date,
+                i.stock_status,
+                CASE 
+                    WHEN i.stock_level <= i.reorder_point THEN TRUE 
+                    ELSE FALSE 
+                END AS needs_reorder,
+                DATEDIFF('day', i.last_restock_date, CURRENT_DATE) AS days_since_restock
+            FROM '{SILVER_INVENTORY}' i
+            LEFT JOIN '{GOLD_DIM_PRODUCTS}' dp
+                ON i.product_id = dp.product_id
+            LEFT JOIN '{GOLD_DIM_STORES}' ds
+                ON i.store_id = ds.store_id
+        ) TO '{GOLD_FACT_INVENTORY}' (FORMAT PARQUET, PARTITION_BY (region, date_key))
+    """)
+    cnt = duckdb.sql(f"SELECT COUNT(*) FROM '{GOLD_FACT_INVENTORY}'").fetchone()[0]
+    print(f"[StarSchema] fact_inventory: {cnt} rows")
+
+
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
+def build_fact_shipments():
+    """
+    Build shipments fact table from Silver shipment data.
+    Joins with store dimensions for origin and destination.
+    """
+    SILVER_SHIPMENTS = os.path.join(SILVER_DIR, "shipments.parquet").replace("\\", "/")
+    GOLD_FACT_SHIPMENTS = os.path.join(GOLD_DIR, "fact_shipments.parquet").replace("\\", "/")
+    
+    duckdb.sql(f"""
+        COPY (
+            SELECT
+                s.shipment_id,
+                s.transaction_id,
+                COALESCE(ds_origin.store_key, -1)                AS origin_store_key,
+                COALESCE(ds_dest.store_key, -1)                  AS dest_store_key,
+                COALESCE(ds_origin.region, 'Unknown')            AS origin_region,
+                COALESCE(ds_dest.region, 'Unknown')              AS dest_region,
+                CAST(STRFTIME(s.shipped_date, '%Y%m%d') AS INTEGER) AS date_key,
+                s.shipped_date,
+                s.delivered_date,
+                s.delivery_days,
+                s.carrier,
+                s.tracking_number,
+                s.status,
+                s.shipping_cost,
+                CASE 
+                    WHEN s.status = 'delivered' AND s.delivery_days <= 3 THEN 'fast'
+                    WHEN s.status = 'delivered' AND s.delivery_days <= 7 THEN 'normal'
+                    WHEN s.status = 'delivered' THEN 'slow'
+                    WHEN s.status = 'delayed' THEN 'delayed'
+                    ELSE 'pending'
+                END AS delivery_category
+            FROM '{SILVER_SHIPMENTS}' s
+            LEFT JOIN '{GOLD_DIM_STORES}' ds_origin
+                ON s.origin_store_id = ds_origin.store_id
+            LEFT JOIN '{GOLD_DIM_STORES}' ds_dest
+                ON s.dest_store_id = ds_dest.store_id
+        ) TO '{GOLD_FACT_SHIPMENTS}' (FORMAT PARQUET, PARTITION_BY (origin_region, date_key))
+    """)
+    cnt = duckdb.sql(f"SELECT COUNT(*) FROM '{GOLD_FACT_SHIPMENTS}'").fetchone()[0]
+    print(f"[StarSchema] fact_shipments: {cnt} rows")
 
 
 def build_star_schema():
@@ -149,6 +230,8 @@ def build_star_schema():
         build_dim_stores()
         build_dim_dates()
         build_fact_transactions()
+        build_fact_inventory()
+        build_fact_shipments()
         print("[StarSchema] Silver -> Gold complete OK")
     except FileNotFoundError as e:
         print(f"[StarSchema] Waiting for Silver data... ({e})")
