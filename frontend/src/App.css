@@ -1,328 +1,42 @@
-/* ═══════════════════════════════════════════════════════════════
-   RetailNexus Dark Mode Design System
-   ═══════════════════════════════════════════════════════════════ */
-
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
-
-:root {
-  /* Colors */
-  --bg-primary: #0a0e1a;
-  --bg-secondary: #111827;
-  --bg-card: #1a2332;
-  --bg-card-hover: #1f2937;
-
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
-
-  --accent-blue: #3b82f6;
-  --accent-purple: #8b5cf6;
-  --accent-green: #10b981;
-  --accent-orange: #f59e0b;
-
-  --border-color: #374151;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-
-  /* Spacing */
-  --sidebar-width: 260px;
-  --header-height: 70px;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family:
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.6;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   Layout
-   ═══════════════════════════════════════════════════════════════ */
-
-.app {
-  display: flex;
-  min-height: 100vh;
-}
-
-.sidebar {
-  width: var(--sidebar-width);
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  height: 100vh;
-  z-index: 100;
-}
-
-.sidebar-header {
-  padding: 2rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.sidebar-header h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
-}
-
-.subtitle {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-weight: 400;
-}
-
-.nav-links {
-  flex: 1;
-  padding: 1.5rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: all 0.2s ease;
-  font-weight: 500;
-}
-
-.nav-link:hover {
-  background: var(--bg-card);
-  color: var(--text-primary);
-}
-
-.nav-link.active {
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-  color: white;
-}
-
-.nav-link .icon {
-  font-size: 1.25rem;
-}
-
-.sidebar-footer {
-  padding: 1.5rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-muted);
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent-green);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.main-content {
-  margin-left: var(--sidebar-width);
-  flex: 1;
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
   padding: 2rem;
-  min-height: 100vh;
+  text-align: center;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   Components
-   ═══════════════════════════════════════════════════════════════ */
-
-.page-header {
-  margin-bottom: 2rem;
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-.page-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.page-description {
-  color: var(--text-secondary);
-  font-size: 1rem;
-}
-
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.kpi-card {
-  background: linear-gradient(
-    135deg,
-    var(--bg-card) 0%,
-    var(--bg-secondary) 100%
-  );
-  border: 1px solid var(--border-color);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.kpi-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
-.kpi-label {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-}
-
-.kpi-value {
-  font-size: 2.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
 }
 
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-  margin-bottom: 1.5rem;
+  padding: 2em;
 }
 
-.card-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-.data-table thead {
-  background: var(--bg-secondary);
-  border-bottom: 2px solid var(--border-color);
-}
-
-.data-table th {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.data-table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.data-table tbody tr:hover {
-  background: var(--bg-card-hover);
-}
-
-.loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  color: var(--text-secondary);
-  font-size: 1.125rem;
-}
-
-.error {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  color: #fca5a5;
-  margin: 1rem 0;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: var(--text-muted);
-}
-
-.empty-state-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   Recharts Customization
-   ═══════════════════════════════════════════════════════════════ */
-
-.recharts-wrapper {
-  margin: 1rem 0;
-}
-
-.recharts-cartesian-axis-tick-value {
-  fill: var(--text-secondary);
-  font-size: 0.75rem;
-}
-
-.recharts-legend-item-text {
-  color: var(--text-secondary) !important;
-}
-
-.recharts-tooltip-wrapper {
-  outline: none;
-}
-
-.custom-tooltip {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  box-shadow: var(--shadow-lg);
-}
-
-.custom-tooltip p {
-  margin: 0.25rem 0;
-  font-size: 0.875rem;
+.read-the-docs {
+  color: #888;
 }
