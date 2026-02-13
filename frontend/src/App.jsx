@@ -3,15 +3,16 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import Dashboard from './pages/Dashboard';
 import ClvAnalysis from './pages/ClvAnalysis';
 import MarketBasket from './pages/MarketBasket';
+import AskAnalyst from './pages/AskAnalyst';
 import { checkHealth } from './api';
 import './App.css';
 
 function Sidebar() {
   const location = useLocation();
   const [apiStatus, setApiStatus] = useState('checking');
-  
+
   const isActive = (path) => location.pathname === path;
-  
+
   useEffect(() => {
     const check = async () => {
       try {
@@ -25,28 +26,28 @@ function Sidebar() {
     const interval = setInterval(check, 15000);
     return () => clearInterval(interval);
   }, []);
-  
+
   const statusLabel = {
     checking: 'Checking...',
     connected: 'API Connected',
     'no-data': 'API Up · No Data',
     disconnected: 'API Disconnected',
   };
-  
+
   const statusColor = {
     checking: 'var(--accent-orange)',
     connected: 'var(--accent-green)',
     'no-data': 'var(--accent-orange)',
     disconnected: '#ef4444',
   };
-  
+
   return (
     <nav className="sidebar">
       <div className="sidebar-header">
         <h1>🛒 RetailNexus</h1>
         <p className="subtitle">Data Lakehouse Analytics</p>
       </div>
-      
+
       <div className="nav-links">
         <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>
           <span className="icon">📊</span>
@@ -60,8 +61,12 @@ function Sidebar() {
           <span className="icon">🛍️</span>
           <span>Market Basket</span>
         </Link>
+        <Link to="/ask" className={`nav-link ${isActive('/ask') ? 'active' : ''}`}>
+          <span className="icon">🤖</span>
+          <span>AI Analyst</span>
+        </Link>
       </div>
-      
+
       <div className="sidebar-footer">
         <div className="status-indicator">
           <div className="status-dot" style={{ background: statusColor[apiStatus] }}></div>
@@ -82,6 +87,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/clv" element={<ClvAnalysis />} />
             <Route path="/basket" element={<MarketBasket />} />
+            <Route path="/ask" element={<AskAnalyst />} />
           </Routes>
         </main>
       </div>

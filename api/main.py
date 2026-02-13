@@ -367,6 +367,43 @@ def get_stream_status():
     }
 
 
+# ── Text-to-SQL Endpoint ────────────────────────────
+
+@app.post("/api/chat/ask")
+async def chat_ask(request: Dict[str, str]):
+    """
+    Natural language query endpoint.
+    Converts English questions to SQL and returns results with AI summary.
+    
+    Request body:
+        {
+            "question": "What are my top 5 products by revenue?"
+        }
+    
+    Returns:
+        {
+            "question": str,
+            "sql": str,
+            "data": List[Dict],
+            "summary": str,
+            "row_count": int,
+            "error": Optional[str]
+        }
+    """
+    try:
+        from src.analytics.nl_query import ask
+        
+        question = request.get("question", "")
+        if not question:
+            raise HTTPException(status_code=400, detail="Question is required")
+        
+        result = ask(question)
+        return result
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to process question: {str(e)}")
+
+
 # ── Run with: uvicorn api.main:app --reload --port 8000 ──
 if __name__ == "__main__":
     import uvicorn

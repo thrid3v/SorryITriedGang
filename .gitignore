@@ -5,6 +5,12 @@ __pycache__/
 .venv/
 env/
 
+# Dependencies
+node_modules/
+dist/
+build/
+.env
+
 # Data (NEVER commit large data to git)
 data/
 *.parquet
@@ -14,3 +20,4 @@ data/
 # IDE
 .vscode/
 .idea/
+.DS_Store

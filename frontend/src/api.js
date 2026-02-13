@@ -66,3 +66,19 @@ export async function checkHealth() {
   if (!response.ok) throw new Error("Health check failed");
   return response.json();
 }
+
+/**
+ * Ask a natural language question to the AI analyst
+ * @param {string} question - Question in plain English
+ * @returns {Promise<Object>} - { question, sql, data, summary, row_count, error }
+ */
+export async function askAnalyst(question) {
+  const response = await fetch(`${API_BASE_URL}/api/chat/ask`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question })
+  });
+  if (!response.ok) throw new Error("Failed to get answer from analyst");
+  return response.json();
+}
+
