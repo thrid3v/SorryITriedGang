@@ -1,5 +1,5 @@
 """
-RetailNexus — Silver → Gold Star Schema Builder
+RetailNexus - Silver -> Gold Star Schema Builder
 Builds dimension tables (dim_products, dim_stores, dim_dates) and fact_transactions
 from Silver-layer Parquet files.  dim_users is handled by scd_logic.py.
 All transformations via duckdb.sql().
@@ -149,7 +149,7 @@ def build_star_schema():
         build_dim_stores()
         build_dim_dates()
         build_fact_transactions()
-        print("[StarSchema] Silver → Gold complete ✓")
+        print("[StarSchema] Silver -> Gold complete OK")
     except FileNotFoundError as e:
         print(f"[StarSchema] Waiting for Silver data... ({e})")
 

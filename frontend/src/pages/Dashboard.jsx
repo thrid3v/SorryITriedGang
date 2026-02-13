@@ -37,7 +37,7 @@ export default function Dashboard() {
   async function handleRunPipeline() {
     setPipelineRunning(true);
     setPipelineMessage('Starting pipeline...');
-    
+
     try {
       const result = await triggerPipeline(200);
       setPipelineMessage(`✅ ${result.message} — Data will refresh automatically when complete.`);
@@ -51,13 +51,13 @@ export default function Dashboard() {
         } catch {
           // Still running, keep polling
         }
-      }, 5000); // Check every 5 seconds
-      
-      // Stop polling after 5 minutes max
+      }, 10000); // Check every 10 seconds (reduced from 5 to avoid overwhelming API)
+
+      // Stop polling after 3 minutes max
       setTimeout(() => {
         clearInterval(pollInterval);
         setPipelineRunning(false);
-      }, 300000);
+      }, 180000);
     } catch (err) {
       setPipelineMessage(`❌ Error: ${err.message}`);
       setPipelineRunning(false);

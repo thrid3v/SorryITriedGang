@@ -1,9 +1,9 @@
 """
-RetailNexus — Transformation Pipeline Orchestrator
-Runs the full Bronze → Silver → Gold pipeline in order:
-  1. Cleaner   (Bronze → Silver)
-  2. SCD Type 2 (Silver → Gold dim_users)
-  3. Star Schema (Silver → Gold dims + fact)
+RetailNexus - Transformation Pipeline Orchestrator
+Runs the full Bronze -> Silver -> Gold pipeline in order:
+  1. Cleaner   (Bronze -> Silver)
+  2. SCD Type 2 (Silver -> Gold dim_users)
+  3. Star Schema (Silver -> Gold dims + fact)
 """
 import sys
 import os
@@ -22,32 +22,32 @@ def run_pipeline():
     print("  RetailNexus Transformation Pipeline")
     print("=" * 60)
 
-    # Step 1: Bronze → Silver
-    print("\n▸ Step 1/3: Cleaning raw data (Bronze → Silver)")
+    # Step 1: Bronze -> Silver
+    print("\n> Step 1/3: Cleaning raw data (Bronze -> Silver)")
     try:
         clean_all()
     except FileNotFoundError:
-        print("[Pipeline] No raw data found — run the generator first.")
+        print("[Pipeline] No raw data found - run the generator first.")
         return
 
     # Step 2: SCD Type 2 on Users
-    print("\n▸ Step 2/3: Applying SCD Type 2 (dim_users)")
+    print("\n> Step 2/3: Applying SCD Type 2 (dim_users)")
     try:
         apply_scd_type_2()
     except FileNotFoundError:
-        print("[Pipeline] Silver users not found — cleaner may have failed.")
+        print("[Pipeline] Silver users not found - cleaner may have failed.")
         return
 
     # Step 3: Build Star Schema
-    print("\n▸ Step 3/3: Building Star Schema (Silver → Gold)")
+    print("\n> Step 3/3: Building Star Schema (Silver -> Gold)")
     try:
         build_star_schema()
     except FileNotFoundError:
-        print("[Pipeline] Silver data not found — cleaner may have failed.")
+        print("[Pipeline] Silver data not found - cleaner may have failed.")
         return
 
     print("\n" + "=" * 60)
-    print("  Pipeline complete ✓")
+    print("  Pipeline complete OK")
     print("=" * 60)
 
 

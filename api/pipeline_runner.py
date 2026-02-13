@@ -1,18 +1,18 @@
 """
 Pipeline Runner Module
 ======================
-Runs the data generation and transformation pipeline.
-Designed to be called from the API to avoid file locking issues.
+Runs the data generation and transformation pipeline asynchronously.
+Designed to be called from the API to avoid blocking.
 """
-import subprocess
+import asyncio
 import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-def run_generator(num_transactions: int = 200) -> dict:
+async def run_generator(num_transactions: int = 200) -> dict:
     """
-    Run the data generator.
+    Run the data generator asynchronously.
     
     Args:
         num_transactions: Number of transactions to generate
@@ -22,31 +22,42 @@ def run_generator(num_transactions: int = 200) -> dict:
     """
     try:
         generator_path = PROJECT_ROOT / "src" / "ingestion" / "generator.py"
-        result = subprocess.run(
-            [sys.executable, str(generator_path)],
+        
+        # Create async subprocess
+        process = await asyncio.create_subprocess_exec(
+            sys.executable,
+            str(generator_path),
             cwd=str(PROJECT_ROOT),
-            capture_output=True,
-            text=True,
-            timeout=60
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
         )
         
-        if result.returncode == 0:
+        # Wait for completion with timeout
+        try:
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(),
+                timeout=60.0
+            )
+        except asyncio.TimeoutError:
+            process.kill()
+            await process.wait()
+            return {
+                "status": "error",
+                "message": "Data generation timed out (>60s)"
+            }
+        
+        if process.returncode == 0:
             return {
                 "status": "success",
                 "message": "Data generation completed",
-                "output": result.stdout
+                "output": stdout.decode('utf-8')
             }
         else:
             return {
                 "status": "error",
                 "message": "Data generation failed",
-                "error": result.stderr
+                "error": stderr.decode('utf-8')
             }
-    except subprocess.TimeoutExpired:
-        return {
-            "status": "error",
-            "message": "Data generation timed out (>60s)"
-        }
     except Exception as e:
         return {
             "status": "error",
@@ -54,40 +65,51 @@ def run_generator(num_transactions: int = 200) -> dict:
         }
 
 
-def run_pipeline() -> dict:
+async def run_pipeline() -> dict:
     """
-    Run the transformation pipeline.
+    Run the transformation pipeline asynchronously.
     
     Returns:
         dict with status and message
     """
     try:
         pipeline_path = PROJECT_ROOT / "src" / "transformation" / "pipeline.py"
-        result = subprocess.run(
-            [sys.executable, str(pipeline_path)],
+        
+        # Create async subprocess
+        process = await asyncio.create_subprocess_exec(
+            sys.executable,
+            str(pipeline_path),
             cwd=str(PROJECT_ROOT),
-            capture_output=True,
-            text=True,
-            timeout=120
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
         )
         
-        if result.returncode == 0:
+        # Wait for completion with timeout
+        try:
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(),
+                timeout=120.0
+            )
+        except asyncio.TimeoutError:
+            process.kill()
+            await process.wait()
+            return {
+                "status": "error",
+                "message": "Pipeline timed out (>120s)"
+            }
+        
+        if process.returncode == 0:
             return {
                 "status": "success",
                 "message": "Pipeline completed successfully",
-                "output": result.stdout
+                "output": stdout.decode('utf-8')
             }
         else:
             return {
                 "status": "error",
                 "message": "Pipeline failed",
-                "error": result.stderr
+                "error": stderr.decode('utf-8')
             }
-    except subprocess.TimeoutExpired:
-        return {
-            "status": "error",
-            "message": "Pipeline timed out (>120s)"
-        }
     except Exception as e:
         return {
             "status": "error",
@@ -95,9 +117,9 @@ def run_pipeline() -> dict:
         }
 
 
-def run_full_pipeline(num_transactions: int = 200) -> dict:
+async def run_full_pipeline(num_transactions: int = 200) -> dict:
     """
-    Run both generator and pipeline in sequence.
+    Run both generator and pipeline in sequence asynchronously.
     
     Args:
         num_transactions: Number of transactions to generate
@@ -106,12 +128,12 @@ def run_full_pipeline(num_transactions: int = 200) -> dict:
         dict with status and message
     """
     # Step 1: Generate data
-    gen_result = run_generator(num_transactions)
+    gen_result = await run_generator(num_transactions)
     if gen_result["status"] != "success":
         return gen_result
     
     # Step 2: Run pipeline
-    pipeline_result = run_pipeline()
+    pipeline_result = await run_pipeline()
     
     return {
         "status": pipeline_result["status"],

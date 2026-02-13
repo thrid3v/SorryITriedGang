@@ -1,5 +1,5 @@
 """
-RetailNexus — Bronze → Silver Cleaner
+RetailNexus - Bronze -> Silver Cleaner
 Reads raw CSVs from data/raw/, deduplicates, handles nulls, casts types,
 and writes cleaned Parquet to data/silver/.
 Uses union_by_name=true for schema evolution resilience.
@@ -99,13 +99,13 @@ def clean_products():
 
 
 def clean_all():
-    """Run all cleaners: Bronze → Silver."""
+    """Run all cleaners: Bronze -> Silver."""
     _ensure_dirs()
     try:
         clean_transactions()
         clean_users()
         clean_products()
-        print("[Cleaner] Bronze → Silver complete ✓")
+        print("[Cleaner] Bronze -> Silver complete OK")
     except Exception as e:
         if "No files found" in str(e) or isinstance(e, FileNotFoundError):
             print(f"[Cleaner] Waiting for raw data... ({e})")

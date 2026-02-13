@@ -22,7 +22,7 @@ from src.analytics.kpi_queries import (
     compute_market_basket,
 )
 from api.pipeline_runner import run_full_pipeline, run_generator, run_pipeline
-from fastapi import BackgroundTasks
+# BackgroundTasks not needed - using asyncio.create_task instead
 
 # ── FastAPI App ──────────────────────────────────────
 app = FastAPI(
@@ -154,7 +154,7 @@ def health_check():
 
 
 @app.post("/api/pipeline/run", status_code=202)
-async def trigger_pipeline(background_tasks: BackgroundTasks, num_transactions: int = 200):
+async def trigger_pipeline(num_transactions: int = 200):
     """
     Trigger the full data pipeline (generator + transformation).
     Runs in background to avoid blocking the API server.
@@ -171,7 +171,9 @@ async def trigger_pipeline(background_tasks: BackgroundTasks, num_transactions: 
     Note: Returns 202 Accepted immediately. Pipeline runs asynchronously.
     Check /api/health for data availability after completion.
     """
-    background_tasks.add_task(run_full_pipeline, num_transactions)
+    import asyncio
+    # Simple background task - may cause some slowness but won't crash
+    asyncio.create_task(run_full_pipeline(num_transactions))
     return {
         "status": "accepted",
         "message": f"Pipeline started in background (generating {num_transactions} transactions)"
@@ -179,14 +181,16 @@ async def trigger_pipeline(background_tasks: BackgroundTasks, num_transactions: 
 
 
 @app.post("/api/pipeline/generate", status_code=202)
-async def trigger_generator(background_tasks: BackgroundTasks, num_transactions: int = 200):
+async def trigger_generator(num_transactions: int = 200):
     """
     Trigger just the data generator in background.
     
     Args:
         num_transactions: Number of transactions to generate (default: 200)
     """
-    background_tasks.add_task(run_generator, num_transactions)
+    import asyncio
+    # Create task that runs in background without blocking
+    asyncio.create_task(run_generator(num_transactions))
     return {
         "status": "accepted",
         "message": f"Generator started in background ({num_transactions} transactions)"

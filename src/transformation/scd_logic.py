@@ -1,5 +1,5 @@
 """
-RetailNexus — SCD Type 2 for User Dimension
+RetailNexus - SCD Type 2 for User Dimension
 Tracks changes to user attributes (city) over time.
 Compares Silver users against existing Gold dim_users and manages
 effective_date / end_date / is_current flags.
@@ -32,14 +32,14 @@ def _ensure_gold():
 def apply_scd_type_2():
     """
     SCD Type 2 merge for user dimension.
-    - Unchanged rows → carry forward
-    - Changed city   → close old record, insert new version
-    - Brand-new user → insert with is_current=True
+    - Unchanged rows -> carry forward
+    - Changed city   -> close old record, insert new version
+    - Brand-new user -> insert with is_current=True
     """
     _ensure_gold()
     today = date.today().isoformat()
 
-    # ── First run: no history exists yet ──
+    # -- First run: no history exists yet --
     if not os.path.exists(GOLD_DIM_USERS):
         duckdb.sql(f"""
             COPY (
@@ -59,7 +59,7 @@ def apply_scd_type_2():
         print(f"[SCD2] Initial dim_users load: {cnt} rows")
         return
 
-    # ── Subsequent runs: detect changes ──
+    # -- Subsequent runs: detect changes --
     max_sk = duckdb.sql(f"""
         SELECT COALESCE(MAX(surrogate_key), 0) FROM '{GOLD_DIM_USERS}'
     """).fetchone()[0]
@@ -79,7 +79,7 @@ def apply_scd_type_2():
             WHERE e.is_current = TRUE
               AND e.city = i.city;
 
-        -- Old current rows whose city changed → close them
+        -- Old current rows whose city changed -> close them
         CREATE OR REPLACE TEMP TABLE closed AS
             SELECT
                 e.surrogate_key,
@@ -126,12 +126,12 @@ def apply_scd_type_2():
             FROM incoming i
             WHERE i.user_id NOT IN (SELECT user_id FROM existing);
 
-        -- Historical rows that are already closed (not current) → keep
+        -- Historical rows that are already closed (not current) -> keep
         CREATE OR REPLACE TEMP TABLE already_closed AS
             SELECT * FROM existing WHERE is_current = FALSE;
     """)
 
-    # ── Merge all pieces and write ──
+    # -- Merge all pieces and write --
     duckdb.sql(f"""
         COPY (
             SELECT * FROM unchanged
@@ -150,7 +150,7 @@ def apply_scd_type_2():
     changed = duckdb.sql("SELECT COUNT(*) FROM closed").fetchone()[0]
     new = duckdb.sql("SELECT COUNT(*) FROM brand_new").fetchone()[0]
     total = duckdb.sql(f"SELECT COUNT(*) FROM '{GOLD_DIM_USERS}'").fetchone()[0]
-    print(f"[SCD2] dim_users updated — {changed} closed, {new} new, {total} total rows")
+    print(f"[SCD2] dim_users updated - {changed} closed, {new} new, {total} total rows")
 
     # cleanup temp tables
     for t in ["existing", "incoming", "unchanged", "closed", "new_versions", "brand_new", "already_closed"]:
