@@ -23,6 +23,13 @@ from src.analytics.kpi_queries import (
     compute_summary_kpis,
     compute_clv,
     compute_market_basket,
+    compute_revenue_timeseries,
+    compute_city_sales,
+    compute_top_products,
+    compute_inventory_turnover,
+    compute_delivery_metrics,
+    compute_seasonal_trends,
+    compute_customer_segmentation,
 )
 
 # ── Streaming State ──────────────────────────────────
@@ -105,6 +112,104 @@ def get_market_basket(min_support: int = 2):
         return df.to_dict(orient="records")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to compute market basket: {str(e)}")
+
+
+@app.get("/api/revenue/timeseries", response_model=List[Dict])
+def get_revenue_timeseries(granularity: str = 'daily'):
+    """
+    Get revenue time-series (daily or monthly).
+    """
+    try:
+        df = compute_revenue_timeseries(granularity=granularity)
+        df = df.replace([float('inf'), float('-inf')], None)
+        df = df.where(df.notna(), None)
+        return df.to_dict(orient="records")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to compute revenue timeseries: {str(e)}")
+
+
+@app.get("/api/sales/city", response_model=List[Dict])
+def get_city_sales():
+    """
+    Get city-wise sales breakdown.
+    """
+    try:
+        df = compute_city_sales()
+        df = df.replace([float('inf'), float('-inf')], None)
+        df = df.where(df.notna(), None)
+        return df.to_dict(orient="records")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to compute city sales: {str(e)}")
+
+
+@app.get("/api/products/top", response_model=List[Dict])
+def get_top_products(limit: int = 10):
+    """
+    Get top-selling products by revenue.
+    """
+    try:
+        df = compute_top_products(limit=limit)
+        df = df.replace([float('inf'), float('-inf')], None)
+        df = df.where(df.notna(), None)
+        return df.to_dict(orient="records")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to compute top products: {str(e)}")
+
+
+@app.get("/api/inventory/turnover", response_model=List[Dict])
+def get_inventory_turnover():
+    """
+    Get inventory turnover ratio analysis.
+    """
+    try:
+        df = compute_inventory_turnover()
+        df = df.replace([float('inf'), float('-inf')], None)
+        df = df.where(df.notna(), None)
+        return df.to_dict(orient="records")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to compute inventory turnover: {str(e)}")
+
+
+@app.get("/api/delivery/metrics", response_model=List[Dict])
+def get_delivery_metrics():
+    """
+    Get delivery performance metrics by carrier and region.
+    """
+    try:
+        df = compute_delivery_metrics()
+        df = df.replace([float('inf'), float('-inf')], None)
+        df = df.where(df.notna(), None)
+        return df.to_dict(orient="records")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to compute delivery metrics: {str(e)}")
+
+
+@app.get("/api/trends/seasonal", response_model=List[Dict])
+def get_seasonal_trends():
+    """
+    Get seasonal demand trends by category.
+    """
+    try:
+        df = compute_seasonal_trends()
+        df = df.replace([float('inf'), float('-inf')], None)
+        df = df.where(df.notna(), None)
+        return df.to_dict(orient="records")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to compute seasonal trends: {str(e)}")
+
+
+@app.get("/api/customers/segmentation", response_model=List[Dict])
+def get_customer_segmentation():
+    """
+    Get new vs. returning customer segmentation.
+    """
+    try:
+        df = compute_customer_segmentation()
+        df = df.replace([float('inf'), float('-inf')], None)
+        df = df.where(df.notna(), None)
+        return df.to_dict(orient="records")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to compute customer segmentation: {str(e)}")
 
 
 @app.get("/api/health")

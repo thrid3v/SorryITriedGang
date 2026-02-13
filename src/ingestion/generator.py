@@ -99,7 +99,7 @@ def _generate_transactions(num: int = 100) -> pd.DataFrame:
         # Each transaction has 1-5 products
         num_products = random.randint(1, 5)
         for _ in range(num_products):
-            product_id = f"PROD_{random.randint(1, _PRODUCT_POOL_SIZE):04d}"
+            product_id = f"PRD_{random.randint(1, _PRODUCT_POOL_SIZE):04d}"
             amount = round(random.uniform(10.0, 500.0), 2) if random.random() > 0.05 else None
 
             rows.append({
@@ -130,7 +130,7 @@ def _generate_inventory() -> pd.DataFrame:
     Includes stock levels, reorder points, and last restock date.
     """
     rows = []
-    for product_id in [f"PROD_{i:04d}" for i in range(1, _PRODUCT_POOL_SIZE + 1)]:
+    for product_id in [f"PRD_{i:04d}" for i in range(1, _PRODUCT_POOL_SIZE + 1)]:
         for store_id in _STORE_IDS:
             stock_level = random.randint(0, 500)
             reorder_point = random.randint(20, 100)

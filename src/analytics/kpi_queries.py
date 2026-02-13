@@ -185,6 +185,277 @@ def compute_summary_kpis() -> dict:
 
 
 # ─────────────────────────────────────────────────
+# 4. DAILY/MONTHLY REVENUE TIME-SERIES
+# ─────────────────────────────────────────────────
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
+def compute_revenue_timeseries(granularity: str = 'daily') -> pd.DataFrame:
+    """
+    Revenue breakdown by day or month.
+    
+    Args:
+        granularity: 'daily' or 'monthly'
+    """
+    DIM_DATES = str(GOLD_DIR / "dim_dates.parquet").replace("\\", "/")
+    
+    try:
+        conn = _get_conn()
+        
+        if granularity == 'monthly':
+            df = conn.sql(f"""
+                SELECT
+                    dd.year,
+                    dd.month,
+                    SUM(ft.amount) as revenue,
+                    COUNT(DISTINCT ft.transaction_id) as order_count
+                FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
+                JOIN '{DIM_DATES}' dd ON ft.date_key = dd.date_key
+                GROUP BY dd.year, dd.month
+                ORDER BY dd.year, dd.month
+            """).df()
+        else:  # daily
+            df = conn.sql(f"""
+                SELECT
+                    dd.full_date,
+                    dd.day_of_week,
+                    SUM(ft.amount) as revenue,
+                    COUNT(DISTINCT ft.transaction_id) as order_count
+                FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
+                JOIN '{DIM_DATES}' dd ON ft.date_key = dd.date_key
+                GROUP BY dd.full_date, dd.day_of_week
+                ORDER BY dd.full_date
+            """).df()
+        
+        conn.close()
+        return df
+    except FileNotFoundError:
+        print("[KPI] fact_transactions or dim_dates not found. Returning empty frame.")
+        return pd.DataFrame()
+
+
+# ─────────────────────────────────────────────────
+# 5. CITY-WISE SALES
+# ─────────────────────────────────────────────────
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
+def compute_city_sales() -> pd.DataFrame:
+    """Revenue and order count by customer city."""
+    try:
+        conn = _get_conn()
+        df = conn.sql(f"""
+            SELECT
+                du.city,
+                COUNT(DISTINCT ft.transaction_id) as order_count,
+                SUM(ft.amount) as total_revenue,
+                AVG(ft.amount) as avg_order_value,
+                COUNT(DISTINCT ft.user_key) as unique_customers
+            FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
+            JOIN '{DIM_USERS}' du ON ft.user_key = du.surrogate_key
+            WHERE du.is_current = TRUE AND ft.user_key != -1
+            GROUP BY du.city
+            ORDER BY total_revenue DESC
+        """).df()
+        conn.close()
+        return df
+    except FileNotFoundError:
+        print("[KPI] fact_transactions or dim_users not found. Returning empty frame.")
+        return pd.DataFrame(columns=["city", "order_count", "total_revenue", "avg_order_value", "unique_customers"])
+
+
+# ─────────────────────────────────────────────────
+# 6. TOP-SELLING PRODUCTS
+# ─────────────────────────────────────────────────
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
+def compute_top_products(limit: int = 10) -> pd.DataFrame:
+    """Top products by revenue and quantity sold."""
+    try:
+        conn = _get_conn()
+        df = conn.sql(f"""
+            SELECT
+                dp.product_name,
+                dp.category,
+                dp.price,
+                COUNT(*) as units_sold,
+                SUM(ft.amount) as total_revenue,
+                AVG(ft.amount) as avg_sale_price
+            FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
+            JOIN '{DIM_PRODUCTS}' dp ON ft.product_key = dp.product_key
+            WHERE ft.product_key != -1
+            GROUP BY dp.product_name, dp.category, dp.price
+            ORDER BY total_revenue DESC
+            LIMIT {limit}
+        """).df()
+        conn.close()
+        return df
+    except FileNotFoundError:
+        print("[KPI] fact_transactions or dim_products not found. Returning empty frame.")
+        return pd.DataFrame(columns=["product_name", "category", "price", "units_sold", "total_revenue", "avg_sale_price"])
+
+
+# ─────────────────────────────────────────────────
+# 7. INVENTORY TURNOVER RATIO
+# ─────────────────────────────────────────────────
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
+def compute_inventory_turnover() -> pd.DataFrame:
+    """Inventory turnover ratio: Sales / Average Inventory."""
+    FACT_INVENTORY = str(GOLD_DIR / "fact_inventory.parquet" / "**" / "*.parquet").replace("\\", "/")
+    
+    try:
+        conn = _get_conn()
+        df = conn.sql(f"""
+            WITH sales AS (
+                SELECT 
+                    product_key, 
+                    COUNT(*) as units_sold
+                FROM read_parquet('{FACT_TXN}', hive_partitioning=true)
+                WHERE product_key != -1
+                GROUP BY product_key
+            ),
+            avg_inventory AS (
+                SELECT 
+                    product_key, 
+                    AVG(stock_level) as avg_stock,
+                    SUM(CASE WHEN needs_reorder THEN 1 ELSE 0 END) as reorder_instances
+                FROM read_parquet('{FACT_INVENTORY}', hive_partitioning=true)
+                WHERE product_key != -1
+                GROUP BY product_key
+            )
+            SELECT
+                dp.product_name,
+                dp.category,
+                COALESCE(s.units_sold, 0) as units_sold,
+                COALESCE(ai.avg_stock, 0) as avg_stock,
+                COALESCE(s.units_sold / NULLIF(ai.avg_stock, 0), 0) as turnover_ratio,
+                ai.reorder_instances
+            FROM '{DIM_PRODUCTS}' dp
+            LEFT JOIN sales s ON dp.product_key = s.product_key
+            LEFT JOIN avg_inventory ai ON dp.product_key = ai.product_key
+            ORDER BY turnover_ratio DESC
+        """).df()
+        conn.close()
+        return df
+    except FileNotFoundError:
+        print("[KPI] fact_inventory or fact_transactions not found. Returning empty frame.")
+        return pd.DataFrame(columns=["product_name", "category", "units_sold", "avg_stock", "turnover_ratio", "reorder_instances"])
+
+
+# ─────────────────────────────────────────────────
+# 8. AVERAGE DELIVERY TIMES
+# ─────────────────────────────────────────────────
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
+def compute_delivery_metrics() -> pd.DataFrame:
+    """Average delivery times by carrier and region."""
+    FACT_SHIPMENTS = str(GOLD_DIR / "fact_shipments.parquet" / "**" / "*.parquet").replace("\\", "/")
+    DIM_STORES = str(GOLD_DIR / "dim_stores.parquet").replace("\\", "/")
+    
+    try:
+        conn = _get_conn()
+        df = conn.sql(f"""
+            SELECT
+                fs.carrier,
+                ds.region as origin_region,
+                AVG(fs.delivery_days) as avg_delivery_days,
+                MIN(fs.delivery_days) as min_delivery_days,
+                MAX(fs.delivery_days) as max_delivery_days,
+                COUNT(*) as shipment_count,
+                SUM(CASE WHEN fs.delivery_category = 'fast' THEN 1 ELSE 0 END) as fast_deliveries,
+                SUM(CASE WHEN fs.delivery_category = 'delayed' THEN 1 ELSE 0 END) as delayed_deliveries,
+                AVG(fs.shipping_cost) as avg_shipping_cost
+            FROM read_parquet('{FACT_SHIPMENTS}', hive_partitioning=true) fs
+            JOIN '{DIM_STORES}' ds ON fs.origin_store_key = ds.store_key
+            WHERE fs.status = 'delivered' AND fs.origin_store_key != -1
+            GROUP BY fs.carrier, ds.region
+            ORDER BY avg_delivery_days
+        """).df()
+        conn.close()
+        return df
+    except FileNotFoundError:
+        print("[KPI] fact_shipments or dim_stores not found. Returning empty frame.")
+        return pd.DataFrame(columns=["carrier", "origin_region", "avg_delivery_days", "min_delivery_days", "max_delivery_days", "shipment_count", "fast_deliveries", "delayed_deliveries", "avg_shipping_cost"])
+
+
+# ─────────────────────────────────────────────────
+# 9. SEASONAL DEMAND TRENDS
+# ─────────────────────────────────────────────────
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
+def compute_seasonal_trends() -> pd.DataFrame:
+    """Monthly/quarterly demand trends by product category."""
+    DIM_DATES = str(GOLD_DIR / "dim_dates.parquet").replace("\\", "/")
+    
+    try:
+        conn = _get_conn()
+        df = conn.sql(f"""
+            SELECT
+                dd.year,
+                dd.quarter,
+                dd.month,
+                dp.category,
+                COUNT(*) as units_sold,
+                SUM(ft.amount) as revenue,
+                AVG(ft.amount) as avg_transaction_value
+            FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
+            JOIN '{DIM_DATES}' dd ON ft.date_key = dd.date_key
+            JOIN '{DIM_PRODUCTS}' dp ON ft.product_key = dp.product_key
+            WHERE ft.product_key != -1
+            GROUP BY dd.year, dd.quarter, dd.month, dp.category
+            ORDER BY dd.year, dd.quarter, dd.month, revenue DESC
+        """).df()
+        conn.close()
+        return df
+    except FileNotFoundError:
+        print("[KPI] fact_transactions, dim_dates, or dim_products not found. Returning empty frame.")
+        return pd.DataFrame(columns=["year", "quarter", "month", "category", "units_sold", "revenue", "avg_transaction_value"])
+
+
+# ─────────────────────────────────────────────────
+# 10. NEW VS. RETURNING CUSTOMERS
+# ─────────────────────────────────────────────────
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
+def compute_customer_segmentation() -> pd.DataFrame:
+    """New vs. Returning customers based on purchase history."""
+    try:
+        conn = _get_conn()
+        df = conn.sql(f"""
+            WITH first_purchase AS (
+                SELECT
+                    user_key,
+                    MIN(timestamp)::DATE as first_purchase_date
+                FROM read_parquet('{FACT_TXN}', hive_partitioning=true)
+                WHERE user_key != -1
+                GROUP BY user_key
+            ),
+            customer_classification AS (
+                SELECT
+                    ft.user_key,
+                    ft.transaction_id,
+                    ft.amount,
+                    ft.timestamp,
+                    fp.first_purchase_date,
+                    DATEDIFF('day', fp.first_purchase_date, ft.timestamp::DATE) as days_since_first,
+                    CASE
+                        WHEN DATEDIFF('day', fp.first_purchase_date, ft.timestamp::DATE) <= 7 THEN 'New'
+                        ELSE 'Returning'
+                    END as customer_type
+                FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
+                JOIN first_purchase fp ON ft.user_key = fp.user_key
+                WHERE ft.user_key != -1
+            )
+            SELECT
+                customer_type,
+                COUNT(DISTINCT user_key) as customer_count,
+                COUNT(DISTINCT transaction_id) as order_count,
+                SUM(amount) as total_revenue,
+                AVG(amount) as avg_order_value
+            FROM customer_classification
+            GROUP BY customer_type
+            ORDER BY customer_type
+        """).df()
+        conn.close()
+        return df
+    except FileNotFoundError:
+        print("[KPI] fact_transactions not found. Returning empty frame.")
+        return pd.DataFrame(columns=["customer_type", "customer_count", "order_count", "total_revenue", "avg_order_value"])
+
+
+# ─────────────────────────────────────────────────
 # CLI quick-test
 # ─────────────────────────────────────────────────
 if __name__ == "__main__":
@@ -196,3 +467,24 @@ if __name__ == "__main__":
 
     print("\n=== Market Basket (top 5) ===")
     print(compute_market_basket(min_support=2).head())
+    
+    print("\n=== Revenue Time-Series (Daily, last 7 days) ===")
+    print(compute_revenue_timeseries('daily').tail(7))
+    
+    print("\n=== City-Wise Sales ===")
+    print(compute_city_sales().head())
+    
+    print("\n=== Top Products ===")
+    print(compute_top_products(5))
+    
+    print("\n=== Inventory Turnover ===")
+    print(compute_inventory_turnover().head())
+    
+    print("\n=== Delivery Metrics ===")
+    print(compute_delivery_metrics().head())
+    
+    print("\n=== Seasonal Trends (last 3 months) ===")
+    print(compute_seasonal_trends().tail(15))
+    
+    print("\n=== Customer Segmentation ===")
+    print(compute_customer_segmentation())
