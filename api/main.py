@@ -21,8 +21,6 @@ from src.analytics.kpi_queries import (
     compute_clv,
     compute_market_basket,
 )
-from api.pipeline_runner import run_full_pipeline, run_generator, run_pipeline
-# BackgroundTasks not needed - using asyncio.create_task instead
 
 # ── FastAPI App ──────────────────────────────────────
 app = FastAPI(
@@ -32,7 +30,6 @@ app = FastAPI(
 )
 
 # ── CORS Configuration ───────────────────────────────
-# Allow React dev server (localhost:5173) to call API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -61,13 +58,6 @@ def root():
 def get_summary_kpis():
     """
     Get summary KPIs: total revenue, active users, total orders.
-    
-    Returns:
-        {
-            "total_revenue": 559172.02,
-            "active_users": 50,
-            "total_orders": 400
-        }
     """
     try:
         return compute_summary_kpis()
@@ -79,25 +69,11 @@ def get_summary_kpis():
 def get_clv():
     """
     Get Customer Lifetime Value analysis.
-    
-    Returns list of customers with CLV metrics:
-        [
-            {
-                "user_id": "USR_0001",
-                "customer_name": "John Doe",
-                "customer_city": "New York",
-                "purchase_count": 15,
-                "total_spend": 2500.50,
-                "avg_order_value": 166.70,
-                "customer_lifespan_days": 120,
-                "estimated_clv": 2500.50
-            },
-            ...
-        ]
     """
     try:
         df = compute_clv()
-        # Replace NaN/inf with None for valid JSON, then convert
+        # Replace infinity and NaN with None for valid JSON serialization
+        df = df.replace([float('inf'), float('-inf')], None)
         df = df.where(df.notna(), None)
         return df.to_dict(orient="records")
     except Exception as e:
@@ -108,24 +84,11 @@ def get_clv():
 def get_market_basket(min_support: int = 2):
     """
     Get market basket analysis - product pairs frequently bought together.
-    
-    Args:
-        min_support: Minimum number of times products must be bought together (default: 2)
-    
-    Returns list of product pairs:
-        [
-            {
-                "product_a_name": "Wireless Earbuds",
-                "product_b_name": "Smartphone Case",
-                "times_bought_together": 12,
-                "product_a": 1,
-                "product_b": 6
-            },
-            ...
-        ]
     """
     try:
         df = compute_market_basket(min_support=min_support)
+        # Replace infinity and NaN with None for valid JSON serialization
+        df = df.replace([float('inf'), float('-inf')], None)
         df = df.where(df.notna(), None)
         return df.to_dict(orient="records")
     except Exception as e:
@@ -138,7 +101,7 @@ def health_check():
     try:
         kpis = compute_summary_kpis()
         data_available = kpis.get("total_orders", 0) > 0
-        
+
         return {
             "status": "healthy",
             "data_available": data_available,
@@ -151,50 +114,6 @@ def health_check():
             "data_available": False,
             "message": f"API running but data unavailable: {str(e)}"
         }
-
-
-@app.post("/api/pipeline/run", status_code=202)
-async def trigger_pipeline(num_transactions: int = 200):
-    """
-    Trigger the full data pipeline (generator + transformation).
-    Runs in background to avoid blocking the API server.
-    
-    Args:
-        num_transactions: Number of transactions to generate (default: 200)
-    
-    Returns:
-        {
-            "status": "accepted",
-            "message": "Pipeline started in background"
-        }
-    
-    Note: Returns 202 Accepted immediately. Pipeline runs asynchronously.
-    Check /api/health for data availability after completion.
-    """
-    import asyncio
-    # Simple background task - may cause some slowness but won't crash
-    asyncio.create_task(run_full_pipeline(num_transactions))
-    return {
-        "status": "accepted",
-        "message": f"Pipeline started in background (generating {num_transactions} transactions)"
-    }
-
-
-@app.post("/api/pipeline/generate", status_code=202)
-async def trigger_generator(num_transactions: int = 200):
-    """
-    Trigger just the data generator in background.
-    
-    Args:
-        num_transactions: Number of transactions to generate (default: 200)
-    """
-    import asyncio
-    # Create task that runs in background without blocking
-    asyncio.create_task(run_generator(num_transactions))
-    return {
-        "status": "accepted",
-        "message": f"Generator started in background ({num_transactions} transactions)"
-    }
 
 
 # ── Run with: uvicorn api.main:app --reload --port 8000 ──

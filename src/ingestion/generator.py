@@ -154,6 +154,17 @@ def generate_transactions(num: int = 100):
 
 
 if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="RetailNexus Data Generator")
+    parser.add_argument(
+        "--num",
+        type=int,
+        default=200,
+        help="Number of transactions to generate (default: 200)"
+    )
+    args = parser.parse_args()
+    
     print("🚀 Starting Data Generator...")
-    generate_transactions(num=200)
+    generate_transactions(num=args.num)
     print("✅ Generation complete!")

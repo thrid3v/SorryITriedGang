@@ -1,7 +1,7 @@
 """
 RetailNexus — KPI Queries
 ==========================
-All heavy lifts use duckdb.sql() — no Python for-loops on data.
+All heavy lifts use duckdb — no Python for-loops on data.
 Placeholders (🔌) mark spots that depend on upstream pipeline output.
 """
 import os
@@ -27,6 +27,10 @@ DIM_PRODUCTS = str(GOLD_DIR / "dim_products.parquet").replace("\\", "/")
 def _gold_path(table: str) -> str:
     return str(GOLD_DIR / table / "**/*.parquet")
 
+def _get_conn():
+    """Create a fresh DuckDB connection for each query to avoid concurrency issues."""
+    return duckdb.connect()
+
 
 # ─────────────────────────────────────────────────
 # 1.  CUSTOMER LIFETIME VALUE  (CLV)
@@ -43,7 +47,8 @@ def compute_clv() -> pd.DataFrame:
     txn_path = str(GOLD_DIR / "fact_transactions.parquet")
     users_path = str(GOLD_DIR / "dim_users.parquet")
     try:
-        df = duckdb.sql(f"""
+        conn = _get_conn()
+        df = conn.sql(f"""
             WITH user_purchases AS (
                 SELECT
                     ft.user_key,
@@ -81,6 +86,7 @@ def compute_clv() -> pd.DataFrame:
             WHERE du.is_current = TRUE
             ORDER BY clv.estimated_clv DESC
         """).df()
+        conn.close()
         return df
     except FileNotFoundError:
         print("[KPI] fact_transactions or dim_users not found. Returning empty frame.")
@@ -103,7 +109,8 @@ def compute_market_basket(min_support: int = 3) -> pd.DataFrame:
        These files will be created by the transformation pipeline (Person B).
     """
     try:
-        df = duckdb.sql(f"""
+        conn = _get_conn()
+        df = conn.sql(f"""
             WITH basket AS (
                 SELECT
                     t1.transaction_id,
@@ -137,6 +144,7 @@ def compute_market_basket(min_support: int = 3) -> pd.DataFrame:
                 ON pc.product_b = pb.product_key
             ORDER BY pc.times_bought_together DESC
         """).df()
+        conn.close()
         return df
     except FileNotFoundError:
         print("[KPI] fact_transactions or dim_products not found. Returning empty frame.")
@@ -157,13 +165,15 @@ def compute_summary_kpis() -> dict:
     🔌 PLACEHOLDER: depends on gold/fact_transactions & gold/dim_products.
     """
     try:
-        result = duckdb.sql(f"""
+        conn = _get_conn()
+        result = conn.sql(f"""
             SELECT
                 SUM(amount)::DOUBLE                                              AS total_revenue,
                 COUNT(DISTINCT user_key) FILTER (WHERE user_key != -1)::INTEGER  AS active_users,
                 COUNT(DISTINCT transaction_id)::INTEGER                          AS total_orders
             FROM read_parquet('{FACT_TXN}', hive_partitioning=true)
         """).fetchone()
+        conn.close()
 
         return {
             "total_revenue": result[0] or 0.0,

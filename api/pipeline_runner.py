@@ -23,10 +23,11 @@ async def run_generator(num_transactions: int = 200) -> dict:
     try:
         generator_path = PROJECT_ROOT / "src" / "ingestion" / "generator.py"
         
-        # Create async subprocess
+        # Create async subprocess with num_transactions argument
         process = await asyncio.create_subprocess_exec(
             sys.executable,
             str(generator_path),
+            "--num", str(num_transactions),  # Pass num_transactions to generator
             cwd=str(PROJECT_ROOT),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE

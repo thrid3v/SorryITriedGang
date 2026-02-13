@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { fetchKPIs, fetchCLV, triggerPipeline } from '../api';
+import { fetchKPIs, fetchCLV } from '../api';
 
 export default function Dashboard() {
   const [kpis, setKpis] = useState(null);
   const [topCustomers, setTopCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [pipelineRunning, setPipelineRunning] = useState(false);
-  const [pipelineMessage, setPipelineMessage] = useState('');
 
   useEffect(() => {
     loadData();
@@ -31,36 +29,6 @@ export default function Dashboard() {
       setError(err.message);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleRunPipeline() {
-    setPipelineRunning(true);
-    setPipelineMessage('Starting pipeline...');
-
-    try {
-      const result = await triggerPipeline(200);
-      setPipelineMessage(`✅ ${result.message} — Data will refresh automatically when complete.`);
-      // Poll for completion by checking health endpoint
-      const pollInterval = setInterval(async () => {
-        try {
-          await loadData();
-          clearInterval(pollInterval);
-          setPipelineMessage('✅ Pipeline completed! Data refreshed.');
-          setPipelineRunning(false);
-        } catch {
-          // Still running, keep polling
-        }
-      }, 10000); // Check every 10 seconds (reduced from 5 to avoid overwhelming API)
-
-      // Stop polling after 3 minutes max
-      setTimeout(() => {
-        clearInterval(pollInterval);
-        setPipelineRunning(false);
-      }, 180000);
-    } catch (err) {
-      setPipelineMessage(`❌ Error: ${err.message}`);
-      setPipelineRunning(false);
     }
   }
 
@@ -144,45 +112,7 @@ export default function Dashboard() {
       )}
 
       <div className="card">
-        <h2 className="card-title">🚀 Run Pipeline</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          Generate new data and run the transformation pipeline directly from the dashboard:
-        </p>
-        <button
-          onClick={handleRunPipeline}
-          disabled={pipelineRunning}
-          style={{
-            padding: '0.75rem 1.5rem',
-            background: pipelineRunning ? 'var(--text-muted)' : 'linear-gradient(135deg, var(--accent-blue), var(--accent-purple))',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.5rem',
-            fontSize: '1rem',
-            fontWeight: 600,
-            cursor: pipelineRunning ? 'not-allowed' : 'pointer',
-            transition: 'transform 0.2s ease',
-          }}
-          onMouseEnter={(e) => !pipelineRunning && (e.target.style.transform = 'translateY(-2px)')}
-          onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-        >
-          {pipelineRunning ? '⏳ Running...' : '▶️ Run Pipeline (200 transactions)'}
-        </button>
-        {pipelineMessage && (
-          <div style={{
-            marginTop: '1rem',
-            padding: '0.75rem',
-            background: 'var(--bg-secondary)',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            color: pipelineMessage.startsWith('✅') ? 'var(--accent-green)' : 'var(--text-secondary)'
-          }}>
-            {pipelineMessage}
-          </div>
-        )}
-      </div>
-
-      <div className="card">
-        <h2 className="card-title">📊 Pipeline Status</h2>
+        <h2 className="card-title">📊 Pipeline Info</h2>
         <p style={{ color: 'var(--text-secondary)' }}>
           Data is being served from the Gold layer (Parquet files with Hive-style partitioning).
           The pipeline automatically deduplicates, applies SCD Type 2 history tracking, and builds

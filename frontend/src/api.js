@@ -47,31 +47,3 @@ export async function checkHealth() {
   if (!response.ok) throw new Error("Health check failed");
   return response.json();
 }
-
-/**
- * Trigger the full pipeline (generator + transformation)
- * @param {number} numTransactions - Number of transactions to generate
- * @returns {Promise<Object>}
- */
-export async function triggerPipeline(numTransactions = 200) {
-  const response = await fetch(
-    `${API_BASE_URL}/api/pipeline/run?num_transactions=${numTransactions}`,
-    { method: "POST" }
-  );
-  if (!response.ok) throw new Error("Failed to trigger pipeline");
-  return response.json();
-}
-
-/**
- * Trigger just the data generator
- * @param {number} numTransactions - Number of transactions to generate
- * @returns {Promise<Object>}
- */
-export async function triggerGenerator(numTransactions = 200) {
-  const response = await fetch(
-    `${API_BASE_URL}/api/pipeline/generate?num_transactions=${numTransactions}`,
-    { method: "POST" }
-  );
-  if (!response.ok) throw new Error("Failed to trigger generator");
-  return response.json();
-}
