@@ -11,9 +11,31 @@ const InventoryTab = () => {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [seasonal, setSeasonal] = useState<SeasonalTrend[]>([]);
 
+  // Initial data fetch
   useEffect(() => {
     fetchInventoryTurnover().then(setInventory).catch(console.error);
     fetchSeasonalTrends().then(setSeasonal).catch(console.error);
+  }, []);
+
+  // Auto-refresh when stream is running
+  useEffect(() => {
+    const refreshData = async () => {
+      try {
+        const statusRes = await fetch("/api/stream/status");
+        if (statusRes.ok) {
+          const status = await statusRes.json();
+          if (status.status === "running") {
+            fetchInventoryTurnover().then(setInventory).catch(console.error);
+            fetchSeasonalTrends().then(setSeasonal).catch(console.error);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to check stream status:", err);
+      }
+    };
+
+    const interval = setInterval(refreshData, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   // Compute KPIs from inventory data

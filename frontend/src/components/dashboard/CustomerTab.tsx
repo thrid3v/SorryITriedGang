@@ -18,10 +18,33 @@ const CustomerTab = () => {
   const [clv, setCLV] = useState<CLVRecord[]>([]);
   const [basket, setBasket] = useState<BasketPair[]>([]);
 
+  // Initial data fetch
   useEffect(() => {
     fetchCustomerSegmentation().then(setSegments).catch(console.error);
     fetchCLV().then(setCLV).catch(console.error);
     fetchMarketBasket().then(setBasket).catch(console.error);
+  }, []);
+
+  // Auto-refresh when stream is running
+  useEffect(() => {
+    const refreshData = async () => {
+      try {
+        const statusRes = await fetch("/api/stream/status");
+        if (statusRes.ok) {
+          const status = await statusRes.json();
+          if (status.status === "running") {
+            fetchCustomerSegmentation().then(setSegments).catch(console.error);
+            fetchCLV().then(setCLV).catch(console.error);
+            fetchMarketBasket().then(setBasket).catch(console.error);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to check stream status:", err);
+      }
+    };
+
+    const interval = setInterval(refreshData, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const newSeg = segments.find((s) => s.customer_type === "New");

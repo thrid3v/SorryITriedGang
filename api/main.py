@@ -12,8 +12,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -32,6 +34,13 @@ from src.analytics.kpi_queries import (
     compute_seasonal_trends,
     compute_customer_segmentation,
 )
+from api.auth import (
+    authenticate_user,
+    create_user,
+    create_access_token,
+    decode_token,
+    get_user,
+)
 
 # ── Streaming State ──────────────────────────────────
 stream_state = {
@@ -48,6 +57,52 @@ app = FastAPI(
     description="Analytics API for retail data lakehouse",
     version="1.0.0",
 )
+
+# ── Auth Models ──────────────────────────────────────
+class RegisterRequest(BaseModel):
+    username: str
+    password: str
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str
+    role: str
+    username: str
+
+class UserInfo(BaseModel):
+    username: str
+    role: str
+
+# ── Auth Dependencies ────────────────────────────────
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
+    """Decode JWT token and return current user info."""
+    payload = decode_token(token)
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    username = payload.get("sub")
+    if username is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    user = get_user(username)
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    return {"username": user["username"], "role": user["role"], "id": user["id"]}
+
+def require_admin(current_user: dict = Depends(get_current_user)) -> dict:
+    """Require admin role for endpoint access."""
+    if current_user["role"] != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
 
 # ── CORS Configuration ───────────────────────────────
 app.add_middleware(
@@ -74,8 +129,162 @@ def root():
     }
 
 
+# ── Auth Endpoints ───────────────────────────────────
+
+@app.post("/api/register", response_model=LoginResponse)
+def register(request: RegisterRequest):
+    """Register a new customer account."""
+    # Check if user already exists
+    existing_user = get_user(request.username)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username already exists"
+        )
+    
+    # Create new user (always as customer)
+    user = create_user(request.username, request.password, role="customer")
+    
+    # Generate JWT token
+    access_token = create_access_token(data={"sub": user["username"], "role": user["role"]})
+    
+    return LoginResponse(
+        access_token=access_token,
+        token_type="bearer",
+        role=user["role"],
+        username=user["username"]
+    )
+
+
+@app.post("/api/login", response_model=LoginResponse)
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    """Login and receive JWT token."""
+    user = authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Generate JWT token
+    access_token = create_access_token(data={"sub": user["username"], "role": user["role"]})
+    
+    return LoginResponse(
+        access_token=access_token,
+        token_type="bearer",
+        role=user["role"],
+        username=user["username"]
+    )
+
+
+@app.get("/api/me", response_model=UserInfo)
+def get_me(current_user: dict = Depends(get_current_user)):
+    """Get current user information."""
+    return UserInfo(
+        username=current_user["username"],
+        role=current_user["role"]
+    )
+
+
+# ── Customer-Specific Endpoints ─────────────────────
+
+@app.get("/api/customers/me/sales", response_model=Dict[str, Any])
+def get_my_sales(current_user: dict = Depends(get_current_user)):
+    """
+    Get sales analytics for the current customer.
+    Returns purchase history, total spent, and order count.
+    """
+    try:
+        import duckdb
+        from pathlib import Path
+        
+        gold_path = PROJECT_ROOT / "data" / "gold"
+        
+        # Query customer's transactions
+        query = f"""
+        SELECT 
+            COUNT(*) as total_orders,
+            SUM(sale_price) as total_spent,
+            AVG(sale_price) as avg_order_value,
+            MIN(transaction_date) as first_purchase,
+            MAX(transaction_date) as last_purchase
+        FROM read_parquet('{gold_path}/fact_transactions.parquet')
+        WHERE customer_name = '{current_user["username"]}'
+        """
+        
+        result = duckdb.query(query).fetchdf().to_dict(orient="records")[0]
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch sales data: {str(e)}")
+
+
+@app.get("/api/customers/me/orders", response_model=List[Dict])
+def get_my_orders(current_user: dict = Depends(get_current_user), limit: int = 20):
+    """
+    Get recent orders for the current customer.
+    """
+    try:
+        import duckdb
+        from pathlib import Path
+        
+        gold_path = PROJECT_ROOT / "data" / "gold"
+        
+        query = f"""
+        SELECT 
+            transaction_id,
+            transaction_date,
+            product_name,
+            category,
+            sale_price,
+            quantity,
+            payment_method
+        FROM read_parquet('{gold_path}/fact_transactions.parquet')
+        WHERE customer_name = '{current_user["username"]}'
+        ORDER BY transaction_date DESC
+        LIMIT {limit}
+        """
+        
+        df = duckdb.query(query).fetchdf()
+        return df.to_dict(orient="records")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch orders: {str(e)}")
+
+
+@app.get("/api/customers/me/clv", response_model=Dict[str, Any])
+def get_my_clv(current_user: dict = Depends(get_current_user)):
+    """
+    Get Customer Lifetime Value for the current customer.
+    """
+    try:
+        import duckdb
+        from pathlib import Path
+        
+        gold_path = PROJECT_ROOT / "data" / "gold"
+        
+        query = f"""
+        SELECT 
+            customer_name,
+            COUNT(DISTINCT transaction_id) as total_orders,
+            SUM(sale_price) as total_revenue,
+            AVG(sale_price) as avg_order_value,
+            (SUM(sale_price) * 1.5) as estimated_clv
+        FROM read_parquet('{gold_path}/fact_transactions.parquet')
+        WHERE customer_name = '{current_user["username"]}'
+        GROUP BY customer_name
+        """
+        
+        result = duckdb.query(query).fetchdf().to_dict(orient="records")
+        if result:
+            return result[0]
+        return {"customer_name": current_user["username"], "total_orders": 0, "total_revenue": 0, "estimated_clv": 0}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch CLV: {str(e)}")
+
+
+
 @app.get("/api/kpis", response_model=Dict[str, Any])
-def get_summary_kpis():
+def get_summary_kpis(current_user: dict = Depends(require_admin)):
     """
     Get summary KPIs: total revenue, active users, total orders.
     """
@@ -86,7 +295,7 @@ def get_summary_kpis():
 
 
 @app.get("/api/clv", response_model=List[Dict])
-def get_clv():
+def get_clv(current_user: dict = Depends(require_admin)):
     """
     Get Customer Lifetime Value analysis.
     """
@@ -101,7 +310,7 @@ def get_clv():
 
 
 @app.get("/api/basket", response_model=List[Dict])
-def get_market_basket(min_support: int = 2):
+def get_market_basket(current_user: dict = Depends(require_admin), min_support: int = 2):
     """
     Get market basket analysis - product pairs frequently bought together.
     """
@@ -158,7 +367,7 @@ def get_top_products(limit: int = 10):
 
 
 @app.get("/api/inventory/turnover", response_model=List[Dict])
-def get_inventory_turnover():
+def get_inventory_turnover(current_user: dict = Depends(require_admin)):
     """
     Get inventory turnover ratio analysis.
     """
@@ -172,7 +381,7 @@ def get_inventory_turnover():
 
 
 @app.get("/api/delivery/metrics", response_model=List[Dict])
-def get_delivery_metrics():
+def get_delivery_metrics(current_user: dict = Depends(require_admin)):
     """
     Get delivery performance metrics by carrier and region.
     """
@@ -186,7 +395,7 @@ def get_delivery_metrics():
 
 
 @app.get("/api/trends/seasonal", response_model=List[Dict])
-def get_seasonal_trends():
+def get_seasonal_trends(current_user: dict = Depends(require_admin)):
     """
     Get seasonal demand trends by category.
     """
@@ -200,7 +409,7 @@ def get_seasonal_trends():
 
 
 @app.get("/api/customers/segmentation", response_model=List[Dict])
-def get_customer_segmentation():
+def get_customer_segmentation(current_user: dict = Depends(require_admin)):
     """
     Get new vs. returning customer segmentation.
     """
@@ -237,7 +446,7 @@ def health_check():
 # ── Streaming Endpoints ─────────────────────────────
 
 @app.post("/api/stream/start")
-async def start_stream():
+async def start_stream(current_user: dict = Depends(require_admin)):
     """
     Start the real-time ingestion stream.
     Launches both generator and processor in background.
@@ -289,7 +498,7 @@ async def start_stream():
 
 
 @app.post("/api/stream/stop")
-async def stop_stream():
+async def stop_stream(current_user: dict = Depends(require_admin)):
     """
     Stop the real-time ingestion stream.
     Terminates both generator and processor processes.

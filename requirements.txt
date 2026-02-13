@@ -8,3 +8,6 @@ watchdog>=4.0.0  # For real-time file monitoring
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
 psutil>=1.31.0
+python-jose[cryptography]>=3.5.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.22

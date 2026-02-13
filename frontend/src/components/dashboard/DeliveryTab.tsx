@@ -9,8 +9,29 @@ import { cn } from "@/lib/utils";
 const DeliveryTab = () => {
   const [metrics, setMetrics] = useState<DeliveryMetric[]>([]);
 
+  // Initial data fetch
   useEffect(() => {
     fetchDeliveryMetrics().then(setMetrics).catch(console.error);
+  }, []);
+
+  // Auto-refresh when stream is running
+  useEffect(() => {
+    const refreshData = async () => {
+      try {
+        const statusRes = await fetch("/api/stream/status");
+        if (statusRes.ok) {
+          const status = await statusRes.json();
+          if (status.status === "running") {
+            fetchDeliveryMetrics().then(setMetrics).catch(console.error);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to check stream status:", err);
+      }
+    };
+
+    const interval = setInterval(refreshData, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const totalShipments = metrics.reduce((s, m) => s + m.shipment_count, 0);
