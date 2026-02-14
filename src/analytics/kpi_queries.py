@@ -2,11 +2,12 @@
 RetailNexus — KPI Queries
 ==========================
 All heavy lifts use duckdb — no Python for-loops on data.
-Placeholders (🔌) mark spots that depend on upstream pipeline output.
+Schema-agnostic: Uses dynamic table discovery instead of hardcoded paths.
 """
 import os
 import sys
 from pathlib import Path
+from typing import Dict
 
 import duckdb
 import pandas as pd
@@ -14,18 +15,26 @@ import pandas as pd
 # Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.utils.retry_utils import retry_with_backoff
+from src.analytics.schema_inspector import load_business_context, discover_tables
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-GOLD_DIR     = PROJECT_ROOT / "data" / "gold"
 
-# Paths for partitioned and non-partitioned tables
-FACT_TXN = str(GOLD_DIR / "fact_transactions.parquet" / "**" / "*.parquet").replace("\\", "/")
-DIM_USERS = str(GOLD_DIR / "dim_users.parquet").replace("\\", "/")
-DIM_PRODUCTS = str(GOLD_DIR / "dim_products.parquet").replace("\\", "/")
+# ── Dynamic Table Path Resolution ──────────────────────
+_table_cache = None
 
-# ── helper ──────────────────────────────────────
-def _gold_path(table: str) -> str:
-    return str(GOLD_DIR / table / "**/*.parquet")
+def _get_table_paths() -> Dict[str, str]:
+    """
+    Get table paths dynamically from Gold Layer.
+    Caches result to avoid repeated file system scans.
+    
+    Returns:
+        Dict mapping table names to their DuckDB read paths
+    """
+    global _table_cache
+    if _table_cache is None:
+        context = load_business_context()
+        _table_cache = discover_tables(context['gold_layer_path'])
+    return _table_cache
 
 def _get_conn():
     """Create a fresh DuckDB connection for each query to avoid concurrency issues."""
@@ -40,13 +49,17 @@ def compute_clv() -> pd.DataFrame:
     """
     CLV = total_spend per customer, plus average order value and
     purchase frequency.
-
-    🔌 PLACEHOLDER: reads from gold/fact_transactions & gold/dim_users.
-       These files will be created by the transformation pipeline (Person B).
+    
+    Schema-agnostic: Uses dynamic table discovery.
     """
-    txn_path = str(GOLD_DIR / "fact_transactions.parquet")
-    users_path = str(GOLD_DIR / "dim_users.parquet")
     try:
+        tables = _get_table_paths()
+        fact_txn = tables.get('fact_transactions')
+        dim_users = tables.get('dim_users')
+        
+        if not fact_txn or not dim_users:
+            raise FileNotFoundError("Required tables not found in Gold Layer")
+        
         conn = _get_conn()
         df = conn.sql(f"""
             WITH user_purchases AS (
@@ -56,7 +69,7 @@ def compute_clv() -> pd.DataFrame:
                     SUM(ft.amount)                     AS total_spend,
                     MIN(ft.timestamp)::DATE            AS first_purchase,
                     MAX(ft.timestamp)::DATE            AS last_purchase
-                FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
+                FROM {fact_txn} ft
                 WHERE ft.user_key != -1
                 GROUP BY ft.user_key
             ),
@@ -81,7 +94,7 @@ def compute_clv() -> pd.DataFrame:
                 clv.customer_lifespan_days,
                 clv.estimated_clv
             FROM clv_calc clv
-            LEFT JOIN '{DIM_USERS}' du
+            LEFT JOIN {dim_users} du
                 ON clv.user_key = du.surrogate_key
             WHERE du.is_current = TRUE
             ORDER BY clv.estimated_clv DESC
@@ -104,11 +117,16 @@ def compute_clv() -> pd.DataFrame:
 def compute_market_basket(min_support: int = 3) -> pd.DataFrame:
     """
     Pairs of products frequently bought in the same transaction.
-
-    🔌 PLACEHOLDER: reads from gold/fact_transactions & gold/dim_products.
-       These files will be created by the transformation pipeline (Person B).
+    Schema-agnostic: Uses dynamic table discovery.
     """
     try:
+        tables = _get_table_paths()
+        fact_txn = tables.get('fact_transactions')
+        dim_products = tables.get('dim_products')
+        
+        if not fact_txn or not dim_products:
+            raise FileNotFoundError("Required tables not found in Gold Layer")
+        
         conn = _get_conn()
         df = conn.sql(f"""
             WITH basket AS (
@@ -116,8 +134,8 @@ def compute_market_basket(min_support: int = 3) -> pd.DataFrame:
                     t1.transaction_id,
                     t1.product_key AS product_a,
                     t2.product_key AS product_b
-                FROM read_parquet('{FACT_TXN}', hive_partitioning=true) t1
-                JOIN read_parquet('{FACT_TXN}', hive_partitioning=true) t2
+                FROM {fact_txn} t1
+                JOIN {fact_txn} t2
                     ON  t1.transaction_id = t2.transaction_id
                     AND t1.product_key < t2.product_key
                 WHERE t1.product_key != -1 AND t2.product_key != -1
@@ -138,9 +156,9 @@ def compute_market_basket(min_support: int = 3) -> pd.DataFrame:
                 pc.product_a,
                 pc.product_b
             FROM pair_counts pc
-            LEFT JOIN '{DIM_PRODUCTS}' pa
+            LEFT JOIN {dim_products} pa
                 ON pc.product_a = pa.product_key
-            LEFT JOIN '{DIM_PRODUCTS}' pb
+            LEFT JOIN {dim_products} pb
                 ON pc.product_b = pb.product_key
             ORDER BY pc.times_bought_together DESC
         """).df()
@@ -161,17 +179,22 @@ def compute_market_basket(min_support: int = 3) -> pd.DataFrame:
 def compute_summary_kpis() -> dict:
     """
     Quick headline numbers for the dashboard top bar.
-
-    🔌 PLACEHOLDER: depends on gold/fact_transactions & gold/dim_products.
+    Schema-agnostic: Uses dynamic table discovery.
     """
     try:
+        tables = _get_table_paths()
+        fact_txn = tables.get('fact_transactions')
+        
+        if not fact_txn:
+            raise FileNotFoundError("fact_transactions not found in Gold Layer")
+        
         conn = _get_conn()
         result = conn.sql(f"""
             SELECT
                 SUM(amount)::DOUBLE                                              AS total_revenue,
                 COUNT(DISTINCT user_key) FILTER (WHERE user_key != -1)::INTEGER  AS active_users,
                 COUNT(DISTINCT transaction_id)::INTEGER                          AS total_orders
-            FROM read_parquet('{FACT_TXN}', hive_partitioning=true)
+            FROM {fact_txn}
         """).fetchone()
         conn.close()
 
@@ -191,13 +214,19 @@ def compute_summary_kpis() -> dict:
 def compute_revenue_timeseries(granularity: str = 'daily') -> pd.DataFrame:
     """
     Revenue breakdown by day or month.
+    Schema-agnostic: Uses dynamic table discovery.
     
     Args:
         granularity: 'daily' or 'monthly'
     """
-    DIM_DATES = str(GOLD_DIR / "dim_dates.parquet").replace("\\", "/")
-    
     try:
+        tables = _get_table_paths()
+        fact_txn = tables.get('fact_transactions')
+        dim_dates = tables.get('dim_dates')
+        
+        if not fact_txn or not dim_dates:
+            raise FileNotFoundError("Required tables not found in Gold Layer")
+        
         conn = _get_conn()
         
         if granularity == 'monthly':
@@ -207,8 +236,8 @@ def compute_revenue_timeseries(granularity: str = 'daily') -> pd.DataFrame:
                     dd.month,
                     SUM(ft.amount) as revenue,
                     COUNT(DISTINCT ft.transaction_id) as order_count
-                FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
-                JOIN '{DIM_DATES}' dd ON ft.date_key = dd.date_key
+                FROM {fact_txn} ft
+                JOIN {dim_dates} dd ON ft.date_key = dd.date_key
                 GROUP BY dd.year, dd.month
                 ORDER BY dd.year, dd.month
             """).df()
@@ -219,8 +248,8 @@ def compute_revenue_timeseries(granularity: str = 'daily') -> pd.DataFrame:
                     dd.day_of_week,
                     SUM(ft.amount) as revenue,
                     COUNT(DISTINCT ft.transaction_id) as order_count
-                FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
-                JOIN '{DIM_DATES}' dd ON ft.date_key = dd.date_key
+                FROM {fact_txn} ft
+                JOIN {dim_dates} dd ON ft.date_key = dd.date_key
                 GROUP BY dd.full_date, dd.day_of_week
                 ORDER BY dd.full_date
             """).df()
@@ -237,8 +266,15 @@ def compute_revenue_timeseries(granularity: str = 'daily') -> pd.DataFrame:
 # ─────────────────────────────────────────────────
 @retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
 def compute_city_sales() -> pd.DataFrame:
-    """Revenue and order count by customer city."""
+    """Revenue and order count by customer city. Schema-agnostic."""
     try:
+        tables = _get_table_paths()
+        fact_txn = tables.get('fact_transactions')
+        dim_users = tables.get('dim_users')
+        
+        if not fact_txn or not dim_users:
+            raise FileNotFoundError("Required tables not found in Gold Layer")
+        
         conn = _get_conn()
         df = conn.sql(f"""
             SELECT
@@ -247,8 +283,8 @@ def compute_city_sales() -> pd.DataFrame:
                 SUM(ft.amount) as total_revenue,
                 AVG(ft.amount) as avg_order_value,
                 COUNT(DISTINCT ft.user_key) as unique_customers
-            FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
-            JOIN '{DIM_USERS}' du ON ft.user_key = du.surrogate_key
+            FROM {fact_txn} ft
+            JOIN {dim_users} du ON ft.user_key = du.surrogate_key
             WHERE du.is_current = TRUE AND ft.user_key != -1
             GROUP BY du.city
             ORDER BY total_revenue DESC
@@ -265,8 +301,15 @@ def compute_city_sales() -> pd.DataFrame:
 # ─────────────────────────────────────────────────
 @retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
 def compute_top_products(limit: int = 10) -> pd.DataFrame:
-    """Top products by revenue and quantity sold."""
+    """Top products by revenue and quantity sold. Schema-agnostic."""
     try:
+        tables = _get_table_paths()
+        fact_txn = tables.get('fact_transactions')
+        dim_products = tables.get('dim_products')
+        
+        if not fact_txn or not dim_products:
+            raise FileNotFoundError("Required tables not found in Gold Layer")
+        
         conn = _get_conn()
         df = conn.sql(f"""
             SELECT
@@ -276,8 +319,8 @@ def compute_top_products(limit: int = 10) -> pd.DataFrame:
                 COUNT(*) as units_sold,
                 SUM(ft.amount) as total_revenue,
                 AVG(ft.amount) as avg_sale_price
-            FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
-            JOIN '{DIM_PRODUCTS}' dp ON ft.product_key = dp.product_key
+            FROM {fact_txn} ft
+            JOIN {dim_products} dp ON ft.product_key = dp.product_key
             WHERE ft.product_key != -1
             GROUP BY dp.product_name, dp.category, dp.price
             ORDER BY total_revenue DESC

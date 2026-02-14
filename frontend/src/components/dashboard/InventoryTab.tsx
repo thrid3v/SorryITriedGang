@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Package, AlertTriangle, TrendingDown, RefreshCw } from "lucide-react";
 import KPICard from "./KPICard";
 import { GlassChart, GlassBarChart, GlassLineChart } from "./Charts";
+import { ErrorState, LoadingState } from "./StateComponents";
 import {
   fetchInventoryTurnover, fetchSeasonalTrends,
   type InventoryItem, type SeasonalTrend,
@@ -10,11 +11,30 @@ import {
 const InventoryTab = () => {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [seasonal, setSeasonal] = useState<SeasonalTrend[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Initial data fetch
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [invData, seasonalData] = await Promise.all([
+        fetchInventoryTurnover(),
+        fetchSeasonalTrends()
+      ]);
+      setInventory(invData);
+      setSeasonal(seasonalData);
+    } catch (err: any) {
+      console.error("Failed to load inventory data:", err);
+      setError(err.message || "Failed to load inventory data. Please try refreshing the page.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchInventoryTurnover().then(setInventory).catch(console.error);
-    fetchSeasonalTrends().then(setSeasonal).catch(console.error);
+    loadData();
   }, []);
 
   // Auto-refresh when stream is running
@@ -25,8 +45,7 @@ const InventoryTab = () => {
         if (statusRes.ok) {
           const status = await statusRes.json();
           if (status.status === "running") {
-            fetchInventoryTurnover().then(setInventory).catch(console.error);
-            fetchSeasonalTrends().then(setSeasonal).catch(console.error);
+            loadData();
           }
         }
       } catch (err) {
@@ -37,6 +56,22 @@ const InventoryTab = () => {
     const interval = setInterval(refreshData, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  // Show loading state
+  if (loading) {
+    return <LoadingState message="Loading inventory data..." />;
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <ErrorState
+        title="Unable to load inventory data"
+        message={error}
+        onRetry={loadData}
+      />
+    );
+  }
 
   // Compute KPIs from inventory data
   const avgTurnover = inventory.length

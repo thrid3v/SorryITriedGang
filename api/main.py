@@ -34,6 +34,7 @@ from src.analytics.kpi_queries import (
     compute_seasonal_trends,
     compute_customer_segmentation,
 )
+from src.analytics.schema_inspector import load_business_context
 from api.auth import (
     authenticate_user,
     create_user,
@@ -41,6 +42,7 @@ from api.auth import (
     decode_token,
     get_user,
 )
+from api.context_manager import get_business_contexts, save_business_contexts
 
 # ── Streaming State ──────────────────────────────────
 stream_state = {
@@ -572,9 +574,34 @@ def get_stream_status():
         "status": stream_state["status"],
         "started_at": stream_state["started_at"],
         "events_in_buffer": events_count,
-        "generator_pid": stream_state["generator_pid"],
-        "processor_pid": stream_state["processor_pid"],
     }
+
+
+# ── AI Analyst (RAG) Endpoint ───────────────────────────
+
+@app.post("/api/ask")
+async def ask_analyst(request: dict):
+    """
+    AI Analyst: Natural Language to SQL Query Engine.
+    Converts user questions into SQL queries using RAG with embeddings.
+    
+    Request body:
+        {
+            "question": "What are my top 5 products by revenue?"
+        }
+    """
+    try:
+        from src.analytics.nl_query import ask
+        
+        question = request.get("question", "")
+        if not question:
+            raise HTTPException(status_code=400, detail="Question is required")
+        
+        result = ask(question)
+        return result
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to process question: {str(e)}")
 
 
 # ── Text-to-SQL Endpoint ────────────────────────────
@@ -612,6 +639,78 @@ async def chat_ask(request: Dict[str, str]):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process question: {str(e)}")
+
+
+# ── Context Switching Endpoints ─────────────────────────
+
+@app.get("/api/context/current")
+async def get_current_context():
+    """
+    Get the currently active business context.
+    Available to all authenticated users.
+    """
+    try:
+        contexts = get_business_contexts()
+        active_name = contexts.get("active_context", "retail_general")
+        active_context = contexts["contexts"][active_name]
+        return {
+            "active_context": active_name,
+            "context": active_context
+        }
+    except Exception as e:
+        raise HTTPException(500, f"Failed to load context: {str(e)}")
+
+@app.get("/api/context/list")
+async def list_contexts(current_user: dict = Depends(require_admin)):
+    """
+    List all available business contexts.
+    Admin-only endpoint.
+    """
+    try:
+        contexts = get_business_contexts()
+        return {
+            "contexts": contexts["contexts"],
+            "active_context": contexts["active_context"]
+        }
+    except Exception as e:
+        raise HTTPException(500, f"Failed to load contexts: {str(e)}")
+
+@app.post("/api/context/switch")
+async def switch_context(
+    context_name: str,
+    current_user: dict = Depends(require_admin)
+):
+    """
+    Switch the active business context.
+    Admin-only endpoint.
+    
+    Args:
+        context_name: Name of the context to switch to (e.g., "bakery", "clothing")
+    """
+    try:
+        contexts = get_business_contexts()
+        
+        if context_name not in contexts["contexts"]:
+            available = list(contexts["contexts"].keys())
+            raise HTTPException(
+                404,
+                f"Context '{context_name}' not found. Available: {available}"
+            )
+        
+        # Update active context
+        contexts["active_context"] = context_name
+        save_business_contexts(contexts)
+        
+        return {
+            "status": "success",
+            "active_context": context_name,
+            "context": contexts["contexts"][context_name]
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Failed to switch context: {str(e)}")
 
 
 # ── Run with: uvicorn api.main:app --reload --port 8000 ──

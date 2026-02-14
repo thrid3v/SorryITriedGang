@@ -1,259 +1,313 @@
 """
-RetailNexus Data Generator
-Generates dirty retail transaction, user, and product CSVs to data/raw/.
-Intentionally injects nulls and duplicates to test pipeline resilience.
+RetailNexus Schema-Driven Data Generator
+=========================================
+Generates retail data based on business context schema definitions.
+Adapts to any retail vertical (bakery, clothing, etc.) without hardcoding.
 """
 import os
 import random
-from datetime import datetime, timedelta
+import sys
+import json
+from datetime import datetime
 from pathlib import Path
+from typing import Dict, Any, List
 
 import pandas as pd
 from faker import Faker
 
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.ingestion.field_generator import FieldGenerator
+
+# Initialize Faker with time-based seed for unique data each run
 fake = Faker()
-# Use time-based seeds so each run produces unique data
 _seed = int(datetime.now().timestamp() * 1000) % (2**32)
 Faker.seed(_seed)
 random.seed(_seed)
 
-RAW_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw")
-
-# ── Stable pools so user_ids / product_ids are consistent across batches ──
-_USER_POOL_SIZE = 50
-_PRODUCT_POOL_SIZE = 30
-_STORE_IDS = [f"STORE_{i:03d}" for i in range(1, 11)]
-
-CITIES = [
-    "New York", "Los Angeles", "Chicago", "Houston", "Phoenix",
-    "San Antonio", "Dallas", "San Jose", "Austin", "Jacksonville",
-]
-
-CATEGORIES = ["Electronics", "Clothing", "Grocery", "Home & Garden", "Sports"]
-
-PRODUCT_NAMES = [
-    "Wireless Earbuds", "Running Shoes", "Organic Milk", "LED Desk Lamp",
-    "Yoga Mat", "Smartphone Case", "Cotton T-Shirt", "Protein Bars",
-    "Throw Pillow", "Tennis Racket", "Bluetooth Speaker", "Denim Jeans",
-    "Olive Oil", "Wall Clock", "Resistance Bands", "Screen Protector",
-    "Winter Jacket", "Green Tea", "Scented Candle", "Soccer Ball",
-    "Laptop Stand", "Wool Socks", "Almond Butter", "Bookshelf",
-    "Jump Rope", "USB-C Cable", "Flannel Shirt", "Honey",
-    "Desk Organizer", "Basketball",
-]
+RAW_DIR = PROJECT_ROOT / "data" / "raw"
 
 
 def _ensure_raw_dir():
-    os.makedirs(RAW_DIR, exist_ok=True)
+    """Create raw data directory if it doesn't exist."""
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def _generate_users(num_users: int = _USER_POOL_SIZE) -> pd.DataFrame:
-    """Generate user records with ~3% null cities and occasional city changes."""
+def load_business_context() -> Dict[str, Any]:
+    """Load active business context from config."""
+    config_file = PROJECT_ROOT / "config" / "business_contexts.json"
+    with open(config_file, 'r') as f:
+        data = json.load(f)
+    
+    active = data.get("active_context", "retail_general")
+    return data["contexts"][active]
+
+
+def generate_table(
+    table_name: str,
+    table_config: Dict[str, Any],
+    field_gen: FieldGenerator,
+    fk_pools: Dict[str, List[Any]] = None
+) -> pd.DataFrame:
+    """
+    Generate a table based on schema configuration.
+    
+    Args:
+        table_name: Name of the table
+        table_config: Table configuration from schema
+        field_gen: FieldGenerator instance
+        fk_pools: Dictionary of foreign key pools
+    
+    Returns:
+        DataFrame with generated data
+    """
+    fk_pools = fk_pools or {}
+    fields = table_config["fields"]
+    
+    # Determine number of rows
+    if table_name == "products":
+        num_rows = table_config.get("pool_size", 30)
+    elif table_name == "users":
+        num_rows = table_config.get("pool_size", 50)
+    elif table_name == "transactions":
+        # Transactions are special - multiple products per transaction
+        return generate_transactions(table_config, field_gen, fk_pools)
+    elif table_name == "inventory":
+        # Inventory is product x store combinations
+        return generate_inventory(table_config, field_gen, fk_pools)
+    elif table_name == "shipments":
+        num_rows = table_config.get("num_shipments", 50)
+    else:
+        num_rows = 100
+    
+    # Generate rows
     rows = []
-    for i in range(1, num_users + 1):
-        city = random.choice(CITIES) if random.random() > 0.03 else None
-        rows.append({
-            "user_id": f"USR_{i:04d}",
-            "name": fake.name(),
-            "email": fake.email(),
-            "city": city,
-            "signup_date": fake.date_between(start_date="-2y", end_date="today").isoformat(),
-        })
+    for i in range(1, num_rows + 1):
+        row = {}
+        for field_name, field_config in fields.items():
+            if field_config["type"] == "fk":
+                # Handle foreign keys
+                ref = field_config["references"]
+                if ref in fk_pools and fk_pools[ref]:
+                    row[field_name] = random.choice(fk_pools[ref])
+                else:
+                    row[field_name] = None
+            else:
+                row[field_name] = field_gen.generate(field_name, field_config, row_index=i)
+        rows.append(row)
+    
     return pd.DataFrame(rows)
 
 
-def _generate_products(num_products: int = _PRODUCT_POOL_SIZE) -> pd.DataFrame:
-    """Generate product records with ~2% null prices."""
-    rows = []
-    for i in range(1, num_products + 1):
-        price = round(random.uniform(5.0, 500.0), 2) if random.random() > 0.02 else None
-        rows.append({
-            "product_id": f"PRD_{i:04d}",
-            "product_name": PRODUCT_NAMES[i - 1] if i <= len(PRODUCT_NAMES) else fake.word(),
-            "category": random.choice(CATEGORIES),
-            "price": price,
-        })
-    return pd.DataFrame(rows)
-
-
-def _generate_transactions(num: int = 100) -> pd.DataFrame:
+def generate_transactions(
+    table_config: Dict[str, Any],
+    field_gen: FieldGenerator,
+    fk_pools: Dict[str, List[Any]]
+) -> pd.DataFrame:
     """
-    Generate transaction line items.
-    Each transaction = 1-5 products.
-    Intentionally inject ~5% null amounts and ~2% duplicates.
+    Generate transaction line items (multiple products per transaction).
+    
+    Args:
+        table_config: Transaction table configuration
+        field_gen: FieldGenerator instance
+        fk_pools: Foreign key pools
+    
+    Returns:
+        DataFrame with transaction line items
     """
+    num_transactions = table_config.get("num_transactions", 100)
+    products_per_txn = table_config.get("products_per_transaction", [1, 5])
+    fields = table_config["fields"]
+    
     rows = []
-    txn_id_counter = 1
-    start_date = datetime.now() - timedelta(days=30)
-
-    for _ in range(num):
-        txn_id = f"TXN_{txn_id_counter:06d}"
-        user_id = f"USR_{random.randint(1, _USER_POOL_SIZE):04d}"
-        store_id = random.choice(_STORE_IDS)
-        timestamp = start_date + timedelta(
-            days=random.randint(0, 30),
-            hours=random.randint(0, 23),
-            minutes=random.randint(0, 59),
-        )
-
-        # Each transaction has 1-5 products
-        num_products = random.randint(1, 5)
+    for txn_num in range(1, num_transactions + 1):
+        # Generate transaction ID
+        txn_id_config = fields["transaction_id"]
+        txn_id = field_gen.generate("transaction_id", txn_id_config, row_index=txn_num)
+        
+        # Generate common transaction fields
+        user_id = random.choice(fk_pools.get("users.user_id", ["USR_0001"]))
+        timestamp = field_gen.generate("timestamp", fields["timestamp"])
+        store_id = field_gen.generate("store_id", fields["store_id"])
+        
+        # Generate 1-5 product line items
+        num_products = random.randint(products_per_txn[0], products_per_txn[1])
         for _ in range(num_products):
-            product_id = f"PRD_{random.randint(1, _PRODUCT_POOL_SIZE):04d}"
-            amount = round(random.uniform(10.0, 500.0), 2) if random.random() > 0.05 else None
-
+            product_id = random.choice(fk_pools.get("products.product_id", ["PRD_0001"]))
+            amount = field_gen.generate("amount", fields["amount"])
+            
             rows.append({
                 "transaction_id": txn_id,
                 "user_id": user_id,
                 "product_id": product_id,
-                "timestamp": timestamp.isoformat(),
+                "timestamp": timestamp,
                 "amount": amount,
                 "store_id": store_id,
             })
-
-        txn_id_counter += 1
-
+    
     df = pd.DataFrame(rows)
-
-    # Inject ~2% duplicates
-    if len(df) > 10:
-        num_dupes = max(1, int(len(df) * 0.02))
+    
+    # Inject duplicates
+    duplicate_rate = table_config.get("duplicate_rate", 0.02)
+    if len(df) > 10 and duplicate_rate > 0:
+        num_dupes = max(1, int(len(df) * duplicate_rate))
         dupes = df.sample(n=num_dupes)
         df = pd.concat([df, dupes], ignore_index=True)
-
+    
     return df
 
 
-def _generate_inventory() -> pd.DataFrame:
+def generate_inventory(
+    table_config: Dict[str, Any],
+    field_gen: FieldGenerator,
+    fk_pools: Dict[str, List[Any]]
+) -> pd.DataFrame:
     """
-    Generate inventory snapshots for each product at each store.
-    Includes stock levels, reorder points, and last restock date.
+    Generate inventory records (product x store combinations).
+    
+    Args:
+        table_config: Inventory table configuration
+        field_gen: FieldGenerator instance
+        fk_pools: Foreign key pools
+    
+    Returns:
+        DataFrame with inventory snapshots
     """
+    fields = table_config["fields"]
+    products = fk_pools.get("products.product_id", [])
+    
+    # Get store options from config
+    store_options = fields["store_id"]["options"]
+    
     rows = []
-    for product_id in [f"PRD_{i:04d}" for i in range(1, _PRODUCT_POOL_SIZE + 1)]:
-        for store_id in _STORE_IDS:
-            stock_level = random.randint(0, 500)
-            reorder_point = random.randint(20, 100)
-            last_restock = fake.date_between(start_date="-60d", end_date="today")
-            
-            # Determine stock status
-            if stock_level == 0:
-                status = "out_of_stock"
-            elif stock_level <= reorder_point:
-                status = "low_stock"
-            else:
-                status = "in_stock"
-            
-            rows.append({
+    for product_id in products:
+        for store_id in store_options:
+            row = {
                 "product_id": product_id,
                 "store_id": store_id,
-                "stock_level": stock_level,
-                "reorder_point": reorder_point,
-                "last_restock_date": last_restock.isoformat(),
-                "stock_status": status,
-            })
+            }
+            
+            # Generate other fields
+            for field_name, field_config in fields.items():
+                if field_name not in ["product_id", "store_id"]:
+                    if field_config["type"] == "fk":
+                        continue
+                    row[field_name] = field_gen.generate(field_name, field_config)
+            
+            # Calculate stock status based on stock level
+            if "stock_level" in row and "stock_status" in fields:
+                stock_level = row.get("stock_level", 0)
+                reorder_point = row.get("reorder_point", 50)
+                
+                if stock_level == 0:
+                    row["stock_status"] = "out_of_stock"
+                elif stock_level <= reorder_point:
+                    row["stock_status"] = "low_stock"
+                else:
+                    # Use first option that's not out_of_stock or low_stock
+                    options = fields["stock_status"]["options"]
+                    valid_options = [o for o in options if o not in ["out_of_stock", "low_stock"]]
+                    if valid_options:
+                        row["stock_status"] = valid_options[0]
+            
+            rows.append(row)
     
     return pd.DataFrame(rows)
 
 
-def _generate_shipments(num_shipments: int = 50) -> pd.DataFrame:
+def main(num_transactions: int = 100, context_name: str = None):
     """
-    Generate shipment records for order fulfillment.
-    Includes shipping dates, delivery dates, carriers, and tracking.
+    Generate all data files based on business context schema.
+    
+    Args:
+        num_transactions: Number of transactions to generate
+        context_name: Optional context name to override active context
     """
-    rows = []
-    carriers = ["FedEx", "UPS", "USPS", "DHL", "Amazon Logistics"]
-    statuses = ["pending", "in_transit", "delivered", "delayed"]
-    
-    for i in range(1, num_shipments + 1):
-        shipment_id = f"SHIP_{i:06d}"
-        transaction_id = f"TXN_{random.randint(1, 200):06d}"  # Reference to transaction
-        origin_store = random.choice(_STORE_IDS)
-        dest_store = random.choice([s for s in _STORE_IDS if s != origin_store])
-        
-        shipped_date = fake.date_between(start_date="-30d", end_date="today")
-        delivery_days = random.randint(1, 10)
-        delivered_date = shipped_date + timedelta(days=delivery_days)
-        
-        carrier = random.choice(carriers)
-        tracking_number = fake.bothify(text="??########")
-        status = random.choice(statuses)
-        shipping_cost = round(random.uniform(5.0, 50.0), 2)
-        
-        rows.append({
-            "shipment_id": shipment_id,
-            "transaction_id": transaction_id,
-            "origin_store_id": origin_store,
-            "dest_store_id": dest_store,
-            "shipped_date": shipped_date.isoformat(),
-            "delivered_date": delivered_date.isoformat() if status == "delivered" else None,
-            "delivery_days": delivery_days if status == "delivered" else None,
-            "carrier": carrier,
-            "tracking_number": tracking_number,
-            "status": status,
-            "shipping_cost": shipping_cost,
-        })
-    
-    return pd.DataFrame(rows)
-
-
-def main(num_transactions: int = 100):
-    """Generate all data files."""
-    import sys
-    # Configure stdout for UTF-8 to handle emoji on Windows
+    # Configure stdout for UTF-8
     if hasattr(sys.stdout, 'reconfigure'):
         sys.stdout.reconfigure(encoding='utf-8')
     
     _ensure_raw_dir()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    # Generate transactions
-    print("[START] Starting Data Generator...")
-    txn_df = _generate_transactions(num_transactions)
-    txn_path = os.path.join(RAW_DIR, f"transactions_{timestamp}.csv")
-    txn_df.to_csv(txn_path, index=False)
-    null_count = txn_df["amount"].isna().sum()
-    dupe_count = txn_df.duplicated(subset=["transaction_id", "product_id"]).sum()
-    print(f"[OK] Generated {num_transactions} transactions -> {txn_path}")
-    print(f"     Stats: {null_count} NULLs, {dupe_count} duplicates")
-
-    # Generate users
-    users_df = _generate_users()
-    users_path = os.path.join(RAW_DIR, f"users_{timestamp}.csv")
-    users_df.to_csv(users_path, index=False)
-    print(f"[Ingestion] Wrote {len(users_df)} users -> {users_path}")
-
-    # Generate products
-    products_df = _generate_products()
-    products_path = os.path.join(RAW_DIR, f"products_{timestamp}.csv")
-    products_df.to_csv(products_path, index=False)
-    print(f"[Ingestion] Wrote {len(products_df)} products -> {products_path}")
-
-    # Generate inventory
-    inventory_df = _generate_inventory()
-    inventory_path = os.path.join(RAW_DIR, f"inventory_{timestamp}.csv")
-    inventory_df.to_csv(inventory_path, index=False)
-    print(f"[Ingestion] Wrote {len(inventory_df)} inventory records -> {inventory_path}")
-
-    # Generate shipments
-    shipments_df = _generate_shipments(num_shipments=max(10, num_transactions // 2))
-    shipments_path = os.path.join(RAW_DIR, f"shipments_{timestamp}.csv")
-    shipments_df.to_csv(shipments_path, index=False)
-    print(f"[Ingestion] Wrote {len(shipments_df)} shipments -> {shipments_path}")
-
-    print("[OK] Generation complete!")
+    
+    # Load business context
+    if context_name:
+        # Load specific context
+        config_file = PROJECT_ROOT / "config" / "business_contexts.json"
+        with open(config_file, 'r') as f:
+            data = json.load(f)
+        context = data["contexts"][context_name]
+    else:
+        context = load_business_context()
+    
+    schema = context.get("schema", {})
+    if not schema:
+        print(f"[ERROR] No schema defined for context: {context['name']}")
+        return
+    
+    print(f"[START] Generating data for: {context['name']}")
+    print(f"[INFO] Schema tables: {', '.join(schema.keys())}")
+    
+    field_gen = FieldGenerator(fake)
+    fk_pools = {}
+    
+    # Generate tables in dependency order
+    table_order = ["users", "products", "transactions", "inventory", "shipments"]
+    
+    for table_name in table_order:
+        if table_name not in schema:
+            continue
+        
+        table_config = schema[table_name]
+        
+        # Override num_transactions if specified
+        if table_name == "transactions" and num_transactions:
+            table_config["num_transactions"] = num_transactions
+        
+        # Generate table
+        df = generate_table(table_name, table_config, field_gen, fk_pools)
+        
+        # Save to CSV
+        file_path = RAW_DIR / f"{table_name}_{timestamp}.csv"
+        df.to_csv(file_path, index=False)
+        
+        # Collect foreign key pools
+        id_fields = [f for f, cfg in table_config["fields"].items() if cfg.get("type") == "id"]
+        for id_field in id_fields:
+            if id_field in df.columns:
+                fk_key = f"{table_name}.{id_field}"
+                fk_pools[fk_key] = df[id_field].unique().tolist()
+        
+        # Print stats
+        null_counts = df.isnull().sum()
+        null_fields = null_counts[null_counts > 0]
+        
+        print(f"[OK] Generated {len(df)} {table_name} → {file_path.name}")
+        if len(null_fields) > 0:
+            print(f"     Nulls: {dict(null_fields)}")
+    
+    print(f"[OK] Generation complete for {context['name']}!")
 
 
 if __name__ == "__main__":
     import argparse
-
-    parser = argparse.ArgumentParser(description="RetailNexus Data Generator")
+    
+    parser = argparse.ArgumentParser(description="RetailNexus Schema-Driven Data Generator")
     parser.add_argument(
         "--num-transactions",
         type=int,
         default=100,
         help="Number of transactions to generate (default: 100)",
     )
+    parser.add_argument(
+        "--context",
+        type=str,
+        default=None,
+        help="Business context to use (default: active context from config)",
+    )
     args = parser.parse_args()
-
-    main(num_transactions=args.num_transactions)
+    
+    main(num_transactions=args.num_transactions, context_name=args.context)

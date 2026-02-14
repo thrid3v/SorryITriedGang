@@ -1,0 +1,938 @@
+{
+    "contexts": {
+        "retail_general": {
+            "name": "General Retail",
+            "description": "Generic retail analytics for diverse product types",
+            "gold_layer_path": "data/gold",
+            "business_rules": {
+                "currency": "USD",
+                "timezone": "UTC",
+                "fiscal_year_start": "01-01"
+            },
+            "domain_hints": {
+                "product_types": [
+                    "general merchandise",
+                    "consumer goods"
+                ],
+                "key_metrics": [
+                    "revenue",
+                    "units sold",
+                    "customer count"
+                ]
+            },
+            "schema": {
+                "products": {
+                    "pool_size": 30,
+                    "fields": {
+                        "product_id": {
+                            "type": "id",
+                            "prefix": "PRD",
+                            "width": 4
+                        },
+                        "product_name": {
+                            "type": "choice",
+                            "options": [
+                                "Wireless Earbuds",
+                                "Running Shoes",
+                                "Organic Milk",
+                                "LED Desk Lamp",
+                                "Yoga Mat",
+                                "Smartphone Case",
+                                "Cotton T-Shirt",
+                                "Protein Bars",
+                                "Throw Pillow",
+                                "Tennis Racket",
+                                "Bluetooth Speaker",
+                                "Denim Jeans",
+                                "Olive Oil",
+                                "Wall Clock",
+                                "Resistance Bands",
+                                "Screen Protector",
+                                "Winter Jacket",
+                                "Green Tea",
+                                "Scented Candle",
+                                "Soccer Ball",
+                                "Laptop Stand",
+                                "Wool Socks",
+                                "Almond Butter",
+                                "Bookshelf",
+                                "Jump Rope",
+                                "USB-C Cable",
+                                "Flannel Shirt",
+                                "Honey",
+                                "Desk Organizer",
+                                "Basketball"
+                            ]
+                        },
+                        "category": {
+                            "type": "choice",
+                            "options": [
+                                "Electronics",
+                                "Clothing",
+                                "Grocery",
+                                "Home & Garden",
+                                "Sports"
+                            ]
+                        },
+                        "price": {
+                            "type": "float",
+                            "min": 5.0,
+                            "max": 500.0,
+                            "null_rate": 0.02
+                        }
+                    }
+                },
+                "users": {
+                    "pool_size": 50,
+                    "fields": {
+                        "user_id": {
+                            "type": "id",
+                            "prefix": "USR",
+                            "width": 4
+                        },
+                        "name": {
+                            "type": "name"
+                        },
+                        "email": {
+                            "type": "email"
+                        },
+                        "city": {
+                            "type": "choice",
+                            "options": [
+                                "New York",
+                                "Los Angeles",
+                                "Chicago",
+                                "Houston",
+                                "Phoenix",
+                                "San Antonio",
+                                "Dallas",
+                                "San Jose",
+                                "Austin",
+                                "Jacksonville"
+                            ],
+                            "null_rate": 0.03
+                        },
+                        "signup_date": {
+                            "type": "date",
+                            "start": "-2y",
+                            "end": "today"
+                        }
+                    }
+                },
+                "transactions": {
+                    "num_transactions": 100,
+                    "products_per_transaction": [
+                        1,
+                        5
+                    ],
+                    "fields": {
+                        "transaction_id": {
+                            "type": "id",
+                            "prefix": "TXN",
+                            "width": 6
+                        },
+                        "user_id": {
+                            "type": "fk",
+                            "references": "users.user_id"
+                        },
+                        "product_id": {
+                            "type": "fk",
+                            "references": "products.product_id"
+                        },
+                        "timestamp": {
+                            "type": "datetime",
+                            "start": "-30d",
+                            "end": "today"
+                        },
+                        "amount": {
+                            "type": "float",
+                            "min": 10.0,
+                            "max": 500.0,
+                            "null_rate": 0.05
+                        },
+                        "store_id": {
+                            "type": "choice",
+                            "options": [
+                                "STORE_001",
+                                "STORE_002",
+                                "STORE_003",
+                                "STORE_004",
+                                "STORE_005",
+                                "STORE_006",
+                                "STORE_007",
+                                "STORE_008",
+                                "STORE_009",
+                                "STORE_010"
+                            ]
+                        }
+                    },
+                    "duplicate_rate": 0.02
+                },
+                "inventory": {
+                    "fields": {
+                        "product_id": {
+                            "type": "fk",
+                            "references": "products.product_id"
+                        },
+                        "store_id": {
+                            "type": "choice",
+                            "options": [
+                                "STORE_001",
+                                "STORE_002",
+                                "STORE_003",
+                                "STORE_004",
+                                "STORE_005",
+                                "STORE_006",
+                                "STORE_007",
+                                "STORE_008",
+                                "STORE_009",
+                                "STORE_010"
+                            ]
+                        },
+                        "stock_level": {
+                            "type": "int",
+                            "min": 0,
+                            "max": 500
+                        },
+                        "reorder_point": {
+                            "type": "int",
+                            "min": 20,
+                            "max": 100
+                        },
+                        "last_restock_date": {
+                            "type": "date",
+                            "start": "-60d",
+                            "end": "today"
+                        },
+                        "stock_status": {
+                            "type": "choice",
+                            "options": [
+                                "in_stock",
+                                "low_stock",
+                                "out_of_stock"
+                            ]
+                        }
+                    }
+                },
+                "shipments": {
+                    "num_shipments": 50,
+                    "fields": {
+                        "shipment_id": {
+                            "type": "id",
+                            "prefix": "SHIP",
+                            "width": 6
+                        },
+                        "transaction_id": {
+                            "type": "fk",
+                            "references": "transactions.transaction_id"
+                        },
+                        "origin_store_id": {
+                            "type": "choice",
+                            "options": [
+                                "STORE_001",
+                                "STORE_002",
+                                "STORE_003",
+                                "STORE_004",
+                                "STORE_005",
+                                "STORE_006",
+                                "STORE_007",
+                                "STORE_008",
+                                "STORE_009",
+                                "STORE_010"
+                            ]
+                        },
+                        "dest_store_id": {
+                            "type": "choice",
+                            "options": [
+                                "STORE_001",
+                                "STORE_002",
+                                "STORE_003",
+                                "STORE_004",
+                                "STORE_005",
+                                "STORE_006",
+                                "STORE_007",
+                                "STORE_008",
+                                "STORE_009",
+                                "STORE_010"
+                            ]
+                        },
+                        "shipped_date": {
+                            "type": "date",
+                            "start": "-30d",
+                            "end": "today"
+                        },
+                        "delivered_date": {
+                            "type": "date",
+                            "start": "-30d",
+                            "end": "today"
+                        },
+                        "delivery_days": {
+                            "type": "int",
+                            "min": 1,
+                            "max": 10
+                        },
+                        "carrier": {
+                            "type": "choice",
+                            "options": [
+                                "FedEx",
+                                "UPS",
+                                "USPS",
+                                "DHL",
+                                "Amazon Logistics"
+                            ]
+                        },
+                        "tracking_number": {
+                            "type": "string",
+                            "faker_method": "bothify",
+                            "text": "??########"
+                        },
+                        "status": {
+                            "type": "choice",
+                            "options": [
+                                "pending",
+                                "in_transit",
+                                "delivered",
+                                "delayed"
+                            ]
+                        },
+                        "shipping_cost": {
+                            "type": "float",
+                            "min": 5.0,
+                            "max": 50.0
+                        }
+                    }
+                }
+            }
+        },
+        "bakery": {
+            "name": "Bakery Operations",
+            "description": "Bakery-specific analytics with perishable inventory tracking",
+            "gold_layer_path": "data/gold_bakery",
+            "business_rules": {
+                "currency": "USD",
+                "timezone": "UTC",
+                "fiscal_year_start": "01-01",
+                "perishable_tracking": true,
+                "shelf_life_days": 3
+            },
+            "domain_hints": {
+                "product_types": [
+                    "bread",
+                    "pastries",
+                    "cakes",
+                    "cookies"
+                ],
+                "key_metrics": [
+                    "daily production",
+                    "waste percentage",
+                    "freshness score"
+                ]
+            },
+            "schema": {
+                "products": {
+                    "pool_size": 30,
+                    "fields": {
+                        "product_id": {
+                            "type": "id",
+                            "prefix": "PRD",
+                            "width": 4
+                        },
+                        "pastry_name": {
+                            "type": "choice",
+                            "options": [
+                                "Croissant",
+                                "Baguette",
+                                "Sourdough Loaf",
+                                "Chocolate Eclair",
+                                "Blueberry Muffin",
+                                "Cinnamon Roll",
+                                "Apple Turnover",
+                                "Brioche",
+                                "Rye Bread",
+                                "Focaccia",
+                                "Danish Pastry",
+                                "Macaron",
+                                "Tiramisu Cake",
+                                "Red Velvet Cupcake",
+                                "Lemon Tart",
+                                "Cheesecake Slice",
+                                "Chocolate Chip Cookie",
+                                "Oatmeal Cookie",
+                                "Brownie",
+                                "Scone",
+                                "Pretzel",
+                                "Bagel",
+                                "Donut",
+                                "Pain au Chocolat",
+                                "Pumpkin Pie",
+                                "Carrot Cake",
+                                "Banana Bread",
+                                "Pound Cake",
+                                "Fruit Tart",
+                                "Cream Puff"
+                            ]
+                        },
+                        "category": {
+                            "type": "choice",
+                            "options": [
+                                "Bread",
+                                "Pastries",
+                                "Cakes",
+                                "Cookies",
+                                "Specialty"
+                            ]
+                        },
+                        "price": {
+                            "type": "float",
+                            "min": 2.0,
+                            "max": 35.0,
+                            "null_rate": 0.02
+                        },
+                        "bake_time_minutes": {
+                            "type": "int",
+                            "min": 15,
+                            "max": 120
+                        },
+                        "shelf_life_hours": {
+                            "type": "int",
+                            "min": 6,
+                            "max": 72
+                        }
+                    }
+                },
+                "users": {
+                    "pool_size": 50,
+                    "fields": {
+                        "user_id": {
+                            "type": "id",
+                            "prefix": "USR",
+                            "width": 4
+                        },
+                        "name": {
+                            "type": "name"
+                        },
+                        "email": {
+                            "type": "email"
+                        },
+                        "city": {
+                            "type": "choice",
+                            "options": [
+                                "New York",
+                                "Los Angeles",
+                                "Chicago",
+                                "Houston",
+                                "Phoenix",
+                                "San Antonio",
+                                "Dallas",
+                                "San Jose",
+                                "Austin",
+                                "Jacksonville"
+                            ],
+                            "null_rate": 0.03
+                        },
+                        "signup_date": {
+                            "type": "date",
+                            "start": "-2y",
+                            "end": "today"
+                        }
+                    }
+                },
+                "transactions": {
+                    "num_transactions": 100,
+                    "products_per_transaction": [
+                        1,
+                        5
+                    ],
+                    "fields": {
+                        "transaction_id": {
+                            "type": "id",
+                            "prefix": "TXN",
+                            "width": 6
+                        },
+                        "user_id": {
+                            "type": "fk",
+                            "references": "users.user_id"
+                        },
+                        "product_id": {
+                            "type": "fk",
+                            "references": "products.product_id"
+                        },
+                        "timestamp": {
+                            "type": "datetime",
+                            "start": "-30d",
+                            "end": "today"
+                        },
+                        "amount": {
+                            "type": "float",
+                            "min": 5.0,
+                            "max": 100.0,
+                            "null_rate": 0.05
+                        },
+                        "store_id": {
+                            "type": "choice",
+                            "options": [
+                                "BAKERY_001",
+                                "BAKERY_002",
+                                "BAKERY_003",
+                                "BAKERY_004",
+                                "BAKERY_005"
+                            ]
+                        }
+                    },
+                    "duplicate_rate": 0.02
+                },
+                "inventory": {
+                    "fields": {
+                        "product_id": {
+                            "type": "fk",
+                            "references": "products.product_id"
+                        },
+                        "store_id": {
+                            "type": "choice",
+                            "options": [
+                                "BAKERY_001",
+                                "BAKERY_002",
+                                "BAKERY_003",
+                                "BAKERY_004",
+                                "BAKERY_005"
+                            ]
+                        },
+                        "stock_level": {
+                            "type": "int",
+                            "min": 0,
+                            "max": 200
+                        },
+                        "reorder_point": {
+                            "type": "int",
+                            "min": 10,
+                            "max": 50
+                        },
+                        "last_restock_date": {
+                            "type": "date",
+                            "start": "-7d",
+                            "end": "today"
+                        },
+                        "stock_status": {
+                            "type": "choice",
+                            "options": [
+                                "fresh",
+                                "day_old",
+                                "expired",
+                                "out_of_stock"
+                            ]
+                        },
+                        "freshness_score": {
+                            "type": "int",
+                            "min": 0,
+                            "max": 100
+                        }
+                    }
+                },
+                "shipments": {
+                    "num_shipments": 50,
+                    "fields": {
+                        "shipment_id": {
+                            "type": "id",
+                            "prefix": "SHIP",
+                            "width": 6
+                        },
+                        "transaction_id": {
+                            "type": "fk",
+                            "references": "transactions.transaction_id"
+                        },
+                        "origin_store_id": {
+                            "type": "choice",
+                            "options": [
+                                "BAKERY_001",
+                                "BAKERY_002",
+                                "BAKERY_003",
+                                "BAKERY_004",
+                                "BAKERY_005"
+                            ]
+                        },
+                        "dest_store_id": {
+                            "type": "choice",
+                            "options": [
+                                "BAKERY_001",
+                                "BAKERY_002",
+                                "BAKERY_003",
+                                "BAKERY_004",
+                                "BAKERY_005"
+                            ]
+                        },
+                        "shipped_date": {
+                            "type": "date",
+                            "start": "-7d",
+                            "end": "today"
+                        },
+                        "delivered_date": {
+                            "type": "date",
+                            "start": "-7d",
+                            "end": "today"
+                        },
+                        "delivery_days": {
+                            "type": "int",
+                            "min": 0,
+                            "max": 2
+                        },
+                        "carrier": {
+                            "type": "choice",
+                            "options": [
+                                "Local Delivery",
+                                "Express",
+                                "Same Day"
+                            ]
+                        },
+                        "tracking_number": {
+                            "type": "string",
+                            "faker_method": "bothify",
+                            "text": "BK########"
+                        },
+                        "status": {
+                            "type": "choice",
+                            "options": [
+                                "pending",
+                                "in_transit",
+                                "delivered"
+                            ]
+                        },
+                        "shipping_cost": {
+                            "type": "float",
+                            "min": 2.0,
+                            "max": 15.0
+                        }
+                    }
+                }
+            }
+        },
+        "clothing": {
+            "name": "Clothing Retail",
+            "description": "Apparel and fashion analytics with size and seasonal tracking",
+            "gold_layer_path": "data/gold_clothing",
+            "business_rules": {
+                "currency": "USD",
+                "timezone": "UTC",
+                "fiscal_year_start": "02-01",
+                "size_tracking": true,
+                "seasonal_inventory": true,
+                "seasons": [
+                    "Spring",
+                    "Summer",
+                    "Fall",
+                    "Winter"
+                ]
+            },
+            "domain_hints": {
+                "product_types": [
+                    "shirts",
+                    "pants",
+                    "dresses",
+                    "accessories"
+                ],
+                "key_metrics": [
+                    "sell-through rate",
+                    "size distribution",
+                    "seasonal performance"
+                ]
+            },
+            "schema": {
+                "products": {
+                    "pool_size": 30,
+                    "fields": {
+                        "product_id": {
+                            "type": "id",
+                            "prefix": "PRD",
+                            "width": 4
+                        },
+                        "item_name": {
+                            "type": "choice",
+                            "options": [
+                                "Cotton T-Shirt",
+                                "Denim Jeans",
+                                "Summer Dress",
+                                "Winter Jacket",
+                                "Wool Sweater",
+                                "Cargo Pants",
+                                "Silk Blouse",
+                                "Leather Jacket",
+                                "Maxi Skirt",
+                                "Chinos",
+                                "Polo Shirt",
+                                "Hoodie",
+                                "Blazer",
+                                "Shorts",
+                                "Tank Top",
+                                "Cardigan",
+                                "Leggings",
+                                "Trench Coat",
+                                "Flannel Shirt",
+                                "Pencil Skirt",
+                                "V-Neck Sweater",
+                                "Joggers",
+                                "Button-Down Shirt",
+                                "Parka",
+                                "Midi Dress",
+                                "Suit Pants",
+                                "Henley Shirt",
+                                "Bomber Jacket",
+                                "Wrap Dress",
+                                "Sweatpants"
+                            ]
+                        },
+                        "category": {
+                            "type": "choice",
+                            "options": [
+                                "Tops",
+                                "Bottoms",
+                                "Dresses",
+                                "Outerwear",
+                                "Activewear"
+                            ]
+                        },
+                        "size": {
+                            "type": "choice",
+                            "options": [
+                                "XS",
+                                "S",
+                                "M",
+                                "L",
+                                "XL",
+                                "XXL"
+                            ]
+                        },
+                        "color": {
+                            "type": "choice",
+                            "options": [
+                                "Black",
+                                "White",
+                                "Navy",
+                                "Gray",
+                                "Red",
+                                "Blue",
+                                "Green",
+                                "Beige"
+                            ]
+                        },
+                        "season": {
+                            "type": "choice",
+                            "options": [
+                                "Spring",
+                                "Summer",
+                                "Fall",
+                                "Winter",
+                                "All Season"
+                            ]
+                        },
+                        "price": {
+                            "type": "float",
+                            "min": 15.0,
+                            "max": 250.0,
+                            "null_rate": 0.02
+                        }
+                    }
+                },
+                "users": {
+                    "pool_size": 50,
+                    "fields": {
+                        "user_id": {
+                            "type": "id",
+                            "prefix": "USR",
+                            "width": 4
+                        },
+                        "name": {
+                            "type": "name"
+                        },
+                        "email": {
+                            "type": "email"
+                        },
+                        "city": {
+                            "type": "choice",
+                            "options": [
+                                "New York",
+                                "Los Angeles",
+                                "Chicago",
+                                "Houston",
+                                "Phoenix",
+                                "San Antonio",
+                                "Dallas",
+                                "San Jose",
+                                "Austin",
+                                "Jacksonville"
+                            ],
+                            "null_rate": 0.03
+                        },
+                        "signup_date": {
+                            "type": "date",
+                            "start": "-2y",
+                            "end": "today"
+                        }
+                    }
+                },
+                "transactions": {
+                    "num_transactions": 100,
+                    "products_per_transaction": [
+                        1,
+                        5
+                    ],
+                    "fields": {
+                        "transaction_id": {
+                            "type": "id",
+                            "prefix": "TXN",
+                            "width": 6
+                        },
+                        "user_id": {
+                            "type": "fk",
+                            "references": "users.user_id"
+                        },
+                        "product_id": {
+                            "type": "fk",
+                            "references": "products.product_id"
+                        },
+                        "timestamp": {
+                            "type": "datetime",
+                            "start": "-30d",
+                            "end": "today"
+                        },
+                        "amount": {
+                            "type": "float",
+                            "min": 20.0,
+                            "max": 500.0,
+                            "null_rate": 0.05
+                        },
+                        "store_id": {
+                            "type": "choice",
+                            "options": [
+                                "FASHION_001",
+                                "FASHION_002",
+                                "FASHION_003",
+                                "FASHION_004",
+                                "FASHION_005"
+                            ]
+                        }
+                    },
+                    "duplicate_rate": 0.02
+                },
+                "inventory": {
+                    "fields": {
+                        "product_id": {
+                            "type": "fk",
+                            "references": "products.product_id"
+                        },
+                        "store_id": {
+                            "type": "choice",
+                            "options": [
+                                "FASHION_001",
+                                "FASHION_002",
+                                "FASHION_003",
+                                "FASHION_004",
+                                "FASHION_005"
+                            ]
+                        },
+                        "stock_level": {
+                            "type": "int",
+                            "min": 0,
+                            "max": 300
+                        },
+                        "reorder_point": {
+                            "type": "int",
+                            "min": 15,
+                            "max": 75
+                        },
+                        "last_restock_date": {
+                            "type": "date",
+                            "start": "-60d",
+                            "end": "today"
+                        },
+                        "stock_status": {
+                            "type": "choice",
+                            "options": [
+                                "in_stock",
+                                "low_stock",
+                                "out_of_stock",
+                                "clearance"
+                            ]
+                        }
+                    }
+                },
+                "shipments": {
+                    "num_shipments": 50,
+                    "fields": {
+                        "shipment_id": {
+                            "type": "id",
+                            "prefix": "SHIP",
+                            "width": 6
+                        },
+                        "transaction_id": {
+                            "type": "fk",
+                            "references": "transactions.transaction_id"
+                        },
+                        "origin_store_id": {
+                            "type": "choice",
+                            "options": [
+                                "FASHION_001",
+                                "FASHION_002",
+                                "FASHION_003",
+                                "FASHION_004",
+                                "FASHION_005"
+                            ]
+                        },
+                        "dest_store_id": {
+                            "type": "choice",
+                            "options": [
+                                "FASHION_001",
+                                "FASHION_002",
+                                "FASHION_003",
+                                "FASHION_004",
+                                "FASHION_005"
+                            ]
+                        },
+                        "shipped_date": {
+                            "type": "date",
+                            "start": "-30d",
+                            "end": "today"
+                        },
+                        "delivered_date": {
+                            "type": "date",
+                            "start": "-30d",
+                            "end": "today"
+                        },
+                        "delivery_days": {
+                            "type": "int",
+                            "min": 2,
+                            "max": 14
+                        },
+                        "carrier": {
+                            "type": "choice",
+                            "options": [
+                                "FedEx",
+                                "UPS",
+                                "USPS",
+                                "DHL"
+                            ]
+                        },
+                        "tracking_number": {
+                            "type": "string",
+                            "faker_method": "bothify",
+                            "text": "FS########"
+                        },
+                        "status": {
+                            "type": "choice",
+                            "options": [
+                                "pending",
+                                "in_transit",
+                                "delivered",
+                                "returned"
+                            ]
+                        },
+                        "shipping_cost": {
+                            "type": "float",
+                            "min": 5.0,
+                            "max": 25.0
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "active_context": "retail_general"
+}

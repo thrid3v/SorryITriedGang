@@ -2,11 +2,12 @@
 Natural Language to SQL Query Engine
 =====================================
 Converts English questions into SQL queries against the Gold Layer.
-Uses OpenAI GPT-4o for SQL generation and result summarization.
-Implements snapshot isolation to ensure consistent query results.
+Uses OpenAI GPT-4o-mini for SQL generation and result summarization.
+Implements snapshot isolation and multi-tenant context awareness.
 """
 import os
 import re
+import sys
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 import duckdb
@@ -15,69 +16,41 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Add project root to path for imports
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-GOLD_DIR = PROJECT_ROOT / "data" / "gold"
+sys.path.insert(0, str(PROJECT_ROOT))
 
-# Gold Layer paths
-FACT_TXN = str(GOLD_DIR / "fact_transactions.parquet" / "**" / "*.parquet").replace("\\", "/")
-DIM_USERS = str(GOLD_DIR / "dim_users.parquet").replace("\\", "/")
-DIM_PRODUCTS = str(GOLD_DIR / "dim_products.parquet").replace("\\", "/")
-DIM_STORES = str(GOLD_DIR / "dim_stores.parquet").replace("\\", "/")
-DIM_DATES = str(GOLD_DIR / "dim_dates.parquet").replace("\\", "/")
+# Import schema inspector
+from src.analytics.schema_inspector import (
+    load_business_context,
+    inspect_schema_with_samples,
+    build_schema_prompt
+)
 
 
-def get_schema_prompt() -> str:
+def get_schema_prompt(context: Optional[dict] = None) -> str:
     """
-    Generate a schema description for the LLM by dynamically introspecting the database.
-    This makes the system scalable to any schema without hardcoding.
+    Generate a schema description for the LLM using runtime introspection.
+    Now context-aware and includes sample data for better SQL generation.
+    
+    Args:
+        context: Business context dict (optional, loads from config if not provided)
+    
+    Returns:
+        Formatted schema prompt with tables, columns, and sample data
     """
-    conn = duckdb.connect()
+    # Load business context
+    if context is None:
+        context = load_business_context()
     
-    schema_parts = ["You have access to the following tables in a retail data warehouse:\n"]
+    # Inspect schema with sample data
+    schema_info = inspect_schema_with_samples(
+        gold_layer_path=context['gold_layer_path'],
+        sample_rows=5
+    )
     
-    # Define tables to introspect
-    tables = {
-        "fact_transactions": f"read_parquet('{FACT_TXN}', hive_partitioning=true)",
-        "dim_users": f"'{DIM_USERS}'",
-        "dim_products": f"'{DIM_PRODUCTS}'",
-        "dim_stores": f"'{DIM_STORES}'",
-        "dim_dates": f"'{DIM_DATES}'",
-    }
-    
-    for table_name, table_path in tables.items():
-        try:
-            # Get schema by selecting 0 rows
-            result = conn.execute(f"SELECT * FROM {table_path} LIMIT 0")
-            
-            schema_parts.append(f"\nTABLE: {table_name}")
-            
-            # Add column information
-            for col_desc in result.description:
-                col_name = col_desc[0]
-                col_type = col_desc[1]
-                # Clean up type name
-                type_str = str(col_type).upper()
-                schema_parts.append(f"  - {col_name} ({type_str})")
-            
-        except Exception as e:
-            # If table doesn't exist or has issues, skip it
-            print(f"[WARN] Could not introspect {table_name}: {e}")
-            continue
-    
-    # Add important context and rules
-    schema_parts.append("""
-IMPORTANT RULES:
-- Always use table aliases for clarity
-- When querying dim_users, filter by is_current = TRUE to get current records only
-- Use read_parquet() with hive_partitioning=true for fact_transactions
-- For dimension tables, use the direct parquet file paths
-- All monetary values are in USD
-- Timestamps are in UTC
-- Limit results to 100 rows maximum unless specifically asked for more
-""")
-    
-    conn.close()
-    return "\n".join(schema_parts)
+    # Build comprehensive prompt
+    return build_schema_prompt(schema_info, context)
 
 
 def generate_sql(question: str) -> str:
@@ -109,12 +82,12 @@ You are a SQL expert. Generate a DuckDB SQL query to answer the user's question.
 
 CRITICAL RULES:
 1. ONLY generate SELECT queries. Never use DROP, DELETE, UPDATE, INSERT, or any DDL/DML.
-2. Use the exact table paths as shown in the schema
+2. Use the exact table paths as shown in the schema above
 3. Limit results to 100 rows maximum
 4. Return ONLY the SQL query, no explanations or markdown
 5. Use proper JOINs when accessing multiple tables
-6. For fact_transactions, use: read_parquet('{FACT_TXN}', hive_partitioning=true)
-7. For dimension tables, use the direct paths shown above
+6. For partitioned tables (fact_*), use the read_parquet() syntax shown in the schema
+7. For dimension tables (dim_*), use the direct file paths shown in the schema
 """
     
     response = client.chat.completions.create(
@@ -243,13 +216,16 @@ Provide a 1-sentence summary highlighting the key insight."""
     return response.choices[0].message.content.strip()
 
 
-def ask(question: str, summarize: bool = False) -> Dict[str, Any]:
+def ask(question: str, summarize: bool = False, context: Optional[dict] = None) -> Dict[str, Any]:
     """
     Main entry point: Convert question to SQL, execute, and summarize.
     Uses snapshot isolation to ensure consistent results.
+    Now supports multi-tenant business contexts.
     
     Args:
         question: User's question in English
+        summarize: Whether to generate a natural language summary (slower)
+        context: Business context dict (optional, loads from config if not provided)
         
     Returns:
         {
@@ -271,20 +247,25 @@ def ask(question: str, summarize: bool = False) -> Dict[str, Any]:
         # Step 3: Create snapshot connection
         conn = duckdb.connect()  # In-memory connection
         
-        # Load Gold Layer into memory views (snapshot at this instant)
-        conn.execute(f"""
-            CREATE VIEW fact_transactions AS 
-            SELECT * FROM read_parquet('{FACT_TXN}', hive_partitioning=true)
-        """)
-        conn.execute(f"CREATE VIEW dim_users AS SELECT * FROM '{DIM_USERS}'")
-        conn.execute(f"CREATE VIEW dim_products AS SELECT * FROM '{DIM_PRODUCTS}'")
-        conn.execute(f"CREATE VIEW dim_stores AS SELECT * FROM '{DIM_STORES}'")
-        conn.execute(f"CREATE VIEW dim_dates AS SELECT * FROM '{DIM_DATES}'")
+        # Step 4: Load Gold Layer into memory views (snapshot at this instant)
+        # Use dynamic schema discovery instead of hardcoded paths
+        if context is None:
+            context = load_business_context()
         
-        # Step 4: Execute against snapshot
+        schema_info = inspect_schema_with_samples(
+            gold_layer_path=context['gold_layer_path'],
+            sample_rows=0  # No samples needed for views
+        )
+        
+        # Create views for all discovered tables
+        for table_name, info in schema_info.items():
+            table_path = info['path']
+            conn.execute(f"CREATE VIEW {table_name} AS SELECT * FROM {table_path}")
+        
+        # Step 5: Execute against snapshot
         results = execute_sql(sql, conn)
         
-        # Step 5: Optional summarization (skip by default for speed)
+        # Step 6: Optional summarization (skip by default for speed)
         summary = summarize_results(question, sql, results) if summarize else None
         
         # Close connection (release snapshot)

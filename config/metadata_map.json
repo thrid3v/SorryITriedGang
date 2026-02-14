@@ -1,0 +1,141 @@
+{
+    "retail_concepts": {
+        "product_identifier": {
+            "description": "Primary product name or identifier",
+            "common_columns": [
+                "product_name",
+                "item_name",
+                "pastry_name",
+                "sku_name",
+                "article_name"
+            ],
+            "semantic_keywords": [
+                "product",
+                "item",
+                "goods",
+                "merchandise",
+                "article",
+                "sku"
+            ]
+        },
+        "price": {
+            "description": "Product price or cost",
+            "common_columns": [
+                "price",
+                "cost",
+                "unit_price",
+                "retail_price",
+                "sale_price"
+            ],
+            "semantic_keywords": [
+                "price",
+                "cost",
+                "rate",
+                "charge",
+                "value"
+            ]
+        },
+        "category": {
+            "description": "Product category or classification",
+            "common_columns": [
+                "category",
+                "type",
+                "classification",
+                "department",
+                "section"
+            ],
+            "semantic_keywords": [
+                "category",
+                "type",
+                "class",
+                "group",
+                "department",
+                "section"
+            ]
+        },
+        "revenue": {
+            "description": "Sales revenue or earnings",
+            "common_columns": [
+                "amount",
+                "total",
+                "revenue",
+                "sales",
+                "earnings"
+            ],
+            "semantic_keywords": [
+                "revenue",
+                "earnings",
+                "sales",
+                "income",
+                "proceeds"
+            ]
+        },
+        "quantity": {
+            "description": "Quantity sold or in stock",
+            "common_columns": [
+                "quantity",
+                "qty",
+                "units",
+                "count",
+                "stock_level"
+            ],
+            "semantic_keywords": [
+                "quantity",
+                "amount",
+                "units",
+                "count",
+                "volume"
+            ]
+        },
+        "customer": {
+            "description": "Customer or user identifier",
+            "common_columns": [
+                "user_id",
+                "customer_id",
+                "client_id",
+                "buyer_id"
+            ],
+            "semantic_keywords": [
+                "customer",
+                "user",
+                "client",
+                "buyer",
+                "shopper"
+            ]
+        },
+        "location": {
+            "description": "Store location or region",
+            "common_columns": [
+                "city",
+                "region",
+                "location",
+                "store_location",
+                "area"
+            ],
+            "semantic_keywords": [
+                "location",
+                "place",
+                "city",
+                "region",
+                "area",
+                "store"
+            ]
+        },
+        "date": {
+            "description": "Transaction or event date",
+            "common_columns": [
+                "date",
+                "timestamp",
+                "transaction_date",
+                "order_date"
+            ],
+            "semantic_keywords": [
+                "date",
+                "time",
+                "when",
+                "timestamp",
+                "period"
+            ]
+        }
+    }
+}
