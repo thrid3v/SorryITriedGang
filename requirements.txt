@@ -13,3 +13,5 @@ python-dotenv==1.2.1  # For loading .env file
 python-jose[cryptography]>=3.5.0
 passlib[argon2]>=1.7.4  # Using argon2 for Python 3.14 compatibility
 python-multipart>=0.0.22
+chromadb>=0.4.0  # Vector database for RAG
+sentence-transformers>=2.2.0  # Embeddings for semantic search

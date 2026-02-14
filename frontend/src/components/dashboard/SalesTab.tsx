@@ -82,27 +82,27 @@ const SalesTab = () => {
           title="Revenue Trends"
           actions={
             <div className="flex gap-2">
-              <Button 
-                size="sm" 
-                variant={period === "daily" ? "default" : "ghost"} 
-                onClick={() => setPeriod("daily")} 
+              <Button
+                size="sm"
+                variant={period === "daily" ? "default" : "ghost"}
+                onClick={() => setPeriod("daily")}
                 className={cn(
                   "text-xs h-8 rounded-pill transition-all",
-                  period === "daily" 
-                    ? "bg-acid-lime text-deep-charcoal hover:bg-acid-lime/90 shadow-[0_0_15px_rgba(212,255,0,0.3)]" 
+                  period === "daily"
+                    ? "bg-acid-lime text-deep-charcoal hover:bg-acid-lime/90 shadow-[0_0_15px_rgba(212,255,0,0.3)]"
                     : "hover:bg-acid-lime/10 hover:text-acid-lime"
                 )}
               >
                 Daily
               </Button>
-              <Button 
-                size="sm" 
-                variant={period === "monthly" ? "default" : "ghost"} 
-                onClick={() => setPeriod("monthly")} 
+              <Button
+                size="sm"
+                variant={period === "monthly" ? "default" : "ghost"}
+                onClick={() => setPeriod("monthly")}
                 className={cn(
                   "text-xs h-8 rounded-pill transition-all",
-                  period === "monthly" 
-                    ? "bg-acid-lime text-deep-charcoal hover:bg-acid-lime/90 shadow-[0_0_15px_rgba(212,255,0,0.3)]" 
+                  period === "monthly"
+                    ? "bg-acid-lime text-deep-charcoal hover:bg-acid-lime/90 shadow-[0_0_15px_rgba(212,255,0,0.3)]"
                     : "hover:bg-acid-lime/10 hover:text-acid-lime"
                 )}
               >
@@ -132,8 +132,8 @@ const SalesTab = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((p) => (
-                <TableRow key={p.product_name} className="border-border/20">
+              {products.map((p, idx) => (
+                <TableRow key={`product-${idx}`} className="border-border/20">
                   <TableCell className="font-medium">{p.product_name}</TableCell>
                   <TableCell><span className="px-2.5 py-1 text-xs rounded-pill bg-acid-lime/10 text-acid-lime">{p.category}</span></TableCell>
                   <TableCell className="text-right">{formatCurrency(p.total_revenue)}</TableCell>

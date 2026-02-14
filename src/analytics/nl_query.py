@@ -27,6 +27,14 @@ from src.analytics.schema_inspector import (
     build_schema_prompt
 )
 
+# Import vector store for RAG
+try:
+    from src.analytics.vector_store import get_vector_store
+    RAG_ENABLED = True
+except ImportError:
+    RAG_ENABLED = False
+    print("[WARN] Vector store not available. RAG disabled. Run: pip install chromadb sentence-transformers")
+
 
 def get_schema_prompt(context: Optional[dict] = None) -> str:
     """
@@ -53,12 +61,42 @@ def get_schema_prompt(context: Optional[dict] = None) -> str:
     return build_schema_prompt(schema_info, context)
 
 
-def generate_sql(question: str) -> str:
+def format_rag_examples(examples: List[Dict]) -> str:
     """
-    Generate SQL query from natural language question using OpenAI.
+    Format RAG examples for inclusion in the prompt.
+    
+    Args:
+        examples: List of similar query examples from vector store
+        
+    Returns:
+        Formatted examples string
+    """
+    if not examples:
+        return ""
+    
+    parts = ["\n=== SIMILAR EXAMPLE QUERIES ==="]
+    parts.append("Here are some similar queries that might help you understand the pattern:\n")
+    
+    for i, ex in enumerate(examples, 1):
+        parts.append(f"Example {i}:")
+        parts.append(f"  Question: {ex['question']}")
+        parts.append(f"  SQL: {ex['sql']}")
+        parts.append(f"  Description: {ex['description']}")
+        parts.append("")
+    
+    parts.append("Use these examples as reference, but adapt the query to answer the specific question.")
+    parts.append("=" * 60)
+    
+    return "\n".join(parts)
+
+
+def generate_sql(question: str, use_rag: bool = True) -> str:
+    """
+    Generate SQL query from natural language question using OpenAI with RAG.
     
     Args:
         question: User's question in English
+        use_rag: Whether to use RAG for enhanced context (default: True)
         
     Returns:
         SQL query string
@@ -74,20 +112,38 @@ def generate_sql(question: str) -> str:
     
     client = OpenAI(api_key=api_key)
     
+    # Get schema prompt
     schema = get_schema_prompt()
     
+    # Get similar examples from RAG if enabled
+    examples_text = ""
+    if use_rag and RAG_ENABLED:
+        try:
+            store = get_vector_store()
+            if store.count() > 0:
+                similar_examples = store.search_similar(question, top_k=3)
+                examples_text = format_rag_examples(similar_examples)
+        except Exception as e:
+            print(f"[WARN] RAG search failed: {e}. Proceeding without examples.")
+    
+    # Build enhanced system prompt
     system_prompt = f"""{schema}
+
+{examples_text}
 
 You are a SQL expert. Generate a DuckDB SQL query to answer the user's question.
 
 CRITICAL RULES:
 1. ONLY generate SELECT queries. Never use DROP, DELETE, UPDATE, INSERT, or any DDL/DML.
 2. Use the exact table paths as shown in the schema above
-3. Limit results to 100 rows maximum
+3. Limit results to 100 rows maximum unless specifically asked for more
 4. Return ONLY the SQL query, no explanations or markdown
 5. Use proper JOINs when accessing multiple tables
 6. For partitioned tables (fact_*), use the read_parquet() syntax shown in the schema
 7. For dimension tables (dim_*), use the direct file paths shown in the schema
+8. For temporal queries ("last month", "this year", etc.), use the dim_dates table for proper date filtering
+9. When filtering dim_users, always add "WHERE is_current = TRUE" to get current records only
+10. Pay close attention to the similar examples above - they show the correct patterns for common queries
 """
     
     response = client.chat.completions.create(
@@ -97,7 +153,7 @@ CRITICAL RULES:
             {"role": "user", "content": question}
         ],
         temperature=0,  # Deterministic output
-        max_tokens=300  # Reduced for faster response
+        max_tokens=500  # Increased for complex queries
     )
     
     sql = response.choices[0].message.content.strip()
@@ -216,15 +272,15 @@ Provide a 1-sentence summary highlighting the key insight."""
     return response.choices[0].message.content.strip()
 
 
-def ask(question: str, summarize: bool = False, context: Optional[dict] = None) -> Dict[str, Any]:
+def ask(question: str, summarize: bool = True, context: Optional[dict] = None) -> Dict[str, Any]:
     """
     Main entry point: Convert question to SQL, execute, and summarize.
     Uses snapshot isolation to ensure consistent results.
-    Now supports multi-tenant business contexts.
+    Now supports multi-tenant business contexts and RAG-enhanced SQL generation.
     
     Args:
         question: User's question in English
-        summarize: Whether to generate a natural language summary (slower)
+        summarize: Whether to generate a natural language summary (default: True)
         context: Business context dict (optional, loads from config if not provided)
         
     Returns:
@@ -238,8 +294,8 @@ def ask(question: str, summarize: bool = False, context: Optional[dict] = None) 
         }
     """
     try:
-        # Step 1: Generate SQL
-        sql = generate_sql(question)
+        # Step 1: Generate SQL with RAG enhancement
+        sql = generate_sql(question, use_rag=True)
         
         # Step 2: Validate SQL
         validate_sql(sql)

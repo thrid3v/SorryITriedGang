@@ -13,7 +13,7 @@ interface KPICardProps {
 const KPICard = ({ title, value, subtitle, icon, trend, className }: KPICardProps) => (
   <div className={cn("bento-card p-6 animate-fade-in hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.5)] transition-shadow", className)}>
     <div className="flex items-start justify-between mb-4">
-      <span className="condensed-header text-muted-foreground">{title}</span>
+      <span className="text-lg font-bold text-white">{title}</span>
       <span className="text-acid-lime">{icon}</span>
     </div>
     <div className="text-3xl font-bold mb-2">{value}</div>

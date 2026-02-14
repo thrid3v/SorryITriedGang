@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+import { apiFetch } from '../data/api';
 
 export interface TextToSqlResponse {
     question: string;
@@ -10,14 +10,14 @@ export interface TextToSqlResponse {
 }
 
 export async function askAnalyst(question: string): Promise<TextToSqlResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/chat/ask`, {
+    const response = await apiFetch('/api/ask', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question })
     });
 
     if (!response.ok) {
-        throw new Error("Failed to get answer from analyst");
+        const errorText = await response.text();
+        throw new Error(`Failed to get answer from analyst: ${errorText}`);
     }
 
     return response.json();

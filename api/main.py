@@ -15,6 +15,7 @@ from datetime import datetime
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 # Add project root to path
@@ -58,6 +59,8 @@ app = FastAPI(
     title="RetailNexus API",
     description="Analytics API for retail data lakehouse",
     version="1.0.0",
+    docs_url=None,  # Disable default docs to use custom
+    redoc_url=None,  # Disable ReDoc
 )
 
 # ── Auth Models ──────────────────────────────────────
@@ -107,18 +110,300 @@ def require_admin(current_user: dict = Depends(get_current_user)) -> dict:
     return current_user
 
 # ── CORS Configuration ───────────────────────────────
+# CRITICAL: CORS must be configured BEFORE any routes to handle preflight requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",  # Vite dev server
         "http://localhost:5174",  # Vite dev server (alternate port)
         "http://localhost:3000",  # Alternative React port
+        "http://127.0.0.1:5173",  # Vite dev server (127.0.0.1)
+        "http://127.0.0.1:5174",  # Vite dev server (alternate port)
+        "http://127.0.0.1:3000",  # Alternative React port
     ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=3600,  # Cache preflight requests for 1 hour
 )
 
+
+# ── Custom Swagger UI with Enhanced Styling ─────────
+
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    """Custom Swagger UI with enhanced readability for API headings"""
+    html_content = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>RetailNexus API - Documentation</title>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+        <style>
+            /* Enhanced API Operation Headings */
+            .opblock-summary-method,
+            .opblock-summary-path,
+            .opblock-summary-description {
+                font-size: 20px !important;
+                font-weight: 600 !important;
+                color: #FFFFFF !important;
+            }
+            
+            /* API Tag Headings (Section Headers) */
+            .opblock-tag {
+                font-size: 24px !important;
+                font-weight: 700 !important;
+                color: #FFFFFF !important;
+            }
+            
+            /* Operation Summary */
+            .opblock-summary {
+                padding: 12px 16px !important;
+            }
+            
+            /* Method badges with better contrast */
+            .opblock-summary-method {
+                min-width: 80px !important;
+                text-align: center !important;
+                border-radius: 6px !important;
+            }
+            
+            /* GET method */
+            .opblock-get .opblock-summary-method {
+                background: #61affe !important;
+                color: #FFFFFF !important;
+            }
+            
+            /* POST method */
+            .opblock-post .opblock-summary-method {
+                background: #49cc90 !important;
+                color: #FFFFFF !important;
+            }
+            
+            /* PUT method */
+            .opblock-put .opblock-summary-method {
+                background: #fca130 !important;
+                color: #FFFFFF !important;
+            }
+            
+            /* DELETE method */
+            .opblock-delete .opblock-summary-method {
+                background: #f93e3e !important;
+                color: #FFFFFF !important;
+            }
+            
+            /* Path text */
+            .opblock-summary-path {
+                color: #FFFFFF !important;
+                font-family: 'Monaco', 'Menlo', 'Consolas', monospace !important;
+            }
+            
+            /* Description text */
+            .opblock-description-wrapper p {
+                font-size: 16px !important;
+                color: #E0E0E0 !important;
+                line-height: 1.6 !important;
+            }
+            
+            /* Response/Request body headings */
+            .model-title,
+            .response-col_description__inner h4,
+            .response-col_description__inner h5 {
+                font-size: 18px !important;
+                color: #FFFFFF !important;
+                font-weight: 600 !important;
+            }
+            
+            /* Parameter names */
+            .parameter__name {
+                font-size: 16px !important;
+                color: #FFFFFF !important;
+                font-weight: 500 !important;
+            }
+            
+            /* Schema property names */
+            .property-row .prop-name {
+                font-size: 15px !important;
+                color: #FFFFFF !important;
+            }
+            
+            /* Dark theme enhancements */
+            body {
+                background-color: #1a1a1a !important;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .swagger-ui {
+                color: #E0E0E0 !important;
+            }
+            
+            .swagger-ui .info .title {
+                font-size: 36px !important;
+                color: #FFFFFF !important;
+            }
+            
+            .swagger-ui .info .description {
+                font-size: 16px !important;
+                color: #E0E0E0 !important;
+            }
+            
+            /* Endpoint paths in the summary */
+            .opblock-summary-path__deprecated {
+                color: #FFFFFF !important;
+            }
+            
+            /* Tag section headers */
+            .opblock-tag-section {
+                border-bottom: 1px solid #3b4151;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="swagger-ui"></div>
+        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+        <script>
+            window.onload = function() {
+                window.ui = SwaggerUIBundle({
+                    url: '/openapi.json',
+                    dom_id: '#swagger-ui',
+                    deepLinking: true,
+                    presets: [
+                        SwaggerUIBundle.presets.apis,
+                        SwaggerUIBundle.SwaggerUIStandalonePreset
+                    ],
+                    syntaxHighlight: {
+                        theme: "monokai"
+                    },
+                    displayRequestDuration: true,
+                    docExpansion: "list",
+                    filter: true,
+                    showExtensions: true,
+                    showCommonExtensions: true
+                });
+            };
+        </script>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
+@app.get("/api-styles", include_in_schema=False)
+async def get_custom_styles():
+    """Custom CSS for enhanced API documentation readability"""
+    custom_css = """
+    <style>
+        /* Enhanced API Operation Headings */
+        .opblock-summary-method,
+        .opblock-summary-path,
+        .opblock-summary-description {
+            font-size: 20px !important;
+            font-weight: 600 !important;
+            color: #FFFFFF !important;
+        }
+        
+        /* API Tag Headings (Section Headers) */
+        .opblock-tag {
+            font-size: 24px !important;
+            font-weight: 700 !important;
+            color: #FFFFFF !important;
+        }
+        
+        /* Operation Summary */
+        .opblock-summary {
+            padding: 12px 16px !important;
+        }
+        
+        /* Method badges with better contrast */
+        .opblock-summary-method {
+            min-width: 80px !important;
+            text-align: center !important;
+            border-radius: 6px !important;
+        }
+        
+        /* GET method */
+        .opblock-get .opblock-summary-method {
+            background: #61affe !important;
+            color: #FFFFFF !important;
+        }
+        
+        /* POST method */
+        .opblock-post .opblock-summary-method {
+            background: #49cc90 !important;
+            color: #FFFFFF !important;
+        }
+        
+        /* PUT method */
+        .opblock-put .opblock-summary-method {
+            background: #fca130 !important;
+            color: #FFFFFF !important;
+        }
+        
+        /* DELETE method */
+        .opblock-delete .opblock-summary-method {
+            background: #f93e3e !important;
+            color: #FFFFFF !important;
+        }
+        
+        /* Path text */
+        .opblock-summary-path {
+            color: #FFFFFF !important;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace !important;
+        }
+        
+        /* Description text */
+        .opblock-description-wrapper p {
+            font-size: 16px !important;
+            color: #E0E0E0 !important;
+            line-height: 1.6 !important;
+        }
+        
+        /* Response/Request body headings */
+        .model-title,
+        .response-col_description__inner h4,
+        .response-col_description__inner h5 {
+            font-size: 18px !important;
+            color: #FFFFFF !important;
+            font-weight: 600 !important;
+        }
+        
+        /* Parameter names */
+        .parameter__name {
+            font-size: 16px !important;
+            color: #FFFFFF !important;
+            font-weight: 500 !important;
+        }
+        
+        /* Schema property names */
+        .property-row .prop-name {
+            font-size: 15px !important;
+            color: #FFFFFF !important;
+        }
+        
+        /* Dark theme enhancements */
+        body {
+            background-color: #1a1a1a !important;
+        }
+        
+        .swagger-ui {
+            color: #E0E0E0 !important;
+        }
+        
+        .swagger-ui .info .title {
+            font-size: 36px !important;
+            color: #FFFFFF !important;
+        }
+        
+        .swagger-ui .info .description {
+            font-size: 16px !important;
+            color: #E0E0E0 !important;
+        }
+    </style>
+    """
+    return HTMLResponse(content=custom_css)
 
 # ── Endpoints ────────────────────────────────────────
 

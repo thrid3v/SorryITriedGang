@@ -151,8 +151,8 @@ const InventoryTab = () => {
           {reorderAlerts.length === 0 && (
             <div className="text-center text-muted-foreground text-sm py-4">All items adequately stocked</div>
           )}
-          {reorderAlerts.map((a) => (
-            <div key={a.product_name} className="flex items-center justify-between p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+          {reorderAlerts.map((a, idx) => (
+            <div key={`alert-${idx}`} className="flex items-center justify-between p-3 rounded-lg bg-destructive/5 border border-destructive/20">
               <div>
                 <div className="font-medium text-sm">{a.product_name}</div>
                 <div className="text-xs text-muted-foreground">{a.category}</div>
