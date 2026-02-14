@@ -10,3 +10,6 @@ uvicorn[standard]>=0.27.0
 psutil>=1.31.0
 openai==2.20.0  # For Text-to-SQL AI Analyst
 python-dotenv==1.2.1  # For loading .env file
+python-jose[cryptography]>=3.5.0
+passlib[argon2]>=1.7.4  # Using argon2 for Python 3.14 compatibility
+python-multipart>=0.0.22

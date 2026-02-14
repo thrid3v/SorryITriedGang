@@ -54,8 +54,8 @@ const LandingPage = () => {
           <Activity className="h-7 w-7 text-primary" />
           <span className="text-xl font-bold">RetailNexus</span>
         </div>
-        <Button onClick={() => navigate("/dashboard")} variant="outline" className="border-primary/30 hover:bg-primary/10">
-          Open Dashboard <ArrowRight className="ml-1 h-4 w-4" />
+        <Button onClick={() => navigate("/login")} variant="outline" className="border-primary/30 hover:bg-primary/10">
+          Sign In <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
       </nav>
 
@@ -73,8 +73,8 @@ const LandingPage = () => {
           Unify POS, e-commerce, and warehouse data into a single hub. Get real-time analytics on sales, inventory, customer behavior, and logistics.
         </p>
         <div className="flex gap-4 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-          <Button size="lg" onClick={() => navigate("/dashboard")} className="bg-primary hover:bg-primary/90 glow-blue text-primary-foreground px-8">
-            Explore Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+          <Button size="lg" onClick={() => navigate("/login")} className="bg-primary hover:bg-primary/90 glow-blue text-primary-foreground px-8">
+            Get Started <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
           <Button size="lg" variant="outline" className="border-border hover:bg-muted">
             View Architecture
@@ -170,7 +170,7 @@ const LandingPage = () => {
         <div className="glass-card p-12 glow-purple">
           <h2 className="text-3xl font-bold mb-4">Ready to Explore?</h2>
           <p className="text-muted-foreground mb-8">Dive into the live analytics dashboard with realistic mock data from 50+ Indian retail stores.</p>
-          <Button size="lg" onClick={() => navigate("/dashboard")} className="bg-primary hover:bg-primary/90 px-10">
+          <Button size="lg" onClick={() => navigate("/login")} className="bg-primary hover:bg-primary/90 px-10">
             Launch Dashboard <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

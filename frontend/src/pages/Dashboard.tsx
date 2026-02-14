@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, Package, Users, Truck, Shield, Settings, Activity, ArrowLeft, Bot } from "lucide-react";
+import { TrendingUp, Package, Users, Truck, Shield, Settings, Activity, ArrowLeft, Bot, Play, Square, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import SalesTab from "@/components/dashboard/SalesTab";
 import InventoryTab from "@/components/dashboard/InventoryTab";
 import CustomerTab from "@/components/dashboard/CustomerTab";
@@ -10,19 +13,120 @@ import DataQualityTab from "@/components/dashboard/DataQualityTab";
 import AskAnalyst from "@/pages/AskAnalyst";
 
 const tabs = [
-  { id: "sales", label: "Sales Analytics", icon: TrendingUp },
-  { id: "ai-analyst", label: "AI Analyst", icon: Bot },
-  { id: "inventory", label: "Inventory & Ops", icon: Package },
-  { id: "customer", label: "Customer Intel", icon: Users },
-  { id: "delivery", label: "Delivery & Logistics", icon: Truck },
-  { id: "quality", label: "Data Quality", icon: Shield },
-  { id: "settings", label: "Settings", icon: Settings },
+  { id: "sales", label: "Sales Analytics", icon: TrendingUp, roles: ["admin", "customer"] },
+  { id: "ai-analyst", label: "AI Analyst", icon: Bot, roles: ["admin", "customer"] },
+  { id: "inventory", label: "Inventory & Ops", icon: Package, roles: ["admin"] },
+  { id: "customer", label: "Customer Intel", icon: Users, roles: ["admin"] },
+  { id: "delivery", label: "Delivery & Logistics", icon: Truck, roles: ["admin"] },
+  { id: "quality", label: "Data Quality", icon: Shield, roles: ["admin"] },
+  { id: "settings", label: "Settings", icon: Settings, roles: ["admin", "customer"] },
 ];
+
+interface StreamStatus {
+  status: "running" | "stopped";
+  started_at?: string;
+  events_processed: number;
+  generator_pid?: number;
+  processor_pid?: number;
+}
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("sales");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [streamStatus, setStreamStatus] = useState<StreamStatus>({ status: "stopped", events_processed: 0 });
+  const [isStreamLoading, setIsStreamLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user, logout, isAdmin } = useAuth();
+
+  // Filter tabs based on user role
+  const visibleTabs = tabs.filter(tab => tab.roles.includes(user?.role || ""));
+
+  // Poll stream status every 5 seconds
+  useEffect(() => {
+    const fetchStreamStatus = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/stream/status");
+        if (res.ok) {
+          const data = await res.json();
+          setStreamStatus(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch stream status:", err);
+      }
+    };
+
+    fetchStreamStatus();
+    const interval = setInterval(fetchStreamStatus, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleStartStream = async () => {
+    setIsStreamLoading(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      const res = await fetch("http://localhost:8000/api/stream/start", {
+        method: "POST",
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const data = await res.json();
+        toast({
+          title: "Stream Started",
+          description: `Generator PID: ${data.generator_pid}, Processor PID: ${data.processor_pid}`,
+        });
+        setStreamStatus({ status: "running", events_processed: 0 });
+      } else {
+        const error = await res.json();
+        toast({
+          title: "Failed to Start Stream",
+          description: error.detail || "Unknown error",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to start stream",
+        variant: "destructive",
+      });
+    } finally {
+      setIsStreamLoading(false);
+    }
+  };
+
+  const handleStopStream = async () => {
+    setIsStreamLoading(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      const res = await fetch("http://localhost:8000/api/stream/stop", {
+        method: "POST",
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        toast({
+          title: "Stream Stopped",
+          description: "Real-time ingestion has been stopped",
+        });
+        setStreamStatus({ status: "stopped", events_processed: 0 });
+      } else {
+        const error = await res.json();
+        toast({
+          title: "Failed to Stop Stream",
+          description: error.detail || "Unknown error",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to stop stream",
+        variant: "destructive",
+      });
+    } finally {
+      setIsStreamLoading(false);
+    }
+  };
 
   const renderTab = () => {
     switch (activeTab) {
@@ -73,7 +177,7 @@ const Dashboard = () => {
 
         {/* Nav items */}
         <nav className="flex-1 p-2 space-y-1">
-          {tabs.map((tab) => (
+          {visibleTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -90,6 +194,57 @@ const Dashboard = () => {
           ))}
         </nav>
 
+        {/* Stream Control - Admin Only */}
+        {isAdmin && (
+          <div className="p-2 border-t border-border/50">
+            {!sidebarCollapsed && (
+              <div className="mb-2 px-2">
+                <div className="text-xs text-muted-foreground mb-1">Real-time Stream</div>
+                {streamStatus.status === "running" && (
+                  <div className="text-xs text-glow-teal mb-2">
+                    ● {streamStatus.events_processed} events
+                  </div>
+                )}
+              </div>
+            )}
+            <Button
+              onClick={streamStatus.status === "running" ? handleStopStream : handleStartStream}
+              disabled={isStreamLoading}
+              variant={streamStatus.status === "running" ? "destructive" : "default"}
+              size="sm"
+              className={cn("w-full", sidebarCollapsed && "px-2")}
+            >
+              {streamStatus.status === "running" ? (
+                <>
+                  <Square className="h-3.5 w-3.5 shrink-0" />
+                  {!sidebarCollapsed && <span className="ml-2">Stop Stream</span>}
+                </>
+              ) : (
+                <>
+                  <Play className="h-3.5 w-3.5 shrink-0" />
+                  {!sidebarCollapsed && <span className="ml-2">Start Stream</span>}
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+
+        {/* Logout Button */}
+        <div className="p-2 border-t border-border/50">
+          <Button
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+            variant="ghost"
+            size="sm"
+            className={cn("w-full text-muted-foreground hover:text-foreground", sidebarCollapsed && "px-2")}
+          >
+            <LogOut className="h-3.5 w-3.5 shrink-0" />
+            {!sidebarCollapsed && <span className="ml-2">Logout</span>}
+          </Button>
+        </div>
+
         {/* Collapse toggle */}
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -102,8 +257,25 @@ const Dashboard = () => {
       {/* Main content */}
       <main className="flex-1 relative z-10">
         <header className="sticky top-0 z-20 backdrop-blur-xl bg-background/80 border-b border-border/50 px-6 py-4">
-          <h1 className="text-xl font-bold">{tabs.find((t) => t.id === activeTab)?.label}</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Real-time analytics from 50+ retail stores across India</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold">{tabs.find((t) => t.id === activeTab)?.label}</h1>
+              <p className="text-xs text-muted-foreground mt-0.5">Real-time analytics from 50+ retail stores across India</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-sm font-medium">{user?.username}</div>
+                <div className="text-xs text-muted-foreground">
+                  <span className={cn(
+                    "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
+                    user?.role === "admin" ? "bg-primary/10 text-primary" : "bg-secondary/10 text-secondary"
+                  )}>
+                    {user?.role}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </header>
         <div className="p-6">
           {renderTab()}

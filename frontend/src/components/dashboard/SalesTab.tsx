@@ -22,14 +22,40 @@ const SalesTab = () => {
   const [cities, setCities] = useState<CitySale[]>([]);
   const [products, setProducts] = useState<TopProduct[]>([]);
 
+  // Initial data fetch
   useEffect(() => {
     fetchSummaryKPIs().then(setKpis).catch(console.error);
     fetchCitySales().then(setCities).catch(console.error);
     fetchTopProducts(10).then(setProducts).catch(console.error);
   }, []);
 
+  // Fetch revenue when period changes
   useEffect(() => {
     fetchRevenueTimeseries(period).then(setRevenue).catch(console.error);
+  }, [period]);
+
+  // Auto-refresh when stream is running
+  useEffect(() => {
+    const refreshData = async () => {
+      try {
+        const statusRes = await fetch("/api/stream/status");
+        if (statusRes.ok) {
+          const status = await statusRes.json();
+          if (status.status === "running") {
+            // Refresh all data
+            fetchSummaryKPIs().then(setKpis).catch(console.error);
+            fetchRevenueTimeseries(period).then(setRevenue).catch(console.error);
+            fetchCitySales().then(setCities).catch(console.error);
+            fetchTopProducts(10).then(setProducts).catch(console.error);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to check stream status:", err);
+      }
+    };
+
+    const interval = setInterval(refreshData, 10000); // Refresh every 10 seconds
+    return () => clearInterval(interval);
   }, [period]);
 
   const revenueData = revenue.map((r) => ({
