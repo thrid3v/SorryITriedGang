@@ -2,24 +2,26 @@ import { useState } from 'react';
 import { askAnalyst, TextToSqlResponse } from '@/services/textToSql';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { StatCard, Leaderboard, DataTable } from '@/components/analyst/DataComponents';
+import { ActionCard, SessionHistory, SystemStatus, quickActions } from '@/components/analyst/MissionControlComponents';
 
 export default function AskAnalyst() {
     const [question, setQuestion] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<TextToSqlResponse | null>(null);
-    const [history, setHistory] = useState<TextToSqlResponse[]>([]);
+    const [history, setHistory] = useState<Array<{ question: string; timestamp: Date; response: TextToSqlResponse }>>([]);
 
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
+    async function handleSubmit(e?: React.FormEvent) {
+        if (e) e.preventDefault();
         if (!question.trim()) return;
 
         setLoading(true);
         try {
             const response = await askAnalyst(question);
             setResult(response);
-            setHistory(prev => [...prev, response]);
+            setHistory(prev => [...prev, { question, timestamp: new Date(), response }]);
             setQuestion('');
         } catch (err: any) {
             setResult({
@@ -35,157 +37,166 @@ export default function AskAnalyst() {
         }
     }
 
+    const handleQuickAction = (actionQuestion: string) => {
+        setQuestion(actionQuestion);
+        setTimeout(() => {
+            const form = document.querySelector('form');
+            if (form) form.requestSubmit();
+        }, 100);
+    };
+
     const handleHistoryClick = (q: string) => {
         setQuestion(q);
     };
 
+    // Detect data type and render appropriate component
+    const renderDataResponse = () => {
+        if (!result || result.error || !result.data || result.data.length === 0) return null;
+
+        // Single metric (1 row, 1-2 columns)
+        if (result.data.length === 1 && Object.keys(result.data[0]).length <= 2) {
+            const keys = Object.keys(result.data[0]);
+            const valueKey = keys.find(k => typeof result.data[0][k] === 'number') || keys[0];
+            const value = result.data[0][valueKey];
+            
+            return (
+                <StatCard
+                    label={result.question}
+                    value={typeof value === 'number' ? `$${(value / 1000000).toFixed(2)}M` : String(value)}
+                />
+            );
+        }
+
+        // Leaderboard (list with numeric values)
+        const keys = Object.keys(result.data[0]);
+        const hasNumericValue = keys.some(k => typeof result.data[0][k] === 'number');
+        
+        if (hasNumericValue && result.data.length > 1 && result.data.length <= 10) {
+            const labelKey = keys.find(k => typeof result.data[0][k] === 'string') || keys[0];
+            const valueKey = keys.find(k => typeof result.data[0][k] === 'number') || keys[1];
+            const maxValue = Math.max(...result.data.map(row => Number(row[valueKey]) || 0));
+
+            const items = result.data.map(row => ({
+                label: String(row[labelKey]),
+                value: Number(row[valueKey]) || 0,
+                maxValue
+            }));
+
+            return <Leaderboard items={items} />;
+        }
+
+        // Default: Data table
+        return <DataTable data={result.data} />;
+    };
+
     return (
-        <div className="space-y-8 max-w-5xl mx-auto">
-            <div className="flex flex-col space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight">🤖 AI Data Analyst</h1>
-                <p className="text-muted-foreground">
-                    Ask questions in plain English — get SQL-powered answers
-                </p>
+        <div className="h-full flex flex-col">
+            {/* System Status Strip */}
+            <div className="mb-4">
+                <SystemStatus sources={[
+                    { name: "Inventory", status: "live" },
+                    { name: "Sales", status: "live" },
+                    { name: "Customers", status: "live" }
+                ]} />
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Ask a Question</CardTitle>
-                    <CardDescription>Query your data in plain English</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="flex gap-4">
-                        <Input
-                            value={question}
-                            onChange={(e) => setQuestion(e.target.value)}
-                            placeholder="e.g., What is my total revenue?"
-                            disabled={loading}
-                            className="flex-1"
-                        />
-                        <Button type="submit" disabled={loading || !question.trim()}>
-                            {loading ? 'Analyzing...' : 'Ask'}
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
+            {/* 2-Column Layout - Removed 3rd column to reduce congestion */}
+            <div className="flex gap-6 flex-1">
+                {/* Main Column (75%) - Workspace */}
+                <div className="flex-[0_0_75%] flex flex-col gap-6">
+                    {/* Hero Card - Ask Question */}
+                    <div className="bento-card p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-acid-lime/10">
+                                <Sparkles className="h-5 w-5 text-acid-lime" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold gradient-text">AI Data Analyst</h1>
+                                <p className="text-xs text-muted-foreground">Ask questions in plain English</p>
+                            </div>
+                        </div>
 
-            {!result && (
-                <Card className="bg-muted/50">
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">💡 Try asking:</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
-                            <li className="cursor-pointer hover:text-primary transition-colors" onClick={() => setQuestion('What is my total revenue?')}>
-                                What is my total revenue?
-                            </li>
-                            <li className="cursor-pointer hover:text-primary transition-colors" onClick={() => setQuestion('Who are my top 5 customers by spending?')}>
-                                Who are my top 5 customers by spending?
-                            </li>
-                            <li className="cursor-pointer hover:text-primary transition-colors" onClick={() => setQuestion('Which products sell best in New York?')}>
-                                Which products sell best in New York?
-                            </li>
-                            <li className="cursor-pointer hover:text-primary transition-colors" onClick={() => setQuestion('Show me revenue by category')}>
-                                Show me revenue by category
-                            </li>
-                        </ul>
-                    </CardContent>
-                </Card>
-            )}
+                        <form onSubmit={handleSubmit} className="flex gap-3">
+                            <Input
+                                value={question}
+                                onChange={(e) => setQuestion(e.target.value)}
+                                placeholder="e.g., What is my total revenue?"
+                                disabled={loading}
+                                className="flex-1 rounded-pill h-11 px-5 bg-deep-charcoal border-border/30 focus:border-acid-lime"
+                            />
+                            <Button 
+                                type="submit" 
+                                disabled={loading || !question.trim()}
+                                className="pill-button h-11 px-6"
+                            >
+                                {loading ? 'Analyzing...' : 'Ask'}
+                            </Button>
+                        </form>
+                    </div>
 
-            {result && (
-                <div className="space-y-6">
-                    {result.error ? (
-                        <Card className="border-destructive">
-                            <CardHeader>
-                                <CardTitle className="text-destructive">❌ Error</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-muted-foreground">{result.error}</p>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <>
-                            {result.summary && (
-                                <Card className="bg-primary/5 border-primary/20">
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">💡 Answer</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <p className="leading-relaxed">{result.summary}</p>
-                                    </CardContent>
-                                </Card>
-                            )}
-
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-base">📊 Generated SQL</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm font-mono">
-                                        <code>{result.sql}</code>
-                                    </pre>
-                                </CardContent>
-                            </Card>
-
-                            {result.data && result.data.length > 0 && (
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="text-base">
-                                            📈 Results ({result.row_count} {result.row_count === 1 ? 'row' : 'rows'})
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="rounded-md border">
-                                            <Table>
-                                                <TableHeader>
-                                                    <TableRow>
-                                                        {Object.keys(result.data[0]).map((key) => (
-                                                            <TableHead key={key} className="font-bold">{key}</TableHead>
-                                                        ))}
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    {result.data.slice(0, 10).map((row, idx) => (
-                                                        <TableRow key={idx}>
-                                                            {Object.values(row).map((val, i) => (
-                                                                <TableCell key={i}>
-                                                                    {val !== null && val !== undefined ? String(val) : '-'}
-                                                                </TableCell>
-                                                            ))}
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
+                    {/* Result Stage */}
+                    {result && (
+                        <div className="space-y-4">
+                            {result.error ? (
+                                <div className="bento-card p-5 border-2 border-safety-orange/30">
+                                    <h3 className="condensed-header text-safety-orange mb-2">❌ Error</h3>
+                                    <p className="text-muted-foreground leading-relaxed text-sm">{result.error}</p>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Answer Summary */}
+                                    {result.summary && (
+                                        <div className="bento-card p-5 bg-acid-lime/5 border border-acid-lime/20">
+                                            <h3 className="condensed-header text-acid-lime mb-2">💡 Answer</h3>
+                                            <p className="text-zinc-300 leading-relaxed">{result.summary}</p>
                                         </div>
-                                        {result.row_count > 10 && (
-                                            <p className="mt-4 text-sm text-muted-foreground italic">
-                                                Showing first 10 of {result.row_count} rows
-                                            </p>
-                                        )}
-                                    </CardContent>
-                                </Card>
+                                    )}
+
+                                    {/* Data Visualization */}
+                                    {renderDataResponse()}
+
+                                    {/* SQL Query */}
+                                    <div className="bento-card p-5">
+                                        <h3 className="condensed-header text-foreground mb-3">📊 Generated SQL</h3>
+                                        <pre className="bg-deep-charcoal p-4 rounded-card overflow-x-auto text-xs font-mono border border-border/30">
+                                            <code className="text-acid-lime">{result.sql}</code>
+                                        </pre>
+                                    </div>
+                                </>
                             )}
-                        </>
+                        </div>
+                    )}
+
+                    {/* Discovery Deck - Quick Actions */}
+                    {!result && (
+                        <div className="space-y-3">
+                            <h3 className="condensed-header text-muted-foreground">💡 Quick Start</h3>
+                            <div className="grid grid-cols-2 gap-3">
+                                {quickActions.map((action, idx) => (
+                                    <ActionCard
+                                        key={idx}
+                                        title={action.title}
+                                        description={action.description}
+                                        icon={action.icon}
+                                        onClick={() => handleQuickAction(action.question)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
                     )}
                 </div>
-            )}
 
-            {history.length > 0 && (
-                <div className="pt-8">
-                    <h3 className="text-lg font-semibold mb-4">📜 Recent Questions</h3>
-                    <ul className="space-y-2">
-                        {history.slice(-5).reverse().map((item, idx) => (
-                            <li key={idx}
-                                onClick={() => handleHistoryClick(item.question)}
-                                className="text-muted-foreground hover:text-primary cursor-pointer text-sm transition-colors"
-                            >
-                                {item.question}
-                            </li>
-                        ))}
-                    </ul>
+                {/* Right Column (25%) - Session History */}
+                <div className="flex-[0_0_25%]">
+                    <div className="bento-card p-5 h-full max-h-[600px] overflow-y-auto custom-scrollbar">
+                        <h3 className="condensed-header text-foreground mb-4">📜 History</h3>
+                        <SessionHistory
+                            history={history.map(h => ({ question: h.question, timestamp: h.timestamp }))}
+                            onSelect={handleHistoryClick}
+                        />
+                    </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

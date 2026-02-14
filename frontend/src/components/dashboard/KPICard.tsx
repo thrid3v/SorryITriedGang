@@ -11,16 +11,16 @@ interface KPICardProps {
 }
 
 const KPICard = ({ title, value, subtitle, icon, trend, className }: KPICardProps) => (
-  <div className={cn("glass-card p-5 animate-fade-in", className)}>
-    <div className="flex items-start justify-between mb-3">
-      <span className="text-xs text-muted-foreground uppercase tracking-wider">{title}</span>
-      <span className="text-muted-foreground">{icon}</span>
+  <div className={cn("bento-card p-6 animate-fade-in hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.5)] transition-shadow", className)}>
+    <div className="flex items-start justify-between mb-4">
+      <span className="condensed-header text-muted-foreground">{title}</span>
+      <span className="text-acid-lime">{icon}</span>
     </div>
-    <div className="text-2xl font-bold mb-1">{value}</div>
+    <div className="text-3xl font-bold mb-2">{value}</div>
     <div className="flex items-center gap-2">
       {subtitle && <span className="text-xs text-muted-foreground">{subtitle}</span>}
       {trend !== undefined && (
-        <span className={cn("text-xs font-medium", trend >= 0 ? "text-glow-teal" : "text-destructive")}>
+        <span className={cn("text-xs font-bold px-2 py-0.5 rounded-pill", trend >= 0 ? "bg-acid-lime/20 text-acid-lime" : "bg-safety-orange/20 text-safety-orange")}>
           {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}%
         </span>
       )}

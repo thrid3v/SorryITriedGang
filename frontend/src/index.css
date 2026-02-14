@@ -1,53 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 96%;
+    --background: 0 0% 5%; /* #0D0D0D - Deep Charcoal */
+    --foreground: 0 0% 98%; /* White */
 
-    --card: 222 47% 9%;
-    --card-foreground: 210 40% 96%;
+    --card: 0 0% 9%; /* #161616 - Card Charcoal */
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222 47% 9%;
-    --popover-foreground: 210 40% 96%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 6%;
+    --primary: 72 100% 50%; /* #D4FF00 - Acid Lime */
+    --primary-foreground: 0 0% 5%;
 
-    --secondary: 270 60% 55%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 33 100% 59%; /* #FF9F29 - Safety Orange */
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 30% 15%;
-    --muted-foreground: 215 20% 55%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 175 70% 45%;
-    --accent-foreground: 222 47% 6%;
+    --accent: 72 100% 50%; /* Acid Lime for accents */
+    --accent-foreground: 0 0% 5%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 220 30% 18%;
-    --input: 220 30% 18%;
-    --ring: 217 91% 60%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 72 100% 50%; /* Acid Lime ring */
 
-    --radius: 0.75rem;
+    --radius: 2rem; /* 32px for Bento cards */
 
-    --sidebar-background: 222 47% 8%;
-    --sidebar-foreground: 210 40% 85%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 220 30% 14%;
-    --sidebar-accent-foreground: 210 40% 96%;
-    --sidebar-border: 220 30% 16%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-background: 0 0% 9%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 72 100% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 72 100% 50%;
 
-    --glass: 222 47% 12%;
-    --glass-border: 220 30% 22%;
-    --glow-blue: 217 91% 60%;
-    --glow-purple: 270 60% 55%;
-    --glow-teal: 175 70% 45%;
+    --glass: 0 0% 12%;
+    --glass-border: 0 0% 22%;
+    --glow-blue: 72 100% 50%; /* Replaced with Acid Lime */
+    --glow-purple: 33 100% 59%; /* Replaced with Safety Orange */
+    --glow-teal: 72 100% 50%; /* Replaced with Acid Lime */
   }
 }
 
@@ -58,31 +60,48 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Outfit', 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 }
 
 @layer utilities {
   .glass-card {
-    @apply bg-[hsl(var(--glass)/0.6)] backdrop-blur-xl border border-[hsl(var(--glass-border)/0.3)] rounded-xl shadow-lg;
+    @apply bg-card-charcoal backdrop-blur-xl rounded-bento shadow-lg;
   }
 
   .glass-card-hover {
-    @apply glass-card transition-all duration-300 hover:border-[hsl(var(--glow-blue)/0.4)] hover:shadow-[0_0_30px_-5px_hsl(var(--glow-blue)/0.2)];
+    @apply glass-card transition-all duration-300 hover:shadow-[0_0_30px_-5px_hsl(72_100%_50%/0.2)];
+  }
+
+  .bento-card {
+    @apply bg-card-charcoal rounded-bento shadow-[0_8px_32px_-8px_rgba(0,0,0,0.4)] border-0;
+  }
+
+  .pill-button {
+    @apply rounded-pill bg-acid-lime text-deep-charcoal font-semibold px-6 py-2.5 transition-all duration-200 hover:shadow-[0_0_20px_rgba(212,255,0,0.4)] hover:scale-105;
+  }
+
+  .floating-dock {
+    @apply fixed left-6 top-1/2 -translate-y-1/2 bg-card-charcoal rounded-pill shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)] p-3 flex flex-col gap-2 z-50;
+  }
+
+  .condensed-header {
+    @apply uppercase tracking-widest font-bold text-xs;
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-[hsl(var(--glow-blue))] via-[hsl(var(--glow-purple))] to-[hsl(var(--glow-teal))] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-acid-lime to-safety-orange bg-clip-text text-transparent;
   }
 
   .gradient-border {
-    @apply border border-transparent bg-gradient-to-r from-[hsl(var(--glow-blue)/0.3)] to-[hsl(var(--glow-purple)/0.3)];
+    @apply border border-transparent bg-gradient-to-r from-[#D4FF00]/30 to-[#FF9F29]/30;
   }
 
   .glow-blue {
-    box-shadow: 0 0 40px -10px hsl(217 91% 60% / 0.3);
+    box-shadow: 0 0 40px -10px rgba(212, 255, 0, 0.3);
   }
 
   .glow-purple {
-    box-shadow: 0 0 40px -10px hsl(270 60% 55% / 0.3);
+    box-shadow: 0 0 40px -10px rgba(255, 159, 41, 0.3);
   }
 }

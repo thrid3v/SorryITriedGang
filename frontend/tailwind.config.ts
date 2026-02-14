@@ -62,11 +62,20 @@ export default {
         "glow-blue": "hsl(var(--glow-blue))",
         "glow-purple": "hsl(var(--glow-purple))",
         "glow-teal": "hsl(var(--glow-teal))",
+        // Bento UI Colors
+        "acid-lime": "#D4FF00",
+        "safety-orange": "#FF9F29",
+        "deep-charcoal": "#0D0D0D",
+        "card-charcoal": "#161616",
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        // Bento UI Border Radius
+        pill: "9999px",
+        bento: "32px",
+        card: "24px",
       },
       keyframes: {
         "accordion-down": {
