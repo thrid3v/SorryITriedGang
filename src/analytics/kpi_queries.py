@@ -338,17 +338,23 @@ def compute_top_products(limit: int = 10) -> pd.DataFrame:
 # ─────────────────────────────────────────────────
 @retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
 def compute_inventory_turnover() -> pd.DataFrame:
-    """Inventory turnover ratio: Sales / Average Inventory."""
-    FACT_INVENTORY = str(GOLD_DIR / "fact_inventory.parquet" / "**" / "*.parquet").replace("\\", "/")
-    
+    """Inventory turnover ratio: Sales / Average Inventory. Schema-agnostic."""
     try:
+        tables = _get_table_paths()
+        fact_txn = tables.get('fact_transactions')
+        fact_inventory = tables.get('fact_inventory')
+        dim_products = tables.get('dim_products')
+        
+        if not fact_txn or not fact_inventory or not dim_products:
+            raise FileNotFoundError("Required tables not found in Gold Layer")
+        
         conn = _get_conn()
         df = conn.sql(f"""
             WITH sales AS (
                 SELECT 
                     product_key, 
                     COUNT(*) as units_sold
-                FROM read_parquet('{FACT_TXN}', hive_partitioning=true)
+                FROM {fact_txn}
                 WHERE product_key != -1
                 GROUP BY product_key
             ),
@@ -357,7 +363,7 @@ def compute_inventory_turnover() -> pd.DataFrame:
                     product_key, 
                     AVG(stock_level) as avg_stock,
                     SUM(CASE WHEN needs_reorder THEN 1 ELSE 0 END) as reorder_instances
-                FROM read_parquet('{FACT_INVENTORY}', hive_partitioning=true)
+                FROM {fact_inventory}
                 WHERE product_key != -1
                 GROUP BY product_key
             )
@@ -368,7 +374,7 @@ def compute_inventory_turnover() -> pd.DataFrame:
                 COALESCE(ai.avg_stock, 0) as avg_stock,
                 COALESCE(s.units_sold / NULLIF(ai.avg_stock, 0), 0) as turnover_ratio,
                 ai.reorder_instances
-            FROM '{DIM_PRODUCTS}' dp
+            FROM {dim_products} dp
             LEFT JOIN sales s ON dp.product_key = s.product_key
             LEFT JOIN avg_inventory ai ON dp.product_key = ai.product_key
             ORDER BY turnover_ratio DESC
@@ -385,11 +391,15 @@ def compute_inventory_turnover() -> pd.DataFrame:
 # ─────────────────────────────────────────────────
 @retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
 def compute_delivery_metrics() -> pd.DataFrame:
-    """Average delivery times by carrier and region."""
-    FACT_SHIPMENTS = str(GOLD_DIR / "fact_shipments.parquet" / "**" / "*.parquet").replace("\\", "/")
-    DIM_STORES = str(GOLD_DIR / "dim_stores.parquet").replace("\\", "/")
-    
+    """Average delivery times by carrier and region. Schema-agnostic."""
     try:
+        tables = _get_table_paths()
+        fact_shipments = tables.get('fact_shipments')
+        dim_stores = tables.get('dim_stores')
+        
+        if not fact_shipments or not dim_stores:
+            raise FileNotFoundError("Required tables not found in Gold Layer")
+        
         conn = _get_conn()
         df = conn.sql(f"""
             SELECT
@@ -402,8 +412,8 @@ def compute_delivery_metrics() -> pd.DataFrame:
                 SUM(CASE WHEN fs.delivery_category = 'fast' THEN 1 ELSE 0 END) as fast_deliveries,
                 SUM(CASE WHEN fs.delivery_category = 'delayed' THEN 1 ELSE 0 END) as delayed_deliveries,
                 AVG(fs.shipping_cost) as avg_shipping_cost
-            FROM read_parquet('{FACT_SHIPMENTS}', hive_partitioning=true) fs
-            JOIN '{DIM_STORES}' ds ON fs.origin_store_key = ds.store_key
+            FROM {fact_shipments} fs
+            JOIN {dim_stores} ds ON fs.origin_store_key = ds.store_key
             WHERE fs.status = 'delivered' AND fs.origin_store_key != -1
             GROUP BY fs.carrier, ds.region
             ORDER BY avg_delivery_days
@@ -420,10 +430,16 @@ def compute_delivery_metrics() -> pd.DataFrame:
 # ─────────────────────────────────────────────────
 @retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
 def compute_seasonal_trends() -> pd.DataFrame:
-    """Monthly/quarterly demand trends by product category."""
-    DIM_DATES = str(GOLD_DIR / "dim_dates.parquet").replace("\\", "/")
-    
+    """Monthly/quarterly demand trends by product category. Schema-agnostic."""
     try:
+        tables = _get_table_paths()
+        fact_txn = tables.get('fact_transactions')
+        dim_dates = tables.get('dim_dates')
+        dim_products = tables.get('dim_products')
+        
+        if not fact_txn or not dim_dates or not dim_products:
+            raise FileNotFoundError("Required tables not found in Gold Layer")
+        
         conn = _get_conn()
         df = conn.sql(f"""
             SELECT
@@ -434,9 +450,9 @@ def compute_seasonal_trends() -> pd.DataFrame:
                 COUNT(*) as units_sold,
                 SUM(ft.amount) as revenue,
                 AVG(ft.amount) as avg_transaction_value
-            FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
-            JOIN '{DIM_DATES}' dd ON ft.date_key = dd.date_key
-            JOIN '{DIM_PRODUCTS}' dp ON ft.product_key = dp.product_key
+            FROM {fact_txn} ft
+            JOIN {dim_dates} dd ON ft.date_key = dd.date_key
+            JOIN {dim_products} dp ON ft.product_key = dp.product_key
             WHERE ft.product_key != -1
             GROUP BY dd.year, dd.quarter, dd.month, dp.category
             ORDER BY dd.year, dd.quarter, dd.month, revenue DESC
@@ -453,15 +469,21 @@ def compute_seasonal_trends() -> pd.DataFrame:
 # ─────────────────────────────────────────────────
 @retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, FileNotFoundError, OSError))
 def compute_customer_segmentation() -> pd.DataFrame:
-    """New vs. Returning customers based on purchase history."""
+    """New vs. Returning customers based on purchase history. Schema-agnostic."""
     try:
+        tables = _get_table_paths()
+        fact_txn = tables.get('fact_transactions')
+        
+        if not fact_txn:
+            raise FileNotFoundError("fact_transactions not found in Gold Layer")
+        
         conn = _get_conn()
         df = conn.sql(f"""
             WITH first_purchase AS (
                 SELECT
                     user_key,
                     MIN(timestamp)::DATE as first_purchase_date
-                FROM read_parquet('{FACT_TXN}', hive_partitioning=true)
+                FROM {fact_txn}
                 WHERE user_key != -1
                 GROUP BY user_key
             ),
@@ -477,7 +499,7 @@ def compute_customer_segmentation() -> pd.DataFrame:
                         WHEN DATEDIFF('day', fp.first_purchase_date, ft.timestamp::DATE) <= 7 THEN 'New'
                         ELSE 'Returning'
                     END as customer_type
-                FROM read_parquet('{FACT_TXN}', hive_partitioning=true) ft
+                FROM {fact_txn} ft
                 JOIN first_purchase fp ON ft.user_key = fp.user_key
                 WHERE ft.user_key != -1
             )

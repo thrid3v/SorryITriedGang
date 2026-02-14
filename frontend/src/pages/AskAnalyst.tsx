@@ -166,24 +166,6 @@ export default function AskAnalyst() {
                             )}
                         </div>
                     )}
-
-                    {/* Discovery Deck - Quick Actions */}
-                    {!result && (
-                        <div className="space-y-3">
-                            <h3 className="condensed-header text-muted-foreground">💡 Quick Start</h3>
-                            <div className="grid grid-cols-2 gap-3">
-                                {quickActions.map((action, idx) => (
-                                    <ActionCard
-                                        key={idx}
-                                        title={action.title}
-                                        description={action.description}
-                                        icon={action.icon}
-                                        onClick={() => handleQuickAction(action.question)}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </div>
 
                 {/* Right Column (25%) - Session History */}

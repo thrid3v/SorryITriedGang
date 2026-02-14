@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 interface User {
     username: string;
     role: 'admin' | 'customer';
@@ -49,7 +51,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         formData.append('username', username);
         formData.append('password', password);
 
-        const response = await fetch('http://localhost:8000/api/login', {
+        const response = await fetch(`${API_BASE_URL}/api/login`, {
             method: 'POST',
             body: formData,
         });
@@ -70,7 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     const register = async (username: string, password: string) => {
-        const response = await fetch('http://localhost:8000/api/register', {
+        const response = await fetch(`${API_BASE_URL}/api/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),

@@ -11,6 +11,8 @@ import CustomerTab from "@/components/dashboard/CustomerTab";
 import DataQualityTab from "@/components/dashboard/DataQualityTab";
 import AskAnalyst from "@/pages/AskAnalyst";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 const tabs = [
   { id: "sales", label: "Sales Analytics", icon: TrendingUp, roles: ["admin", "customer"] },
   { id: "ai-analyst", label: "AI Analyst", icon: Bot, roles: ["admin", "customer"] },
@@ -42,7 +44,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStreamStatus = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/stream/status");
+        const res = await fetch(`${API_BASE_URL}/api/stream/status`);
         if (res.ok) {
           const data = await res.json();
           setStreamStatus(data);
@@ -61,7 +63,7 @@ const Dashboard = () => {
     setIsStreamLoading(true);
     try {
       const token = localStorage.getItem('auth_token');
-      const res = await fetch("http://localhost:8000/api/stream/start", {
+      const res = await fetch(`${API_BASE_URL}/api/stream/start`, {
         method: "POST",
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
@@ -95,7 +97,7 @@ const Dashboard = () => {
     setIsStreamLoading(true);
     try {
       const token = localStorage.getItem('auth_token');
-      const res = await fetch("http://localhost:8000/api/stream/stop", {
+      const res = await fetch(`${API_BASE_URL}/api/stream/stop`, {
         method: "POST",
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
