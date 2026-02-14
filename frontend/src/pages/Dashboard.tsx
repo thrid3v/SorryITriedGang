@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, Package, Users, Truck, Shield, Settings, Activity, ArrowLeft, Bot, Play, Square, LogOut } from "lucide-react";
+import { TrendingUp, Package, Users, Shield, Activity, ArrowLeft, Bot, Play, Square, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import SalesTab from "@/components/dashboard/SalesTab";
 import InventoryTab from "@/components/dashboard/InventoryTab";
 import CustomerTab from "@/components/dashboard/CustomerTab";
-import DeliveryTab from "@/components/dashboard/DeliveryTab";
 import DataQualityTab from "@/components/dashboard/DataQualityTab";
 import AskAnalyst from "@/pages/AskAnalyst";
 
@@ -17,9 +16,7 @@ const tabs = [
   { id: "ai-analyst", label: "AI Analyst", icon: Bot, roles: ["admin", "customer"] },
   { id: "inventory", label: "Inventory & Ops", icon: Package, roles: ["admin"] },
   { id: "customer", label: "Customer Intel", icon: Users, roles: ["admin"] },
-  { id: "delivery", label: "Delivery & Logistics", icon: Truck, roles: ["admin"] },
   { id: "quality", label: "Data Quality", icon: Shield, roles: ["admin"] },
-  { id: "settings", label: "Settings", icon: Settings, roles: ["admin", "customer"] },
 ];
 
 interface StreamStatus {
@@ -134,15 +131,7 @@ const Dashboard = () => {
       case "ai-analyst": return <AskAnalyst />;
       case "inventory": return <InventoryTab />;
       case "customer": return <CustomerTab />;
-      case "delivery": return <DeliveryTab />;
       case "quality": return <DataQualityTab />;
-      case "settings": return (
-        <div className="glass-card p-12 text-center">
-          <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">Settings</h3>
-          <p className="text-muted-foreground">Configuration options coming soon.</p>
-        </div>
-      );
       default: return <SalesTab />;
     }
   };
