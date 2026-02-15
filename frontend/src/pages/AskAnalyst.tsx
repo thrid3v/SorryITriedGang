@@ -58,7 +58,7 @@ export default function AskAnalyst() {
             const keys = Object.keys(result.data[0]);
             const valueKey = keys.find(k => typeof result.data[0][k] === 'number') || keys[0];
             const value = result.data[0][valueKey];
-            
+
             return (
                 <StatCard
                     label={result.question}
@@ -70,7 +70,7 @@ export default function AskAnalyst() {
         // Leaderboard (list with numeric values)
         const keys = Object.keys(result.data[0]);
         const hasNumericValue = keys.some(k => typeof result.data[0][k] === 'number');
-        
+
         if (hasNumericValue && result.data.length > 1 && result.data.length <= 10) {
             const labelKey = keys.find(k => typeof result.data[0][k] === 'string') || keys[0];
             const valueKey = keys.find(k => typeof result.data[0][k] === 'number') || keys[1];
@@ -124,8 +124,8 @@ export default function AskAnalyst() {
                                 disabled={loading}
                                 className="flex-1 rounded-pill h-11 px-5 bg-deep-charcoal border-border/30 focus:border-acid-lime"
                             />
-                            <Button 
-                                type="submit" 
+                            <Button
+                                type="submit"
                                 disabled={loading || !question.trim()}
                                 className="pill-button h-11 px-6"
                             >

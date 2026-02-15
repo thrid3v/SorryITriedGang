@@ -35,7 +35,7 @@ export const GlassBarChart = ({ data, dataKey, xKey, color = "#D4FF00", height =
       <XAxis dataKey={xKey} tick={{ fill: "hsl(0, 0%, 60%)", fontSize: 11 }} axisLine={false} tickLine={false} />
       <YAxis tick={{ fill: "hsl(0, 0%, 60%)", fontSize: 11 }} axisLine={false} tickLine={false} />
       <Tooltip {...chartTooltipStyle} cursor={{ fill: 'transparent' }} />
-      <Bar dataKey={dataKey} fill={color} radius={[999, 999, 999, 999]} />
+      <Bar dataKey={dataKey} fill={color} radius={[8, 8, 0, 0]} />
     </BarChart>
   </ResponsiveContainer>
 );

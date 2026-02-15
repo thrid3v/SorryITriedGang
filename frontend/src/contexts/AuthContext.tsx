@@ -1,114 +1,88 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+export type UserRole = 'admin' | 'user';
 
-interface User {
+export interface User {
     username: string;
-    role: 'admin' | 'customer';
+    role: UserRole;
+    displayName?: string;
 }
 
 interface AuthContextType {
-    user: User | null;
-    token: string | null;
-    login: (username: string, password: string) => Promise<void>;
-    register: (username: string, password: string) => Promise<void>;
-    logout: () => void;
     isAuthenticated: boolean;
-    isAdmin: boolean;
+    login: (username: string, password: string) => Promise<boolean>;
+    logout: () => void;
+    user: User | null;
+    isAdmin: () => boolean;
+    hasRole: (role: UserRole) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
+// Demo user credentials with roles
+const DEMO_USERS: Record<string, { password: string; role: UserRole; displayName: string }> = {
+    admin: { password: 'admin123', role: 'admin', displayName: 'Administrator' },
+    demo: { password: 'demo', role: 'user', displayName: 'Demo User' },
+    user: { password: 'user123', role: 'user', displayName: 'Regular User' },
 };
 
-interface AuthProviderProps {
-    children: ReactNode;
-}
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+        // Check if user was previously authenticated
+        return localStorage.getItem('isAuthenticated') === 'true';
+    });
+    const [user, setUser] = useState<User | null>(() => {
+        const savedUser = localStorage.getItem('user');
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(null);
+    const login = async (username: string, password: string): Promise<boolean> => {
+        // Check against demo users
+        const demoUser = DEMO_USERS[username.toLowerCase()];
 
-    // Load token from localStorage on mount
-    useEffect(() => {
-        const storedToken = localStorage.getItem('auth_token');
-        const storedUser = localStorage.getItem('auth_user');
+        if (demoUser && demoUser.password === password) {
+            const userData: User = {
+                username: username.toLowerCase(),
+                role: demoUser.role,
+                displayName: demoUser.displayName,
+            };
 
-        if (storedToken && storedUser) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
-        }
-    }, []);
-
-    const login = async (username: string, password: string) => {
-        const formData = new FormData();
-        formData.append('username', username);
-        formData.append('password', password);
-
-        const response = await fetch(`${API_BASE_URL}/api/login`, {
-            method: 'POST',
-            body: formData,
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || 'Login failed');
+            setIsAuthenticated(true);
+            setUser(userData);
+            localStorage.setItem('isAuthenticated', 'true');
+            localStorage.setItem('user', JSON.stringify(userData));
+            return true;
         }
 
-        const data = await response.json();
-        const newUser = { username: data.username, role: data.role };
-
-        setToken(data.access_token);
-        setUser(newUser);
-
-        localStorage.setItem('auth_token', data.access_token);
-        localStorage.setItem('auth_user', JSON.stringify(newUser));
-    };
-
-    const register = async (username: string, password: string) => {
-        const response = await fetch(`${API_BASE_URL}/api/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || 'Registration failed');
-        }
-
-        const data = await response.json();
-        const newUser = { username: data.username, role: data.role };
-
-        setToken(data.access_token);
-        setUser(newUser);
-
-        localStorage.setItem('auth_token', data.access_token);
-        localStorage.setItem('auth_user', JSON.stringify(newUser));
+        return false;
     };
 
     const logout = () => {
-        setToken(null);
+        setIsAuthenticated(false);
         setUser(null);
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('user');
     };
 
-    const value = {
-        user,
-        token,
-        login,
-        register,
-        logout,
-        isAuthenticated: !!token,
-        isAdmin: user?.role === 'admin',
+    const isAdmin = (): boolean => {
+        return user?.role === 'admin';
     };
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    const hasRole = (role: UserRole): boolean => {
+        return user?.role === role;
+    };
+
+    return (
+        <AuthContext.Provider value={{ isAuthenticated, login, logout, user, isAdmin, hasRole }}>
+            {children}
+        </AuthContext.Provider>
+    );
+};
+
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
 };

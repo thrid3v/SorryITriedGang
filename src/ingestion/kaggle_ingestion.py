@@ -33,7 +33,6 @@ class KaggleIngestion:
         self.kaggle_dir = KAGGLE_DIR
         self.raw_dir = RAW_DIR
         self.detector = SchemaDetector()
-        
         # Ensure directories exist
         self.kaggle_dir.mkdir(parents=True, exist_ok=True)
         self.raw_dir.mkdir(parents=True, exist_ok=True)
@@ -48,11 +47,11 @@ class KaggleIngestion:
                 self.api.authenticate()
                 self.kaggle_available = True
                 print("[INFO] Kaggle API authenticated successfully")
-            except Exception as auth_error:
+            except (Exception, SystemExit) as auth_error:
                 print(f"[INFO] Kaggle API not authenticated: {auth_error}")
                 print(f"[INFO] You can still use local CSV files with --csv-file option")
-        except ImportError:
-            print(f"[INFO] Kaggle library not installed")
+        except (ImportError, Exception, SystemExit):
+            print(f"[INFO] Kaggle library not available")
             print(f"[INFO] You can still use local CSV files with --csv-file option")
     
     def search_datasets(self, query: str = "retail sales", max_results: int = 10) -> List[Dict]:
@@ -178,8 +177,17 @@ class KaggleIngestion:
         """
         print(f"[Normalize] Processing: {csv_path.name}")
         
-        # Read CSV
-        df = pd.read_csv(csv_path)
+        # Read CSV (try multiple encodings)
+        for encoding in ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']:
+            try:
+                df = pd.read_csv(csv_path, encoding=encoding)
+                print(f"[OK] Read CSV with encoding: {encoding}")
+                break
+            except UnicodeDecodeError:
+                continue
+        else:
+            print(f"[ERROR] Could not decode {csv_path.name} with any encoding")
+            return None
         
         # Rename columns based on mapping
         df_normalized = df.rename(columns=column_mapping)

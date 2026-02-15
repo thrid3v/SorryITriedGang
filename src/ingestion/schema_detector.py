@@ -66,7 +66,14 @@ class SchemaDetector:
         Returns:
             Schema dict with column types and metadata
         """
-        df = pd.read_csv(csv_path, nrows=sample_rows)
+        for encoding in ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']:
+            try:
+                df = pd.read_csv(csv_path, nrows=sample_rows, encoding=encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+        else:
+            raise ValueError(f"Could not decode {csv_path} with any encoding")
         
         schema = {
             'file_path': csv_path,
