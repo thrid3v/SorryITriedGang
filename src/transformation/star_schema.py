@@ -3,6 +3,7 @@ RetailNexus - Silver -> Gold Star Schema Builder
 Builds dimension tables (dim_products, dim_stores, dim_dates) and fact_transactions
 from Silver-layer Parquet files.  dim_users is handled by scd_logic.py.
 All transformations via duckdb.sql().
+Each builder is OPTIONAL — if its Silver source is missing, it is skipped.
 """
 import os
 import sys
@@ -31,9 +32,23 @@ def _ensure_gold():
     os.makedirs(GOLD_DIR, exist_ok=True)
 
 
-@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
+def _silver_exists(filename: str) -> bool:
+    """Check if a Silver-layer parquet file exists."""
+    return os.path.isfile(os.path.join(SILVER_DIR, filename))
+
+
+def _gold_exists(filename: str) -> bool:
+    """Check if a Gold-layer parquet file or directory exists."""
+    path = os.path.join(GOLD_DIR, filename)
+    return os.path.isfile(path) or os.path.isdir(path)
+
+
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError))
 def build_dim_products():
     """Straight copy from Silver with a surrogate key."""
+    if not _silver_exists("products.parquet"):
+        print("[StarSchema] No Silver products - skipping dim_products")
+        return False
     duckdb.sql(f"""
         COPY (
             SELECT
@@ -47,11 +62,15 @@ def build_dim_products():
     """)
     cnt = duckdb.sql(f"SELECT COUNT(*) FROM '{GOLD_DIM_PRODUCTS}'").fetchone()[0]
     print(f"[StarSchema] dim_products: {cnt} rows")
+    return True
 
 
-@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError))
 def build_dim_stores():
     """Extract distinct stores from transactions."""
+    if not _silver_exists("transactions.parquet"):
+        print("[StarSchema] No Silver transactions - skipping dim_stores")
+        return False
     duckdb.sql(f"""
         COPY (
             SELECT
@@ -65,11 +84,15 @@ def build_dim_stores():
     """)
     cnt = duckdb.sql(f"SELECT COUNT(*) FROM '{GOLD_DIM_STORES}'").fetchone()[0]
     print(f"[StarSchema] dim_stores: {cnt} rows")
+    return True
 
 
-@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError))
 def build_dim_dates():
     """Generate a date dimension from the range of transaction timestamps."""
+    if not _silver_exists("transactions.parquet"):
+        print("[StarSchema] No Silver transactions - skipping dim_dates")
+        return False
     duckdb.sql(f"""
         COPY (
             SELECT
@@ -93,65 +116,116 @@ def build_dim_dates():
     """)
     cnt = duckdb.sql(f"SELECT COUNT(*) FROM '{GOLD_DIM_DATES}'").fetchone()[0]
     print(f"[StarSchema] dim_dates: {cnt} rows")
+    return True
 
 
-@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError))
 def build_fact_transactions():
     """
     Join Silver transactions with Gold dim tables to produce the fact table.
-    Uses CREATE OR REPLACE to avoid Windows file locking issues.
+    Handles missing dims by using LEFT JOINs with fallback values.
     """
-    # First, create the table without partitioning to avoid file locks
+    if not _silver_exists("transactions.parquet"):
+        print("[StarSchema] No Silver transactions - skipping fact_transactions")
+        return False
+
+    # Build the query dynamically based on available dims
+    select_parts = [
+        "t.transaction_id",
+        "CAST(STRFTIME(t.timestamp, '%Y%m%d') AS INTEGER) AS date_key",
+        "t.timestamp",
+        "t.amount",
+    ]
+    join_parts = []
+
+    if _gold_exists("dim_users.parquet"):
+        select_parts.append("COALESCE(du.surrogate_key, -1) AS user_key")
+        join_parts.append(f"LEFT JOIN '{GOLD_DIM_USERS}' du ON t.user_id = du.user_id AND du.is_current = TRUE")
+    else:
+        select_parts.append("-1 AS user_key")
+
+    if _gold_exists("dim_products.parquet"):
+        select_parts.append("COALESCE(dp.product_key, -1) AS product_key")
+        join_parts.append(f"LEFT JOIN '{GOLD_DIM_PRODUCTS}' dp ON t.product_id = dp.product_id")
+    else:
+        select_parts.append("-1 AS product_key")
+
+    if _gold_exists("dim_stores.parquet"):
+        select_parts.append("COALESCE(ds.store_key, -1) AS store_key")
+        select_parts.append("COALESCE(ds.region, 'Unknown') AS region")
+        join_parts.append(f"LEFT JOIN '{GOLD_DIM_STORES}' ds ON t.store_id = ds.store_id")
+    else:
+        select_parts.append("-1 AS store_key")
+        select_parts.append("'Unknown' AS region")
+
+    select_clause = ",\n            ".join(select_parts)
+    join_clause = "\n        ".join(join_parts)
+
     duckdb.sql(f"""
         CREATE OR REPLACE TABLE fact_transactions_temp AS
         SELECT
-            t.transaction_id,
-            COALESCE(du.surrogate_key, -1)                          AS user_key,
-            COALESCE(dp.product_key, -1)                            AS product_key,
-            COALESCE(ds.store_key, -1)                              AS store_key,
-            COALESCE(ds.region, 'Unknown')                          AS region,
-            CAST(STRFTIME(t.timestamp, '%Y%m%d') AS INTEGER)        AS date_key,
-            t.timestamp,
-            t.amount
+            {select_clause}
         FROM '{SILVER_TXN}' t
-        LEFT JOIN '{GOLD_DIM_USERS}' du
-            ON t.user_id = du.user_id AND du.is_current = TRUE
-        LEFT JOIN '{GOLD_DIM_PRODUCTS}' dp
-            ON t.product_id = dp.product_id
-        LEFT JOIN '{GOLD_DIM_STORES}' ds
-            ON t.store_id = ds.store_id
+        {join_clause}
     """)
     
-    # Then export to partitioned Parquet, removing old directory first if possible
+    
+    # Write to temp file first, then atomic rename to prevent file locking
+    # This ensures backend can always read a complete, valid file
     import shutil
+    temp_file = f"{GOLD_FACT_TXN}.tmp"
+    
     try:
+        # Write to temporary file (won't interfere with reads)
+        duckdb.sql(f"""
+            COPY fact_transactions_temp 
+            TO '{temp_file}' 
+            (FORMAT PARQUET)
+        """)
+        
+        # Clean up temp table now that data is written
+        duckdb.sql("DROP TABLE IF EXISTS fact_transactions_temp")
+        
+        # Remove old file if exists (handle both file and directory cases)
         if os.path.exists(GOLD_FACT_TXN):
-            shutil.rmtree(GOLD_FACT_TXN)
-    except PermissionError:
-        # Files are locked (likely by API server), use a workaround
-        pass
+            if os.path.isdir(GOLD_FACT_TXN):
+                shutil.rmtree(GOLD_FACT_TXN)
+            else:
+                os.remove(GOLD_FACT_TXN)
+        
+        # Atomic rename - this is instantaneous, no lock window
+        os.rename(temp_file, GOLD_FACT_TXN)
+        
+    except Exception as e:
+        # Clean up temp table if it still exists
+        try:
+            duckdb.sql("DROP TABLE IF EXISTS fact_transactions_temp")
+        except:
+            pass
+        # Clean up temp file on error
+        if os.path.exists(temp_file):
+            try:
+                os.remove(temp_file)
+            except:
+                pass
+        raise e
     
-    duckdb.sql(f"""
-        COPY fact_transactions_temp 
-        TO '{GOLD_FACT_TXN}' 
-        (FORMAT PARQUET, PARTITION_BY (region, date_key), OVERWRITE_OR_IGNORE)
-    """)
-    
-    duckdb.sql("DROP TABLE IF EXISTS fact_transactions_temp")
-    cnt = duckdb.sql(f"SELECT COUNT(*) FROM read_parquet('{GOLD_FACT_TXN}/**/*.parquet', hive_partitioning=true)").fetchone()[0]
+    cnt = duckdb.sql(f"SELECT COUNT(*) FROM '{GOLD_FACT_TXN}'").fetchone()[0]
     print(f"[StarSchema] fact_transactions: {cnt} rows")
+    return True
 
 
-@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError))
 def build_fact_inventory():
-    """
-    Build inventory fact table from Silver inventory data.
-    Joins with product and store dimensions.
-    Uses CREATE OR REPLACE to avoid Windows file locking issues.
-    """
-    import shutil
+    """Build inventory fact table from Silver inventory data."""
     SILVER_INVENTORY = os.path.join(SILVER_DIR, "inventory.parquet").replace("\\", "/")
     GOLD_FACT_INVENTORY = os.path.join(GOLD_DIR, "fact_inventory.parquet").replace("\\", "/")
+    
+    if not _silver_exists("inventory.parquet"):
+        print("[StarSchema] No Silver inventory - skipping fact_inventory")
+        return False
+    
+    import shutil
     
     duckdb.sql(f"""
         CREATE OR REPLACE TABLE fact_inventory_temp AS
@@ -191,18 +265,20 @@ def build_fact_inventory():
     duckdb.sql("DROP TABLE IF EXISTS fact_inventory_temp")
     cnt = duckdb.sql(f"SELECT COUNT(*) FROM read_parquet('{GOLD_FACT_INVENTORY}/**/*.parquet', hive_partitioning=true)").fetchone()[0]
     print(f"[StarSchema] fact_inventory: {cnt} rows")
+    return True
 
 
-@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError, FileNotFoundError))
+@retry_with_backoff(max_attempts=3, exceptions=(duckdb.IOException, OSError))
 def build_fact_shipments():
-    """
-    Build shipments fact table from Silver shipment data.
-    Joins with store dimensions for origin and destination.
-    Uses CREATE OR REPLACE to avoid Windows file locking issues.
-    """
-    import shutil
+    """Build shipments fact table from Silver shipment data."""
     SILVER_SHIPMENTS = os.path.join(SILVER_DIR, "shipments.parquet").replace("\\", "/")
     GOLD_FACT_SHIPMENTS = os.path.join(GOLD_DIR, "fact_shipments.parquet").replace("\\", "/")
+    
+    if not _silver_exists("shipments.parquet"):
+        print("[StarSchema] No Silver shipments - skipping fact_shipments")
+        return False
+    
+    import shutil
     
     duckdb.sql(f"""
         CREATE OR REPLACE TABLE fact_shipments_temp AS
@@ -250,21 +326,36 @@ def build_fact_shipments():
     duckdb.sql("DROP TABLE IF EXISTS fact_shipments_temp")
     cnt = duckdb.sql(f"SELECT COUNT(*) FROM read_parquet('{GOLD_FACT_SHIPMENTS}/**/*.parquet', hive_partitioning=true)").fetchone()[0]
     print(f"[StarSchema] fact_shipments: {cnt} rows")
+    return True
 
 
 def build_star_schema():
-    """Build all Gold-layer tables (excluding dim_users, handled by SCD)."""
+    """Build all Gold-layer tables (excluding dim_users, handled by SCD).
+    Each builder is independent — missing Silver files are skipped."""
     _ensure_gold()
-    try:
-        build_dim_products()
-        build_dim_stores()
-        build_dim_dates()
-        build_fact_transactions()
-        build_fact_inventory()
-        build_fact_shipments()
-        print("[StarSchema] Silver -> Gold complete OK")
-    except FileNotFoundError as e:
-        print(f"[StarSchema] Waiting for Silver data... ({e})")
+    results = {}
+    
+    for name, func in [
+        ("dim_products", build_dim_products),
+        ("dim_stores", build_dim_stores),
+        ("dim_dates", build_dim_dates),
+        ("fact_transactions", build_fact_transactions),
+        ("fact_inventory", build_fact_inventory),
+        ("fact_shipments", build_fact_shipments),
+    ]:
+        try:
+            results[name] = func()
+        except Exception as e:
+            print(f"[StarSchema] {name} failed: {e}")
+            results[name] = False
+    
+    built = [k for k, v in results.items() if v]
+    if built:
+        print(f"[StarSchema] Silver -> Gold complete. Built: {', '.join(built)}")
+    else:
+        print("[StarSchema] No Silver data available to build Gold layer.")
+    
+    return results
 
 
 if __name__ == "__main__":

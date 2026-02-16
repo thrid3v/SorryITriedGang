@@ -28,12 +28,28 @@ from src.analytics.schema_inspector import (
 )
 
 # Import vector store for RAG
+RAG_ENABLED = False
+_vector_store = None
+
 try:
     from src.analytics.vector_store import get_vector_store
-    RAG_ENABLED = True
+    # Test if vector store actually works (ChromaDB may fail on Python 3.14+)
+    try:
+        _vector_store = get_vector_store()
+        # Test if it's actually functional
+        _vector_store.count()  # This will fail if ChromaDB has issues
+        RAG_ENABLED = True
+    except Exception as e:
+        RAG_ENABLED = False
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"RAG vector store initialization failed: {e}. RAG disabled. This is optional.")
+        _vector_store = None
 except ImportError:
     RAG_ENABLED = False
-    print("[WARN] Vector store not available. RAG disabled. Run: pip install chromadb sentence-transformers")
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning("Vector store dependencies not available. RAG disabled. Install: pip install chromadb sentence-transformers")
 
 
 def get_schema_prompt(context: Optional[dict] = None) -> str:
@@ -117,14 +133,16 @@ def generate_sql(question: str, use_rag: bool = True) -> str:
     
     # Get similar examples from RAG if enabled
     examples_text = ""
-    if use_rag and RAG_ENABLED:
+    if use_rag and RAG_ENABLED and _vector_store is not None:
         try:
-            store = get_vector_store()
-            if store.count() > 0:
-                similar_examples = store.search_similar(question, top_k=3)
+            if _vector_store.count() > 0:
+                similar_examples = _vector_store.search_similar(question, top_k=3)
                 examples_text = format_rag_examples(similar_examples)
         except Exception as e:
-            print(f"[WARN] RAG search failed: {e}. Proceeding without examples.")
+            # RAG is optional - silently continue without examples
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.debug(f"RAG search failed (non-critical): {e}. Proceeding without examples.")
     
     # Build enhanced system prompt
     system_prompt = f"""{schema}

@@ -37,6 +37,12 @@ def apply_scd_type_2():
     - Brand-new user -> insert with is_current=True
     """
     _ensure_gold()
+    
+    # Guard: skip entirely if no Silver users data exists
+    if not os.path.exists(SILVER_USERS):
+        print("[SCD2] No Silver users.parquet found - skipping dim_users")
+        return
+    
     today = date.today().isoformat()
 
     # -- First run: no history exists yet --

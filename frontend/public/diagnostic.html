@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic Page</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #00ff00; }
+        h1 { color: #00ff00; }
+        .test { margin: 10px 0; padding: 10px; background: #2a2a2a; }
+        .pass { border-left: 4px solid #00ff00; }
+        .fail { border-left: 4px solid #ff0000; color: #ff0000; }
+        button { background: #00ff00; color: #000; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; }
+        pre { background: #000; padding: 10px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 RetailNexus Diagnostic</h1>
+    
+    <div id="results"></div>
+    
+    <button onclick="runTests()">Run All Tests</button>
+    <button onclick="location.href='/'">Go to Main App</button>
+    <button onclick="location.href='/test.html'">Go to API Test</button>
+    
+    <script>
+        async function runTests() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>Running diagnostics...</h2>';
+            
+            const tests = [];
+            
+            // Test 1: Backend direct
+            try {
+                const r = await fetch('http://localhost:8000/api/kpis');
+                tests.push({
+                    name: 'Backend Direct (port 8000)',
+                    pass: r.ok,
+                    details: `Status: ${r.status}`
+                });
+            } catch (e) {
+                tests.push({
+                    name: 'Backend Direct (port 8000)',
+                    pass: false,
+                    details: e.message
+                });
+            }
+            
+            // Test 2: Proxy
+            try {
+                const r = await fetch('/api/kpis');
+                tests.push({
+                    name: 'Vite Proxy (/api)',
+                    pass: r.ok,
+                    details: `Status: ${r.status}`
+                });
+            } catch (e) {
+                tests.push({
+                    name: 'Vite Proxy (/api)',
+                    pass: false,
+                    details: e.message
+                });
+            }
+            
+            // Test 3: LocalStorage
+            try {
+                localStorage.setItem('test', 'value');
+                const val = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                tests.push({
+                    name: 'LocalStorage',
+                    pass: val === 'value',
+                    details: 'Working'
+                });
+            } catch (e) {
+                tests.push({
+                    name: 'LocalStorage',
+                    pass: false,
+                    details: e.message
+                });
+            }
+            
+            // Test 4: Check if user is logged in
+            const isAuth = localStorage.getItem('isAuthenticated');
+            const user = localStorage.getItem('user');
+            tests.push({
+                name: 'Authentication State',
+                pass: isAuth === 'true',
+                details: `Authenticated: ${isAuth}, User: ${user || 'none'}`
+            });
+            
+            // Test 5: Fetch with auth headers
+            try {
+                const role = localStorage.getItem('user_role') || 'customer';
+                const r = await fetch('/api/kpis', {
+                    headers: { 'X-User-Role': role }
+                });
+                const data = await r.json();
+                tests.push({
+                    name: 'API with Auth Headers',
+                    pass: r.ok,
+                    details: `Revenue: $${data.total_revenue}, Orders: ${data.total_orders}`
+                });
+            } catch (e) {
+                tests.push({
+                    name: 'API with Auth Headers',
+                    pass: false,
+                    details: e.message
+                });
+            }
+            
+            // Render results
+            let html = '<h2>Diagnostic Results</h2>';
+            tests.forEach(test => {
+                html += `
+                    <div class="test ${test.pass ? 'pass' : 'fail'}">
+                        <strong>${test.pass ? '✅' : '❌'} ${test.name}</strong><br>
+                        ${test.details}
+                    </div>
+                `;
+            });
+            
+            // Add recommendations
+            const failedTests = tests.filter(t => !t.pass);
+            if (failedTests.length === 0) {
+                html += '<div class="test pass"><strong>✅ All tests passed!</strong><br>If the main app still has errors, check the browser console for React errors.</div>';
+            } else {
+                html += '<div class="test fail"><strong>⚠️ Issues Found</strong><br>';
+                if (!tests[0].pass) html += '• Backend server not running on port 8000<br>';
+                if (!tests[1].pass) html += '• Vite proxy not working<br>';
+                if (!tests[3].pass) html += '• User not logged in - try logging in first<br>';
+                html += '</div>';
+            }
+            
+            results.innerHTML = html;
+        }
+        
+        // Auto-run on load
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

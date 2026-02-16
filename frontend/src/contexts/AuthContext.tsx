@@ -1,16 +1,17 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-export type UserRole = 'admin' | 'user';
+export type UserRole = 'admin' | 'customer';
 
 export interface User {
     username: string;
     role: UserRole;
-    displayName?: string;
+    displayName: string;
 }
 
 interface AuthContextType {
     isAuthenticated: boolean;
-    login: (username: string, password: string) => Promise<boolean>;
+    loginAsAdmin: () => void;
+    loginAsCustomer: () => void;
     logout: () => void;
     user: User | null;
     isAdmin: () => boolean;
@@ -19,16 +20,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo user credentials with roles
-const DEMO_USERS: Record<string, { password: string; role: UserRole; displayName: string }> = {
-    admin: { password: 'admin123', role: 'admin', displayName: 'Administrator' },
-    demo: { password: 'demo', role: 'user', displayName: 'Demo User' },
-    user: { password: 'user123', role: 'user', displayName: 'Regular User' },
-};
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-        // Check if user was previously authenticated
         return localStorage.getItem('isAuthenticated') === 'true';
     });
     const [user, setUser] = useState<User | null>(() => {
@@ -36,25 +29,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return savedUser ? JSON.parse(savedUser) : null;
     });
 
-    const login = async (username: string, password: string): Promise<boolean> => {
-        // Check against demo users
-        const demoUser = DEMO_USERS[username.toLowerCase()];
+    const setAuthUser = (userData: User) => {
+        setIsAuthenticated(true);
+        setUser(userData);
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('user_role', userData.role);
+    };
 
-        if (demoUser && demoUser.password === password) {
-            const userData: User = {
-                username: username.toLowerCase(),
-                role: demoUser.role,
-                displayName: demoUser.displayName,
-            };
+    const loginAsAdmin = () => {
+        setAuthUser({
+            username: 'admin',
+            role: 'admin',
+            displayName: 'Administrator',
+        });
+    };
 
-            setIsAuthenticated(true);
-            setUser(userData);
-            localStorage.setItem('isAuthenticated', 'true');
-            localStorage.setItem('user', JSON.stringify(userData));
-            return true;
-        }
-
-        return false;
+    const loginAsCustomer = () => {
+        setAuthUser({
+            username: 'customer',
+            role: 'customer',
+            displayName: 'Customer',
+        });
     };
 
     const logout = () => {
@@ -62,6 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
         localStorage.removeItem('isAuthenticated');
         localStorage.removeItem('user');
+        localStorage.removeItem('user_role');
     };
 
     const isAdmin = (): boolean => {
@@ -73,7 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout, user, isAdmin, hasRole }}>
+        <AuthContext.Provider value={{ isAuthenticated, loginAsAdmin, loginAsCustomer, logout, user, isAdmin, hasRole }}>
             {children}
         </AuthContext.Provider>
     );

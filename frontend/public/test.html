@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <title>API Test</title>
+  </head>
+  <body>
+    <h1>API Test Page</h1>
+    <button onclick="testAPI()">Test API</button>
+    <pre id="output"></pre>
+
+    <script>
+      async function testAPI() {
+        const output = document.getElementById("output");
+        output.textContent = "Testing...\\n";
+
+        try {
+          // Test 1: KPIs
+          const r1 = await fetch("/api/kpis");
+          output.textContent += `KPIs: ${r1.status} ${r1.ok ? "OK" : "FAIL"}\\n`;
+          if (r1.ok) {
+            const data = await r1.json();
+            output.textContent += JSON.stringify(data, null, 2) + "\\n\\n";
+          }
+
+          // Test 2: Revenue
+          const r2 = await fetch("/api/revenue/timeseries?granularity=daily");
+          output.textContent += `Revenue: ${r2.status} ${r2.ok ? "OK" : "FAIL"}\\n`;
+
+          // Test 3: Stream Status
+          const r3 = await fetch("/api/stream/status");
+          output.textContent += `Stream: ${r3.status} ${r3.ok ? "OK" : "FAIL"}\\n`;
+        } catch (err) {
+          output.textContent += `ERROR: ${err.message}\\n`;
+          console.error(err);
+        }
+      }
+    </script>
+  </body>
+</html>

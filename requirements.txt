@@ -1,17 +1,18 @@
 pandas>=2.1.0
 duckdb>=0.10.0
-streamlit>=1.31.0
 faker>=22.0.0
-plotly>=5.18.0
 pyarrow>=15.0.0
-watchdog>=4.0.0  # For real-time file monitoring
+watchdog>=4.0.0
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
-psutil>=1.31.0
-openai==2.20.0  # For Text-to-SQL AI Analyst
-python-dotenv==1.2.1  # For loading .env file
-python-jose[cryptography]>=3.5.0
-passlib[argon2]>=1.7.4  # Using argon2 for Python 3.14 compatibility
 python-multipart>=0.0.22
-chromadb>=0.4.0  # Vector database for RAG
-sentence-transformers>=2.2.0  # Embeddings for semantic search
+openai==2.20.0
+python-dotenv==1.2.1
+openpyxl>=3.1.0
+
+# Optional: RAG (Retrieval-Augmented Generation) for AI Analyst
+# Note: ChromaDB has compatibility issues with Python 3.14+
+# If using Python 3.14+, RAG will be automatically disabled
+# RAG is optional - AI Analyst works fine without it
+# chromadb>=0.4.0
+# sentence-transformers>=2.2.0

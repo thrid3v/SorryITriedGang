@@ -1,17 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, Package, Users, Shield, Activity, Bot, Play, Square, LogOut } from "lucide-react";
+import { TrendingUp, Package, Users, Shield, Activity, Bot, Play, Square, LogOut, Upload, RotateCcw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { resetData } from "@/data/api";
 import SalesTab from "@/components/dashboard/SalesTab";
 import InventoryTab from "@/components/dashboard/InventoryTab";
 import CustomerTab from "@/components/dashboard/CustomerTab";
 import DataQualityTab from "@/components/dashboard/DataQualityTab";
 import AskAnalyst from "@/pages/AskAnalyst";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+import DataUploader from "@/components/dashboard/DataUploader";
 
 const tabs = [
   { id: "sales", label: "Sales Analytics", icon: TrendingUp, roles: ["admin", "customer"] },
@@ -24,27 +25,30 @@ const tabs = [
 interface StreamStatus {
   status: "running" | "stopped";
   started_at?: string;
-  events_processed: number;
-  generator_pid?: number;
-  processor_pid?: number;
+  events_in_buffer?: number;
 }
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("sales");
-  const [streamStatus, setStreamStatus] = useState<StreamStatus>({ status: "stopped", events_processed: 0 });
+  const [streamStatus, setStreamStatus] = useState<StreamStatus>({ status: "stopped" });
   const [isStreamLoading, setIsStreamLoading] = useState(false);
+  const [showUploader, setShowUploader] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, logout, isAdmin } = useAuth();
+  const queryClient = useQueryClient();
 
   // Filter tabs based on user role
   const visibleTabs = tabs.filter(tab => tab.roles.includes(user?.role || ""));
+
+  const roleHeader = { 'X-User-Role': user?.role || 'customer' };
 
   // Poll stream status every 5 seconds
   useEffect(() => {
     const fetchStreamStatus = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/stream/status`);
+        const res = await fetch(`/api/stream/status`);
         if (res.ok) {
           const data = await res.json();
           setStreamStatus(data);
@@ -62,10 +66,9 @@ const Dashboard = () => {
   const handleStartStream = async () => {
     setIsStreamLoading(true);
     try {
-      const token = localStorage.getItem('auth_token');
-      const res = await fetch(`${API_BASE_URL}/api/stream/start`, {
+      const res = await fetch(`/api/stream/start`, {
         method: "POST",
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        headers: roleHeader
       });
       if (res.ok) {
         const data = await res.json();
@@ -73,7 +76,7 @@ const Dashboard = () => {
           title: "Stream Started",
           description: `Generator PID: ${data.generator_pid}, Processor PID: ${data.processor_pid}`,
         });
-        setStreamStatus({ status: "running", events_processed: 0 });
+        setStreamStatus({ status: "running" });
       } else {
         const error = await res.json();
         toast({
@@ -96,17 +99,16 @@ const Dashboard = () => {
   const handleStopStream = async () => {
     setIsStreamLoading(true);
     try {
-      const token = localStorage.getItem('auth_token');
-      const res = await fetch(`${API_BASE_URL}/api/stream/stop`, {
+      const res = await fetch(`/api/stream/stop`, {
         method: "POST",
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        headers: roleHeader
       });
       if (res.ok) {
         toast({
           title: "Stream Stopped",
           description: "Real-time ingestion has been stopped",
         });
-        setStreamStatus({ status: "stopped", events_processed: 0 });
+        setStreamStatus({ status: "stopped" });
       } else {
         const error = await res.json();
         toast({
@@ -123,6 +125,36 @@ const Dashboard = () => {
       });
     } finally {
       setIsStreamLoading(false);
+    }
+  };
+
+  const handleUploadComplete = useCallback(() => {
+    // Invalidate all queries to refresh dashboard data
+    queryClient.invalidateQueries();
+    toast({
+      title: "Data Refreshed",
+      description: "Dashboard data has been updated with the new dataset",
+    });
+    setShowUploader(false);
+  }, [queryClient, toast]);
+
+  const handleReset = async () => {
+    setIsResetting(true);
+    try {
+      await resetData();
+      queryClient.invalidateQueries();
+      toast({
+        title: "Data Reset",
+        description: "All data has been cleared. Upload a new dataset to begin.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Reset Failed",
+        description: err.message || "Failed to reset data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -178,10 +210,26 @@ const Dashboard = () => {
           ))}
         </nav>
 
-        {/* Stream Control - Admin Only */}
-        {isAdmin && (
+        {/* Upload & Stream Control - Admin Only */}
+        {isAdmin() && (
           <>
             <div className="w-full h-px bg-border/30 my-1" />
+
+            {/* Upload Button */}
+            <button
+              onClick={() => setShowUploader(!showUploader)}
+              className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
+                showUploader
+                  ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+                  : "text-muted-foreground hover:text-emerald-400 hover:bg-emerald-500/10"
+              )}
+              title="Upload Dataset"
+            >
+              <Upload className="h-4 w-4" />
+            </button>
+
+            {/* Stream Toggle */}
             <button
               onClick={streamStatus.status === "running" ? handleStopStream : handleStartStream}
               disabled={isStreamLoading}
@@ -209,22 +257,37 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold gradient-text">{tabs.find((t) => t.id === activeTab)?.label}</h1>
-              <p className="text-xs text-muted-foreground mt-1">Real-time analytics from 50+ retail stores across India</p>
+              <p className="text-xs text-muted-foreground mt-1">Dynamic analytics powered by your uploaded data</p>
             </div>
             <div className="flex items-center gap-4">
               {/* Stream Status Indicator - Admin Only */}
-              {isAdmin && streamStatus.status === "running" && (
+              {isAdmin() && streamStatus.status === "running" && (
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-pill bg-safety-orange/10 border border-safety-orange/20">
                   <div className="w-2 h-2 rounded-full bg-safety-orange animate-pulse" />
                   <span className="text-xs text-safety-orange font-medium">
-                    {streamStatus.events_processed} events
+                    {streamStatus.events_in_buffer || 0} events
                   </span>
                 </div>
+              )}
+
+              {/* Reset Data Button - Admin Only */}
+              {isAdmin() && (
+                <Button
+                  onClick={handleReset}
+                  disabled={isResetting}
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-pill text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
+                  title="Reset all data"
+                >
+                  <RotateCcw className={cn("h-4 w-4 mr-2", isResetting && "animate-spin")} />
+                  Reset
+                </Button>
               )}
               
               {/* User Info */}
               <div className="text-right">
-                <div className="text-sm font-semibold">{user?.username}</div>
+                <div className="text-sm font-semibold">{user?.displayName}</div>
                 <div className="text-xs">
                   <span className={cn(
                     "inline-flex items-center px-2.5 py-0.5 rounded-pill text-xs font-bold",
@@ -250,6 +313,13 @@ const Dashboard = () => {
               </Button>
             </div>
           </div>
+
+          {/* Upload Panel - slides down when active */}
+          {showUploader && isAdmin() && (
+            <div className="mt-4 pt-4 border-t border-border/30">
+              <DataUploader onUploadComplete={handleUploadComplete} />
+            </div>
+          )}
         </header>
         <div className="p-8">
           {renderTab()}
