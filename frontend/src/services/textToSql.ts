@@ -1,4 +1,4 @@
-import { apiFetch } from '../data/api';
+import { apiFetch } from '@/data/api';
 
 export interface TextToSqlResponse {
     question: string;
@@ -10,7 +10,8 @@ export interface TextToSqlResponse {
 }
 
 export async function askAnalyst(question: string): Promise<TextToSqlResponse> {
-    const response = await apiFetch('/api/ask', {
+    // Use the chat endpoint, which accepts a JSON body { question }.
+    const response = await apiFetch('/api/chat/ask', {
         method: 'POST',
         body: JSON.stringify({ question })
     });

@@ -1,0 +1,2937 @@
+[PROCESSOR] Stream Processor started (batch interval: 10.0s)
+
+[BATCH] Processing 5 events: 2 order_created, 2 shipment_update, 1 user_update
+  [CSV] 8 transaction rows
+  [CSV] 1 user rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 54 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 46 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 51 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 9 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 54 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 46 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 5
+
+[BATCH] Processing 4 events: 2 order_created, 1 shipment_update, 1 inventory_update
+  [CSV] 10 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 70 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 48 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 52 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 9 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 70 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 48 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 9
+
+[BATCH] Processing 3 events: 2 order_created, 1 product_update
+  [CSV] 7 transaction rows
+  [CSV] 1 product rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 79 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 48 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 52 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 9 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 79 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 48 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 12
+
+[BATCH] Processing 6 events: 4 order_created, 1 shipment_update, 1 inventory_update
+  [CSV] 9 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 95 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 51 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 52 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 95 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 51 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 18
+
+[BATCH] Processing 3 events: 1 order_created, 1 shipment_update, 1 inventory_update
+  [CSV] 3 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 107 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 52 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 52 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 107 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 52 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 21
+
+[BATCH] Processing 7 events: 3 order_created, 2 user_update, 2 shipment_update
+  [CSV] 8 transaction rows
+  [CSV] 2 user rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 122 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 54 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 53 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 122 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 54 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 28
+
+[BATCH] Processing 8 events: 3 order_created, 3 shipment_update, 1 user_update, 1 product_update
+  [CSV] 10 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 product rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 134 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 58 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 54 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 134 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 58 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 36
+
+[BATCH] Processing 3 events: 2 order_created, 1 inventory_update
+  [CSV] 4 transaction rows
+  [CSV] 1 inventory rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 141 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 58 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 54 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 141 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 58 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 39
+
+[BATCH] Processing 5 events: 2 order_created, 2 inventory_update, 1 user_update
+  [CSV] 5 transaction rows
+  [CSV] 1 user rows
+  [CSV] 2 inventory rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 151 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 58 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 55 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 151 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 58 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 44
+
+[BATCH] Processing 5 events: 3 order_created, 1 shipment_update, 1 inventory_update
+  [CSV] 12 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 165 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 60 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 55 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 165 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 60 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 49
+
+[BATCH] Processing 2 events: 2 order_created
+  [CSV] 6 transaction rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 175 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 61 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 55 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 175 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 61 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 51
+
+[BATCH] Processing 6 events: 3 order_created, 2 shipment_update, 1 inventory_update
+  [CSV] 4 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 179 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 64 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 55 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 179 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 64 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 57
+
+[BATCH] Processing 4 events: 3 order_created, 1 user_update
+  [CSV] 6 transaction rows
+  [CSV] 1 user rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 185 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 64 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 185 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 64 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 61
+
+[BATCH] Processing 8 events: 4 order_created, 2 shipment_update, 2 inventory_update
+  [CSV] 9 transaction rows
+  [CSV] 2 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 198 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 66 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 198 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 66 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 69
+
+[BATCH] Processing 7 events: 4 order_created, 2 shipment_update, 1 inventory_update
+  [CSV] 6 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 204 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 68 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 204 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 68 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 76
+
+[BATCH] Processing 8 events: 4 order_created, 1 inventory_update, 2 shipment_update, 1 product_update
+  [CSV] 13 transaction rows
+  [CSV] 1 product rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 217 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 70 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 217 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 70 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 84
+
+[BATCH] Processing 3 events: 2 order_created, 1 shipment_update
+  [CSV] 6 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 541 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 121 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 541 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 121 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 87
+
+[BATCH] Processing 7 events: 3 order_created, 2 shipment_update, 2 inventory_update
+  [CSV] 14 transaction rows
+  [CSV] 2 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 556 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 123 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 556 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 123 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 94
+
+[BATCH] Processing 3 events: 2 order_created, 1 shipment_update
+  [CSV] 6 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 564 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 124 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 564 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 124 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 97
+
+[BATCH] Processing 4 events: 3 order_created, 1 shipment_update
+  [CSV] 7 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 575 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 125 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 575 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 125 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 101
+
+[BATCH] Processing 3 events: 2 order_created, 1 shipment_update
+  [CSV] 8 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 592 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 126 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 592 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 126 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 104
+
+[BATCH] Processing 7 events: 3 order_created, 2 inventory_update, 1 product_update, 1 shipment_update
+  [CSV] 4 transaction rows
+  [CSV] 1 product rows
+  [CSV] 2 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 845 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 127 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 845 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 127 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 111
+
+[BATCH] Processing 10 events: 4 order_created, 3 shipment_update, 2 product_update, 1 inventory_update
+  [CSV] 19 transaction rows
+  [CSV] 2 product rows
+  [CSV] 1 inventory rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 865 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 130 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 865 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 130 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 121
+
+[BATCH] Processing 4 events: 2 order_created, 1 inventory_update, 1 shipment_update
+  [CSV] 5 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 874 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 131 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 874 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 131 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 125
+
+[BATCH] Processing 8 events: 4 order_created, 1 user_update, 2 product_update, 1 shipment_update
+  [CSV] 12 transaction rows
+  [CSV] 1 user rows
+  [CSV] 2 product rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 886 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 132 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 57 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 886 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 132 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 133
+
+[BATCH] Processing 5 events: 2 order_created, 2 shipment_update, 1 inventory_update
+  [CSV] 5 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1122 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 135 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 57 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1122 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 135 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 138
+
+[BATCH] Processing 5 events: 3 order_created, 2 shipment_update
+  [CSV] 10 transaction rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1133 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 138 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 57 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1133 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 138 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 143
+
+[BATCH] Processing 6 events: 3 order_created, 1 inventory_update, 1 shipment_update, 1 product_update
+  [CSV] 11 transaction rows
+  [CSV] 1 product rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1359 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 140 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 58 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1359 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 140 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 149
+
+[BATCH] Processing 10 events: 5 order_created, 1 product_update, 4 shipment_update
+  [CSV] 18 transaction rows
+  [CSV] 1 product rows
+  [CSV] 4 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1379 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 144 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 58 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1379 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 144 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 159
+
+[BATCH] Processing 4 events: 3 order_created, 1 shipment_update
+  [CSV] 11 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1388 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 145 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 58 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1388 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 145 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 163
+
+[BATCH] Processing 7 events: 4 order_created, 2 shipment_update, 1 inventory_update
+  [CSV] 14 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1403 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 147 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 58 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1403 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 147 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 170
+
+[BATCH] Processing 4 events: 3 order_created, 1 shipment_update
+  [CSV] 4 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1411 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 148 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 58 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1411 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 148 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 174
+
+[BATCH] Processing 7 events: 3 order_created, 1 user_update, 2 shipment_update, 1 product_update
+  [CSV] 9 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 product rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1419 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 150 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 59 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1419 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 150 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 181
+
+[BATCH] Processing 5 events: 3 order_created, 1 shipment_update, 1 user_update
+  [CSV] 11 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1434 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 152 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 61 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1434 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 152 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 186
+
+[BATCH] Processing 8 events: 3 order_created, 2 shipment_update, 2 inventory_update, 1 user_update
+  [CSV] 9 transaction rows
+  [CSV] 1 user rows
+  [CSV] 2 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1445 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 155 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 63 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1445 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 155 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 194
+
+[BATCH] Processing 8 events: 4 order_created, 2 shipment_update, 1 inventory_update, 1 user_update
+  [CSV] 8 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1460 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 157 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 64 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1460 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 157 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 202
+
+[BATCH] Processing 6 events: 4 order_created, 1 shipment_update, 1 inventory_update
+  [CSV] 11 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1471 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 158 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 64 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1471 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 158 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 208
+
+[BATCH] Processing 8 events: 4 order_created, 2 shipment_update, 1 inventory_update, 1 user_update
+  [CSV] 19 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1489 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 160 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 65 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1489 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 160 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 216
+
+[BATCH] Processing 8 events: 4 order_created, 1 inventory_update, 2 shipment_update, 1 user_update
+  [CSV] 10 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1499 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 162 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 66 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1499 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 162 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 224
+
+[BATCH] Processing 9 events: 5 order_created, 2 shipment_update, 2 inventory_update
+  [CSV] 10 transaction rows
+  [CSV] 2 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1518 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 166 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 66 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1518 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 166 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 233
+
+[BATCH] Processing 7 events: 4 order_created, 1 shipment_update, 1 inventory_update, 1 user_update
+  [CSV] 16 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1538 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 168 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 67 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1538 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 168 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 240
+
+[BATCH] Processing 8 events: 5 order_created, 2 shipment_update, 1 inventory_update
+  [CSV] 17 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1571 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 173 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 67 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1571 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 173 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 248
+
+[BATCH] Processing 9 events: 4 order_created, 3 shipment_update, 2 inventory_update
+  [CSV] 11 transaction rows
+  [CSV] 2 inventory rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1770 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 180 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 67 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1770 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 180 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 257
+
+[BATCH] Processing 7 events: 4 order_created, 3 shipment_update
+  [CSV] 9 transaction rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1772 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 183 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 67 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1772 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 183 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 264
+
+[BATCH] Processing 8 events: 4 order_created, 2 shipment_update, 1 product_update, 1 user_update
+  [CSV] 9 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 product rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1793 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 187 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 69 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1793 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 187 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 272
+
+[BATCH] Processing 4 events: 3 order_created, 1 shipment_update
+  [CSV] 7 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 1988 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 191 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 70 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 1988 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 191 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 276
+
+[BATCH] Processing 6 events: 3 order_created, 2 shipment_update, 1 product_update
+  [CSV] 10 transaction rows
+  [CSV] 1 product rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2143 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 193 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 70 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2143 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 193 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 282
+
+[BATCH] Processing 6 events: 4 order_created, 1 shipment_update, 1 user_update
+  [CSV] 15 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2169 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 197 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 71 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2169 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 197 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 288
+
+[BATCH] Processing 13 events: 5 order_created, 4 shipment_update, 2 inventory_update, 1 user_update, 1 product_update
+  [CSV] 18 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 product rows
+  [CSV] 2 inventory rows
+  [CSV] 4 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2197 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 203 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 72 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2197 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 203 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 301
+
+[BATCH] Processing 7 events: 4 order_created, 1 inventory_update, 2 shipment_update
+  [CSV] 10 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2224 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 209 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 72 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2224 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 209 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 308
+
+[BATCH] Processing 8 events: 4 order_created, 3 shipment_update, 1 product_update
+  [CSV] 12 transaction rows
+  [CSV] 1 product rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2230 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 212 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 72 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2230 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 212 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 316
+
+[BATCH] Processing 8 events: 4 order_created, 3 shipment_update, 1 user_update
+  [CSV] 13 transaction rows
+  [CSV] 1 user rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2252 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 217 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 73 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2252 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 217 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 324
+
+[BATCH] Processing 8 events: 4 order_created, 1 inventory_update, 3 shipment_update
+  [CSV] 10 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2272 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 223 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 73 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2272 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 223 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 332
+
+[BATCH] Processing 7 events: 4 order_created, 1 shipment_update, 1 user_update, 1 product_update
+  [CSV] 9 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 product rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2443 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 224 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 75 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2443 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 224 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 339
+
+[BATCH] Processing 8 events: 5 order_created, 2 product_update, 1 inventory_update
+  [CSV] 16 transaction rows
+  [CSV] 2 product rows
+  [CSV] 1 inventory rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2468 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 227 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 76 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2468 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 227 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 347
+
+[BATCH] Processing 2 events: 1 order_created, 1 shipment_update
+  [CSV] 2 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2478 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 231 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 78 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2478 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 231 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 349
+
+[BATCH] Processing 5 events: 4 order_created, 1 shipment_update
+  [CSV] 8 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2500 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 234 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 78 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2500 rows
+[RETRY] [WARN] Attempt 1/3 failed: IO Error: Cannot open file "/Users/kalyan/SorryITriedGang/src/transformation/../../data/gold/fact_inventory.parquet/region=Region_002/date_key=20251223/data_0.parquet": No such file or directory
+[RETRY] Retrying in 1.09s...
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 234 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 354
+
+[BATCH] Processing 10 events: 4 order_created, 3 shipment_update, 3 user_update
+  [CSV] 13 transaction rows
+  [CSV] 3 user rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2596 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 264 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 3 closed, 0 new, 91 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2596 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 264 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 364
+
+[BATCH] Processing 8 events: 4 order_created, 2 shipment_update, 2 inventory_update
+  [CSV] 13 transaction rows
+  [CSV] 2 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2615 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 268 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 92 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2615 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 268 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 372
+
+[BATCH] Processing 7 events: 4 order_created, 2 shipment_update, 1 inventory_update
+  [CSV] 15 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2642 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 271 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 92 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2642 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 271 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 379
+
+[BATCH] Processing 8 events: 5 order_created, 2 shipment_update, 1 user_update
+  [CSV] 16 transaction rows
+  [CSV] 1 user rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2664 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 273 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 94 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2664 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 273 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 387
+
+[BATCH] Processing 11 events: 4 order_created, 3 shipment_update, 2 inventory_update, 1 product_update, 1 user_update
+  [CSV] 15 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 product rows
+  [CSV] 2 inventory rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2687 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 277 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 95 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2687 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 277 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 398
+
+[BATCH] Processing 8 events: 4 order_created, 3 shipment_update, 1 user_update
+  [CSV] 14 transaction rows
+  [CSV] 1 user rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2715 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 279 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 97 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2715 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 279 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 406
+
+[BATCH] Processing 6 events: 4 order_created, 1 product_update, 1 inventory_update
+  [CSV] 14 transaction rows
+  [CSV] 1 product rows
+  [CSV] 1 inventory rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2722 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 279 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 97 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2722 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 279 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 412
+
+[BATCH] Processing 7 events: 5 order_created, 1 inventory_update, 1 shipment_update
+  [CSV] 12 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2740 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 282 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 97 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2740 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 282 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 419
+
+[BATCH] Processing 10 events: 5 order_created, 3 shipment_update, 1 inventory_update, 1 user_update
+  [CSV] 12 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 inventory rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2772 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 288 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 98 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2772 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 288 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 429
+
+[BATCH] Processing 10 events: 4 order_created, 3 inventory_update, 2 product_update, 1 user_update
+  [CSV] 14 transaction rows
+  [CSV] 1 user rows
+  [CSV] 2 product rows
+  [CSV] 3 inventory rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2792 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 291 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 99 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2792 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 291 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 439
+
+[BATCH] Processing 7 events: 4 order_created, 2 shipment_update, 1 product_update
+  [CSV] 9 transaction rows
+  [CSV] 1 product rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2809 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 295 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 99 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2809 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 295 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 446
+
+[BATCH] Processing 11 events: 5 order_created, 5 shipment_update, 1 product_update
+  [CSV] 15 transaction rows
+  [CSV] 1 product rows
+  [CSV] 5 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2974 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 303 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 99 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2974 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 303 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 457
+
+[BATCH] Processing 4 events: 2 order_created, 1 user_update, 1 inventory_update
+  [CSV] 7 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 inventory rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 2994 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 304 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 101 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 2994 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 304 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 461
+
+[BATCH] Processing 13 events: 5 order_created, 5 shipment_update, 1 product_update, 1 inventory_update, 1 user_update
+  [CSV] 19 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 product rows
+  [CSV] 1 inventory rows
+  [CSV] 5 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 3025 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 310 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 103 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 3025 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 310 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 474
+
+[BATCH] Processing 7 events: 4 order_created, 1 inventory_update, 1 shipment_update, 1 user_update
+  [CSV] 11 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 3043 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 311 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 104 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 3043 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 311 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 481
+
+[BATCH] Processing 8 events: 4 order_created, 2 shipment_update, 1 user_update, 1 inventory_update
+  [CSV] 14 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 3176 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 314 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 105 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 3176 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 314 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 489
+
+[BATCH] Processing 4 events: 3 order_created, 1 shipment_update
+  [CSV] 13 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 3212 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 318 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 105 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 3212 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 318 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 493
+
+[BATCH] Processing 9 events: 4 order_created, 2 product_update, 1 shipment_update, 2 user_update
+  [CSV] 10 transaction rows
+  [CSV] 2 user rows
+  [CSV] 2 product rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 3224 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 319 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 2 closed, 0 new, 107 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 3224 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 319 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 502
+
+[BATCH] Processing 8 events: 4 order_created, 2 shipment_update, 2 inventory_update
+  [CSV] 11 transaction rows
+  [CSV] 2 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 3242 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 324 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 107 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 31 rows
+[StarSchema] fact_transactions: 3242 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 324 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 510
+
+[BATCH] Processing 11 events: 5 order_created, 2 product_update, 3 shipment_update, 1 inventory_update
+  [CSV] 16 transaction rows
+  [CSV] 2 product rows
+  [CSV] 1 inventory rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 16 rows
+[Cleaner] No users CSVs found - skipping
+[Cleaner] Silver products: 2 rows
+[Cleaner] Silver inventory: 2 rows
+[Cleaner] Silver shipments: 4 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] No Silver users.parquet found - skipping dim_users
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 2 rows
+[StarSchema] dim_stores: 5 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 16 rows
+[StarSchema] fact_inventory: 2 rows
+[StarSchema] fact_shipments: 4 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 521
+
+[BATCH] Processing 5 events: 2 order_created, 1 shipment_update, 1 user_update, 1 product_update
+  [CSV] 5 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 product rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'product_id', 'timestamp', 'amount', 'store_id']
+[Cleaner] Silver transactions: 25 rows
+[Cleaner] Silver users: 2 rows
+[Cleaner] Silver products: 3 rows
+[Cleaner] Silver inventory: 2 rows
+[Cleaner] Silver shipments: 5 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 1 new, 2 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 3 rows
+[StarSchema] dim_stores: 6 rows
+[StarSchema] dim_dates: 1 rows
+[StarSchema] fact_transactions: 25 rows
+[StarSchema] fact_inventory: 2 rows
+[StarSchema] fact_shipments: 5 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 526
+
+[BATCH] Processing 6 events: 3 order_created, 3 inventory_update
+  [CSV] 12 transaction rows
+  [CSV] 3 inventory rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11406 rows
+[Cleaner] Silver users: 2 rows
+[Cleaner] Silver products: 3 rows
+[Cleaner] Silver inventory: 6 rows
+[Cleaner] Silver shipments: 6 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 2 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 3 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11406 rows
+[StarSchema] fact_inventory: 6 rows
+[StarSchema] fact_shipments: 6 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 532
+
+[BATCH] Processing 6 events: 3 order_created, 2 shipment_update, 1 user_update
+  [CSV] 12 transaction rows
+  [CSV] 1 user rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11423 rows
+[Cleaner] Silver users: 3 rows
+[Cleaner] Silver products: 3 rows
+[Cleaner] Silver inventory: 6 rows
+[Cleaner] Silver shipments: 9 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 1 new, 3 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 3 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11423 rows
+[StarSchema] fact_inventory: 6 rows
+[StarSchema] fact_shipments: 9 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 538
+
+[BATCH] Processing 8 events: 3 order_created, 1 shipment_update, 1 inventory_update, 2 product_update, 1 user_update
+  [CSV] 11 transaction rows
+  [CSV] 1 user rows
+  [CSV] 2 product rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11437 rows
+[Cleaner] Silver users: 4 rows
+[Cleaner] Silver products: 5 rows
+[Cleaner] Silver inventory: 8 rows
+[Cleaner] Silver shipments: 10 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 1 new, 4 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 5 rows
+[StarSchema] dim_stores: 10 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11437 rows
+[StarSchema] fact_inventory: 8 rows
+[StarSchema] fact_shipments: 10 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 546
+
+[BATCH] Processing 4 events: 2 order_created, 1 inventory_update, 1 product_update
+  [CSV] 9 transaction rows
+  [CSV] 1 product rows
+  [CSV] 1 inventory rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11448 rows
+[Cleaner] Silver users: 4 rows
+[Cleaner] Silver products: 6 rows
+[Cleaner] Silver inventory: 9 rows
+[Cleaner] Silver shipments: 11 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 4 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 6 rows
+[StarSchema] dim_stores: 11 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11448 rows
+[StarSchema] fact_inventory: 9 rows
+[StarSchema] fact_shipments: 11 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 550
+
+[BATCH] Processing 5 events: 3 order_created, 1 inventory_update, 1 shipment_update
+  [CSV] 11 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11459 rows
+[Cleaner] Silver users: 4 rows
+[Cleaner] Silver products: 6 rows
+[Cleaner] Silver inventory: 10 rows
+[Cleaner] Silver shipments: 13 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 4 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 6 rows
+[StarSchema] dim_stores: 11 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11459 rows
+[StarSchema] fact_inventory: 10 rows
+[StarSchema] fact_shipments: 13 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 555
+
+[BATCH] Processing 4 events: 2 order_created, 2 shipment_update
+  [CSV] 5 transaction rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11466 rows
+[Cleaner] Silver users: 4 rows
+[Cleaner] Silver products: 6 rows
+[Cleaner] Silver inventory: 10 rows
+[Cleaner] Silver shipments: 15 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 4 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 6 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11466 rows
+[StarSchema] fact_inventory: 10 rows
+[StarSchema] fact_shipments: 15 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 559
+
+[BATCH] Processing 3 events: 2 order_created, 1 shipment_update
+  [CSV] 9 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11481 rows
+[Cleaner] Silver users: 4 rows
+[Cleaner] Silver products: 6 rows
+[Cleaner] Silver inventory: 10 rows
+[Cleaner] Silver shipments: 17 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 4 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 6 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11481 rows
+[StarSchema] fact_inventory: 10 rows
+[StarSchema] fact_shipments: 17 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 562
+
+[BATCH] Processing 6 events: 3 order_created, 3 shipment_update
+  [CSV] 5 transaction rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11488 rows
+[Cleaner] Silver users: 5 rows
+[Cleaner] Silver products: 6 rows
+[Cleaner] Silver inventory: 10 rows
+[Cleaner] Silver shipments: 20 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 5 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 6 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11488 rows
+[StarSchema] fact_inventory: 10 rows
+[StarSchema] fact_shipments: 20 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 568
+
+[BATCH] Processing 3 events: 2 order_created, 1 shipment_update
+  [CSV] 6 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11495 rows
+[Cleaner] Silver users: 5 rows
+[Cleaner] Silver products: 6 rows
+[Cleaner] Silver inventory: 10 rows
+[Cleaner] Silver shipments: 21 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 5 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 6 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11495 rows
+[StarSchema] fact_inventory: 10 rows
+[StarSchema] fact_shipments: 21 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 571
+
+[BATCH] Processing 6 events: 3 order_created, 3 shipment_update
+  [CSV] 10 transaction rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11510 rows
+[Cleaner] Silver users: 5 rows
+[Cleaner] Silver products: 6 rows
+[Cleaner] Silver inventory: 10 rows
+[Cleaner] Silver shipments: 25 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 5 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 6 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11510 rows
+[StarSchema] fact_inventory: 10 rows
+[StarSchema] fact_shipments: 25 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 577
+
+[BATCH] Processing 14 events: 6 order_created, 5 shipment_update, 1 inventory_update, 1 user_update, 1 product_update
+  [CSV] 16 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 product rows
+  [CSV] 1 inventory rows
+  [CSV] 5 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11588 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 81 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 55 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11588 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 81 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 591
+
+[BATCH] Processing 8 events: 4 order_created, 1 user_update, 2 shipment_update, 1 product_update
+  [CSV] 17 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 product rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11605 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 83 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 55 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11605 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 83 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 599
+
+[BATCH] Processing 7 events: 4 order_created, 1 inventory_update, 1 shipment_update, 1 user_update
+  [CSV] 12 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11618 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 85 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11618 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 85 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 606
+
+[BATCH] Processing 4 events: 3 order_created, 1 shipment_update
+  [CSV] 9 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11630 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 87 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11630 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 87 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 610
+
+[BATCH] Processing 4 events: 3 order_created, 1 shipment_update
+  [CSV] 12 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11644 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 88 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11644 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 88 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 614
+
+[BATCH] Processing 5 events: 3 order_created, 1 shipment_update, 1 inventory_update
+  [CSV] 6 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11654 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 89 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11654 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 89 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 619
+
+[BATCH] Processing 5 events: 3 order_created, 1 product_update, 1 shipment_update
+  [CSV] 9 transaction rows
+  [CSV] 1 product rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11665 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 90 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11665 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 90 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 624
+
+[BATCH] Processing 5 events: 2 order_created, 2 inventory_update, 1 product_update
+  [CSV] 8 transaction rows
+  [CSV] 1 product rows
+  [CSV] 2 inventory rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11672 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 91 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11672 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 91 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 629
+
+[BATCH] Processing 8 events: 4 order_created, 2 shipment_update, 2 product_update
+  [CSV] 11 transaction rows
+  [CSV] 2 product rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11689 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 95 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11689 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 95 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 637
+
+[BATCH] Processing 3 events: 2 order_created, 1 shipment_update
+  [CSV] 5 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11695 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 96 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 56 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11695 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 96 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 640
+
+[BATCH] Processing 6 events: 3 order_created, 1 user_update, 2 shipment_update
+  [CSV] 6 transaction rows
+  [CSV] 1 user rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11706 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 100 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 57 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11706 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 100 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 646
+
+[BATCH] Processing 8 events: 3 order_created, 2 shipment_update, 2 product_update, 1 inventory_update
+  [CSV] 11 transaction rows
+  [CSV] 2 product rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11719 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 102 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 57 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11719 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 102 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 654
+
+[BATCH] Processing 4 events: 2 order_created, 1 shipment_update, 1 user_update
+  [CSV] 6 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11728 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 104 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 58 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11728 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 104 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 658
+
+[BATCH] Processing 7 events: 4 order_created, 2 shipment_update, 1 inventory_update
+  [CSV] 16 transaction rows
+  [CSV] 1 inventory rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11749 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 106 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 58 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11749 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 106 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 665
+
+[BATCH] Processing 6 events: 3 order_created, 1 product_update, 1 shipment_update, 1 inventory_update
+  [CSV] 9 transaction rows
+  [CSV] 1 product rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11757 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 107 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 58 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11757 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 107 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 671
+
+[BATCH] Processing 3 events: 2 order_created, 1 product_update
+  [CSV] 3 transaction rows
+  [CSV] 1 product rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11765 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 107 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 58 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11765 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 107 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 674
+
+[BATCH] Processing 7 events: 3 order_created, 1 shipment_update, 2 inventory_update, 1 product_update
+  [CSV] 7 transaction rows
+  [CSV] 1 product rows
+  [CSV] 2 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11779 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 109 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 58 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11779 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 109 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 681
+
+[BATCH] Processing 5 events: 2 order_created, 2 shipment_update, 1 user_update
+  [CSV] 4 transaction rows
+  [CSV] 1 user rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11790 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 112 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 59 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11790 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 112 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 686
+
+[BATCH] Processing 4 events: 2 order_created, 1 user_update, 1 product_update
+  [CSV] 9 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 product rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11808 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 113 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 60 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11808 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 113 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 690
+
+[BATCH] Processing 8 events: 3 order_created, 3 shipment_update, 2 user_update
+  [CSV] 12 transaction rows
+  [CSV] 2 user rows
+  [CSV] 3 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11823 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 117 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 2 closed, 0 new, 63 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11823 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 117 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 698
+
+[BATCH] Processing 3 events: 2 order_created, 1 shipment_update
+  [CSV] 9 transaction rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11839 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 119 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 63 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11839 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 119 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 701
+
+[BATCH] Processing 4 events: 2 order_created, 1 shipment_update, 1 product_update
+  [CSV] 2 transaction rows
+  [CSV] 1 product rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11849 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 121 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 63 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11849 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 121 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 705
+
+[BATCH] Processing 6 events: 3 order_created, 1 inventory_update, 1 shipment_update, 1 user_update
+  [CSV] 8 transaction rows
+  [CSV] 1 user rows
+  [CSV] 1 inventory rows
+  [CSV] 1 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11861 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 123 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 1 closed, 0 new, 64 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11861 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 123 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 711
+
+[BATCH] Processing 4 events: 2 order_created, 2 shipment_update
+  [CSV] 8 transaction rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11869 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 126 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 64 total rows
+[PIPELINE] Building star schema (Gold)...
+[StarSchema] dim_products: 30 rows
+[StarSchema] dim_stores: 12 rows
+[StarSchema] dim_dates: 1508 rows
+[StarSchema] fact_transactions: 11869 rows
+[StarSchema] fact_inventory: 300 rows
+[StarSchema] fact_shipments: 126 rows
+[StarSchema] Silver -> Gold complete. Built: dim_products, dim_stores, dim_dates, fact_transactions, fact_inventory, fact_shipments
+[OK] Full pipeline complete
+[PIPELINE] KPI cache cleared - new data available
+[STATS] Total events processed: 715
+
+[BATCH] Processing 5 events: 3 order_created, 2 shipment_update
+  [CSV] 13 transaction rows
+  [CSV] 2 shipment rows
+[PIPELINE] Running cleaner (Bronze -> Silver)...
+[Cleaner] Detected columns: ['transaction_id', 'user_id', 'category', 'product_id', 'amount', 'quantity', 'total spent', 'payment method', 'store_id', 'timestamp', 'discount applied']
+[Cleaner] Silver transactions: 11887 rows
+[Cleaner] Silver users: 50 rows
+[Cleaner] Silver products: 30 rows
+[Cleaner] Silver inventory: 300 rows
+[Cleaner] Silver shipments: 129 rows
+[Cleaner] Bronze -> Silver complete. Cleaned: transactions, users, products, inventory, shipments
+[PIPELINE] Applying SCD Type 2 (dim_users)...
+[SCD2] dim_users updated - 0 closed, 0 new, 64 total rows

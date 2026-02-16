@@ -227,15 +227,26 @@ def execute_sql(sql: str, conn: duckdb.DuckDBPyConnection) -> List[Dict[str, Any
     try:
         # Execute with timeout
         result = conn.execute(sql).fetchdf()
-        
-        # Convert to list of dicts
-        records = result.to_dict(orient='records')
-        
-        # Limit to 100 rows
-        return records[:100]
-    
     except Exception as e:
-        raise RuntimeError(f"SQL execution failed: {str(e)}")
+        msg = str(e)
+        # Auto-heal a common path bug where the model treats a single parquet
+        # file (fact_transactions.parquet) as a partitioned directory and
+        # generates a glob like 'fact_transactions.parquet/**/*.parquet'.
+        if "No files found that match the pattern" in msg and "fact_transactions.parquet/**/*.parquet" in msg:
+            fixed_sql = sql.replace("fact_transactions.parquet/**/*.parquet", "fact_transactions.parquet")
+            try:
+                result = conn.execute(fixed_sql).fetchdf()
+                sql = fixed_sql  # so caller sees the working query if needed
+            except Exception as inner:
+                raise RuntimeError(f"SQL execution failed after auto-fix: {inner}") from inner
+        else:
+            raise RuntimeError(f"SQL execution failed: {msg}") from e
+    
+    # Convert to list of dicts
+    records = result.to_dict(orient='records')
+    
+    # Limit to 100 rows
+    return records[:100]
 
 
 def summarize_results(question: str, sql: str, results: List[Dict]) -> str:

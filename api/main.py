@@ -5,6 +5,8 @@ Exposes analytics endpoints that reuse existing kpi_queries.py functions.
 Serves data to the React frontend.
 Simplified auth: Role-based via X-User-Role header (no JWT).
 """
+from __future__ import annotations
+
 import sys
 import os
 import shutil
@@ -998,12 +1000,17 @@ async def reset_data(x_user_role: str = Header(default="customer", alias="X-User
         
         streaming_buffer = streaming_dir / "events.jsonl"
         marker_file = streaming_dir / "last_processed.txt"
+        seed_marker = streaming_dir / ".seeded"
         
         # Clear existing files
         if streaming_buffer.exists():
             streaming_buffer.unlink()
         if marker_file.exists():
             marker_file.unlink()
+        # Also clear the seed marker so the next stream start will fully reseed
+        # users/products/inventory, not assume prior base data still exists.
+        if seed_marker.exists():
+            seed_marker.unlink()
         
         # Recreate marker at 0
         marker_file.write_text("0")
@@ -1172,6 +1179,14 @@ async def start_stream(x_user_role: str = Header(default="customer", alias="X-Us
     
     try:
         env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+        logs_dir = PROJECT_ROOT / "logs"
+        logs_dir.mkdir(parents=True, exist_ok=True)
+
+        # Open log files for stream generator & processor so failures aren't silent.
+        gen_log_path = logs_dir / "stream_generator.log"
+        proc_log_path = logs_dir / "stream_processor.log"
+        gen_log = open(gen_log_path, "a", encoding="utf-8")
+        proc_log = open(proc_log_path, "a", encoding="utf-8")
         
         # On Windows, child processes share the same console/process group.
         # If a child crashes or exits, it can send CTRL_C_EVENT to the whole group,
@@ -1185,8 +1200,8 @@ async def start_stream(x_user_role: str = Header(default="customer", alias="X-Us
             [sys.executable, str(PROJECT_ROOT / "src" / "ingestion" / "stream_generator.py"),
              "--interval", "5", "--burst-on-start"],
             cwd=str(PROJECT_ROOT),
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdout=gen_log,
+            stderr=gen_log,
             stdin=subprocess.DEVNULL,
             env=env,
             creationflags=creation_flags
@@ -1197,8 +1212,8 @@ async def start_stream(x_user_role: str = Header(default="customer", alias="X-Us
             [sys.executable, str(PROJECT_ROOT / "src" / "ingestion" / "stream_processor.py"),
              "--interval", "10"],
             cwd=str(PROJECT_ROOT),
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdout=proc_log,
+            stderr=proc_log,
             stdin=subprocess.DEVNULL,
             env=env,
             creationflags=creation_flags

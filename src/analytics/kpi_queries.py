@@ -22,7 +22,9 @@ from src.analytics.schema_inspector import load_business_context, discover_table
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-# ── Dynamic Table Path Resolution ──────────────────────
+# Keep a module-level `_table_cache` for backward compatibility with
+# other modules that import it, but `_get_table_paths` no longer relies
+# on this cache (it does fresh discovery each call).
 _table_cache = None
 
 # ── Thread-safe DuckDB access ──────────────────────────
@@ -31,16 +33,15 @@ _duckdb_lock = threading.Lock()
 def _get_table_paths() -> Dict[str, str]:
     """
     Get table paths dynamically from Gold Layer.
-    Caches result to avoid repeated file system scans.
+    We intentionally avoid cross-process caching because the Gold Layer is
+    updated by background processes (streaming, batch uploads). Per-call
+    discovery is fast for the current data volume and guarantees fresh paths.
     
     Returns:
-        Dict mapping table names to their DuckDB read paths
+        Dict mapping table names to their DuckDB read paths.
     """
-    global _table_cache
-    if _table_cache is None:
-        context = load_business_context()
-        _table_cache = discover_tables(context['gold_layer_path'])
-    return _table_cache
+    context = load_business_context()
+    return discover_tables(context['gold_layer_path'])
 
 @contextmanager
 def _get_conn():
